@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import Logo from '../../assets/images/logo.png';
 import { ThemeToggle } from '../../components/ThemeToggle';
-import { login } from '../../services/mockAuthService'; // MOCK SERVICE por enquanto
-import { Link } from 'react-router-dom';
+import { login as mockLogin } from '../../services/mockAuthService'; // MOCK SERVICE por enquanto
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -10,38 +11,80 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const navigate = useNavigate(); 
+  const { login } = useAuth();    
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true); 
-    setError(null);    
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const data = await login({ usuario, senha });
-      console.log('Login bem-sucedido, dados recebidos:', data);
-      alert('Login realizado com sucesso!');
+      const data: any = await mockLogin({ usuario, senha });
+      
+      login(data.user);
+      
+      navigate('/dashboard');
+
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro inesperado.');
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   return (
     <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 relative">
+      
       <div className="w-full max-w-sm mx-auto">
+        
         <div className="text-center mb-5">
-          <img src={Logo} alt="Lumi Livre Logo" className="w-48 h-48 mx-auto" />
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">LUMI LIVRE</h1>
+          <img 
+            src={Logo} 
+            alt="Lumi Livre Logo" 
+            className="w-48 h-48 mx-auto"
+          />
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+            LUMI LIVRE
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-2">
+          
           <div>
-            <label htmlFor="usuario" className="block text-sm font-medium text-lumi-primary mb-1 pl-3">Usuário</label>
-            <input id="usuario" type="text" value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="Digite o seu usuário" className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200" required />
+            <label 
+              htmlFor="usuario" 
+              className="block text-sm font-medium text-lumi-primary mb-1 pl-3"
+            >
+              Usuário
+            </label>
+            <input
+              id="usuario"
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              placeholder="Digite o seu usuário"
+              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+              required
+            />
           </div>
+
           <div>
-            <label htmlFor="senha" className="block text-sm font-medium text-lumi-primary mb-1 pl-3">Senha</label>
-            <input id="senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Digite sua senha aqui" className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200" required />
+            <label 
+              htmlFor="senha" 
+              className="block text-sm font-medium text-lumi-primary mb-1 pl-3"
+            >
+              Senha
+            </label>
+            <input
+              id="senha"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="Digite sua senha aqui"
+              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+              required
+            />
           </div>
 
           {error && (
@@ -53,20 +96,23 @@ export function LoginPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isLoading} 
+              disabled={isLoading}
               className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Entrando...' : 'ENTRAR'}
             </button>
           </div>
+
         </form>
 
         <div className="text-center mt-3">
           <Link to="/esqueci-a-senha" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">
             Esqueceu sua senha?
-          </Link> 
-        </div>       
+          </Link>
+        </div>
+        
       </div>
+
       <div className="absolute bottom-5 left-5">
         <ThemeToggle />
       </div>
