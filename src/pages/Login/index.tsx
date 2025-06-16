@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Logo from '../../assets/images/logo.png';
+import { ThemeToggle } from '../../components/ThemeToggle'; 
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -11,7 +12,7 @@ export function LoginPage() {
   };
 
   return (
-    <main className="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 relative">
       
       <div className="w-full max-w-sm mx-auto">
         
@@ -21,7 +22,7 @@ export function LoginPage() {
             alt="Lumi Livre Logo" 
             className="w-48 h-48 mx-auto"
           />
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
             LUMI LIVRE
           </h1>
         </div>
@@ -41,7 +42,7 @@ export function LoginPage() {
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
               placeholder="Digite o seu usuário"
-              className="w-full p-3 bg-white border-2 border-gray-400 rounded-md text-gray-800 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
               required
             />
           </div>
@@ -59,7 +60,7 @@ export function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="Digite sua senha aqui"
-              className="w-full p-3 bg-white border-2 border-gray-400 rounded-md text-gray-800 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
               required
             />
           </div>
@@ -76,11 +77,15 @@ export function LoginPage() {
         </form>
 
         <div className="text-center mt-3">
-          <a href="#" className="text-sm text-gray-500 hover:text-gray-700 hover:underline">
+          <a href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">
             Esqueceu sua senha?
           </a>
         </div>
         
+      </div>
+
+      <div className="absolute bottom-5 left-5">
+        <ThemeToggle />
       </div>
     </main>
   );
