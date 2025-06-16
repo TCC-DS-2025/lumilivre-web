@@ -1,8 +1,10 @@
+// src/App.tsx
 import { Route, Routes } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { ForgotPasswordPage } from './pages/ForgotPassword';
-import { DashboardPage } from './pages/Dashboard'; 
-import { ProtectedRoute } from './components/ProtectedRoute'; 
+import { DashboardPage } from './pages/Dashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { MainLayout } from './layouts/MainLayout'; 
 
 function App() {
   return (
@@ -14,7 +16,9 @@ function App() {
         path="/dashboard" 
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <MainLayout> 
+              <DashboardPage />
+            </MainLayout>
           </ProtectedRoute>
         } 
       />
@@ -23,7 +27,9 @@ function App() {
         path="/" 
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <MainLayout> 
+              <DashboardPage />
+            </MainLayout>
           </ProtectedRoute>
         } 
       />
