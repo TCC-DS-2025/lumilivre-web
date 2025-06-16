@@ -31,6 +31,18 @@ export const login = (credentials: LoginCredentials) => {
           message: 'Usuário ou senha inválidos.'
         });
       }
-    }, 1500); // 1500ms = 1.5 segundos
+    }, 1500);
+  });
+};
+
+export const requestPasswordReset = (email: string) => {
+  console.log("MOCK RESET: Pedido para o e-mail", email);
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // a logica de enviar ou não o e-mail acontece no backend.
+      console.log("MOCK RESET: Sucesso (simulado).");
+      resolve({ message: 'Se um e-mail correspondente for encontrado em nosso sistema, um link para redefinição de senha será enviado.' });
+    }, 1500);
   });
 };

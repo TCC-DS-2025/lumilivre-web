@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Logo from '../../assets/images/logo.png';
 import { ThemeToggle } from '../../components/ThemeToggle';
-// MOCK SERVICE por enquanto
-import { login } from '../../services/mockAuthService';
+import { login } from '../../services/mockAuthService'; // MOCK SERVICE por enquanto
+import { Link } from 'react-router-dom';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -62,8 +62,10 @@ export function LoginPage() {
         </form>
 
         <div className="text-center mt-3">
-          <a href="#" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">Esqueceu sua senha?</a>
-        </div>
+          <Link to="/esqueci-a-senha" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">
+            Esqueceu sua senha?
+          </Link> 
+        </div>       
       </div>
       <div className="absolute bottom-5 left-5">
         <ThemeToggle />
