@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// instância do Axios com a URL base da API
+const baseURL = import.meta.env.VITE_API_BASE_URL; // http://localhost:8080
+
+console.log("API está configurada para a URL:", baseURL); 
+
 const api = axios.create({
-  baseURL: 'http://localhost:8080' 
+  baseURL: baseURL
 });
 
 export default api;
