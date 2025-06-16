@@ -1,9 +1,14 @@
+import { Route, Routes } from 'react-router-dom';
+import { LoginPage } from './pages/Login';
+
 function App() {
   return (
-    <div>
-      <h1>Lumi Livre</h1>
-    </div>
-  )
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      
+      <Route path="/" element={<LoginPage />} /> 
+    </Routes>
+  );
 }
 
-export default App
+export default App;
