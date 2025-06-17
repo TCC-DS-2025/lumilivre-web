@@ -12,8 +12,24 @@ export default {
         'lumi-primary-hover': '#5E195D',
         'lumi-label': '#C964C5',
         'lumi-label-alt': '#8B5CF6',
-      }
+        'dark-header': '#130613',
+        'dark-background': '#2C002C',
+      },
+    gridTemplateAreas: {
+        'layout-desktop': [
+          'header header',
+          'sidebar main',
+        ],
+      },
+      gridTemplateColumns: {
+        'layout-desktop': 'auto 1fr', 
+      },
+      gridTemplateRows: {
+        'layout-desktop': '5rem 1fr', 
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@savvywombat/tailwindcss-grid-areas'),
+  ],
 }
