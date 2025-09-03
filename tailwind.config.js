@@ -12,8 +12,8 @@ export default {
         'lumi-primary-hover': '#5E195D',
         'lumi-label': '#C964C5',
         'lumi-label-alt': '#8B5CF6',
-        'dark-header': '#130613',
-        'dark-background': '#2C002C',
+        'dark-header': '#000000',
+        'dark-background': '#111827',
       },
     gridTemplateAreas: {
         'layout-desktop': [

@@ -11,7 +11,7 @@ export function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Página Inicial</h1>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-gray-300 p-6 rounded-lg shadow-md">
         <p>Conteúdo do Dashboard...</p>
       </div>
     </div>

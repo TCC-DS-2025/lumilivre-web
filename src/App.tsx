@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Route, Routes } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { ForgotPasswordPage } from './pages/ForgotPassword';

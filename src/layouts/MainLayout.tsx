@@ -10,7 +10,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
       <Header isSidebarExpanded={isSidebarExpanded} setSidebarExpanded={setIsSidebarExpanded} />
       <Sidebar isExpanded={isSidebarExpanded} setExpanded={setIsSidebarExpanded} />
       
-      <div className={`transition-all duration-300 ease-in-out lg:ml-20 ${isSidebarExpanded ? 'lg:ml-64' : 'lg:ml-20'}`}>
+      <div className={`transition-all duration-300 ease-in-out md:ml-20 ${isSidebarExpanded ? 'md:ml-64' : 'md:ml-20'}`}>
         <main className="pt-20 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
