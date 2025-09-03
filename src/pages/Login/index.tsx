@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import Logo from '../../assets/images/logo.png';
 import { ThemeToggle } from '../../components/ThemeToggle';
-import { login as mockLogin } from '../../services/mockAuthService'; // MOCK SERVICE por enquanto
+import { login as apiLogin } from '../../services/authService'; 
+import api from '../../services/api';
+
+import Logo from '../../assets/images/logo.png';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -12,7 +14,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate(); 
-  const { login } = useAuth();    
+  const { login: setAuthUser } = useAuth(); // salva o estado globalmente
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,14 +22,22 @@ export function LoginPage() {
     setError(null);
 
     try {
-      const data: any = await mockLogin({ usuario, senha });
+      const responseData = await apiLogin({ user: usuario, senha: senha });
       
-      login(data.user);
+      const userToStore = {
+        id: responseData.id,
+        email: responseData.email,
+        role: responseData.role,
+        token: responseData.token
+      };
+      
+      setAuthUser(userToStore); 
+      
+      api.defaults.headers.common['Authorization'] = `Bearer ${responseData.token}`; // enviar o token para as requisições futuras
       
       navigate('/dashboard');
-
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro inesperado.');
+      setError(err.response?.data?.message || err.response?.data || 'Usuário ou senha inválidos.');
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +55,7 @@ export function LoginPage() {
             className="w-48 h-48 mx-auto"
           />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-            LUMI LIVRE
+            Lumi Livre
           </h1>
         </div>
 

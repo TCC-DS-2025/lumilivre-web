@@ -1,18 +1,19 @@
 import api from './api';
 
 interface LoginCredentials {
-  usuario: string;
+  user: string; 
   senha: string;
 }
 
-export const login = async (credentials: LoginCredentials) => {
-  try {
-    const response = await api.post('/login', credentials);
-    
-    return response.data;
+interface LoginResponse {
+  id: number;
+  email: string;
+  role: string;
+  matriculaAluno?: string;
+  token: string;
+}
 
-  } catch (error) {
-    console.error("Erro no login:", error);
-    throw error;
-  }
+export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  const response = await api.post('/auth/login', credentials);
+  return response.data;
 };

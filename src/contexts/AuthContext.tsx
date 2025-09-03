@@ -1,8 +1,9 @@
 import { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
 
 interface User {
-  nome: string;
+  id: number;
   email: string;
+  role: string;
   token: string;
 }
 
