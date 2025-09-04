@@ -1,54 +1,82 @@
-# React + TypeScript + Vite
+# Lumi Livre - Aplicação Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o repositório do frontend da aplicação Lumi Livre, desenvolvido para a interface de administração do sistema bibliotecário. A aplicação é uma **Single-Page Application (SPA)** construída com as tecnologias mais modernas do ecossistema React.
 
-Currently, two official plugins are available:
+## Visão Geral da Tecnologia
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework**: React 19
+- **Linguagem**: TypeScript
+- **Build Tool**: Vite
+- **Estilização**: Tailwind CSS
+- **Roteamento**: React Router
+- **Cliente HTTP**: Axios
+- **Gerenciamento de Estado**: React Context API
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Como Rodar o Projeto Localmente
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+Siga estes passos para configurar e executar o frontend na sua máquina.
+
+### 1. Pré-requisitos
+
+Garanta que você tenha as seguintes ferramentas instaladas:
+
+| Ferramenta | Versão Mínima | Instalação (Windows - via [Chocolatey](https://chocolatey.org/)) | Instalação (Linux - via apt/dnf)                                |
+| ---------- | ------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Node.js**| `18.x` ou `20.x`| `choco install nodejs-lts`                                      | Gerenciado via `nvm` (Node Version Manager) é o recomendado. |
+| **Git**    | `2.x`         | `choco install git`                                             | `sudo apt-get install git` ou `sudo dnf install git`           |
+
+**Verificação:**
+Após a instalação, abra um novo terminal e verifique as versões com:
+```bash
+node -v
+npm -v
+git --version
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Configuração do Ambiente
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1.  **Clone o repositório:**
+    ```bash
+    git clone <url_do_repositorio_frontend>
+    cd lumi-livre-web
+    ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2.  **Instale as dependências:**
+    Este comando irá baixar todas as bibliotecas listadas no `package.json` para a pasta `node_modules`.
+    ```bash
+    npm install
+    ```
+
+3.  **Configure a Conexão com a API:**
+    A aplicação precisa saber onde o backend está rodando.
+    *   Crie um arquivo na raiz do projeto chamado `.env.local`.
+    *   Adicione a seguinte linha a este arquivo, apontando para a URL do seu backend local:
+        ```
+        VITE_API_BASE_URL=http://localhost:8080
+        ```
+    *O arquivo `.env.local` é ignorado pelo Git para não expor URLs ou chaves sensíveis.*
+
+### 3. Executando a Aplicação
+
+Com tudo configurado, inicie o servidor de desenvolvimento:
+
+```bash
+npm run dev
 ```
+
+O servidor iniciará e a aplicação estará disponível, geralmente no endereço **[http://localhost:5173](http://localhost:5173)**. O terminal indicará a URL exata. A página abrirá automaticamente no seu navegador e será recarregada a cada alteração que você fizer no código.
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+O código-fonte está organizado na pasta `src/` da seguinte maneira:
+
+- **/assets**: Contém todos os arquivos estáticos, como imagens e ícones SVG.
+- **/components**: Componentes React reutilizáveis em toda a aplicação (ex: `Sidebar`, `Header`, `Icon`).
+- **/contexts**: Gerenciadores de estado global, como `AuthContext` (autenticação) e `ThemeContext` (modo claro/escuro).
+- **/layouts**: Componentes que definem a estrutura de layout das páginas (ex: `MainLayout` com header e sidebar).
+- **/pages**: Componentes que representam as páginas completas da aplicação (ex: `LoginPage`, `DashboardPage`).
+- **/services**: Camada de comunicação com a API. Contém a lógica do Axios para fazer as requisições ao backend.
