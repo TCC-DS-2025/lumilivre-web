@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
+import api from '../services/api';
 
 interface User {
   id: number;
@@ -25,7 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
+
+        api.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`; // configura o token do usuário no axios
       }
     } catch (error) {
       console.error("Falha ao carregar dados do usuário", error);
@@ -38,11 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+
+    api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`; // configura o header
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+
+    delete api.defaults.headers.common['Authorization']; // deleta o token após o logout
   };
 
   const isAuthenticated = !!user;

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { login as apiLogin } from '../../services/authService'; 
-import api from '../../services/api';
 
 import Logo from '../../assets/images/logo.png';
 
@@ -31,9 +30,7 @@ export function LoginPage() {
         token: responseData.token
       };
       
-      setAuthUser(userToStore); 
-      
-      api.defaults.headers.common['Authorization'] = `Bearer ${responseData.token}`; // enviar o token para as requisições futuras
+      setAuthUser(userToStore);
       
       navigate('/dashboard');
     } catch (err: any) {

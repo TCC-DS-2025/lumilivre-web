@@ -14,6 +14,7 @@ export default {
         'lumi-label-alt': '#8B5CF6',
         'dark-header': '#000000',
         'dark-background': '#111827',
+        'dark-card': '#1F2937'
       },
     gridTemplateAreas: {
         'layout-desktop': [
