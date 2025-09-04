@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../../assets/images/logo.png';
-import { requestPasswordReset } from '../../services/mockAuthService';
+import { requestPasswordReset } from '../../services/authService';
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,6 @@ export function ForgotPasswordPage() {
     setError(null);
     setSuccessMessage(null);
 
-    // validaçao simples de email no frontend
     if (!email.includes('@')) {
       setError('Por favor, insira um e-mail válido.');
       setIsLoading(false);
@@ -23,10 +22,10 @@ export function ForgotPasswordPage() {
     }
 
     try {
-      const data: any = await requestPasswordReset(email);
-      setSuccessMessage(data.message);
+      const data = await requestPasswordReset(email);
+      setSuccessMessage(data.mensagem); 
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro inesperado.');
+      setError(err.response?.data?.mensagem || 'Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +46,7 @@ export function ForgotPasswordPage() {
 
           {successMessage ? (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md text-center">
-              <p className="font-bold">Verifique seu e-mail!</p>
+              <p className="font-bold">Solicitação Enviada!</p>
               <p className="text-sm">{successMessage}</p>
             </div>
           ) : (
