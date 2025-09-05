@@ -58,10 +58,10 @@ export function DashboardPage() {
     sortableItems.sort((a, b) => {
       const key = solicitacaoSort.key;
       if (key === 'solicitacao') {
-        // Ordenação por data: asc = mais antigo primeiro
+        // por data (asc = mais antigo primeiro)
         return solicitacaoSort.direction === 'asc' ? a.solicitacao.getTime() - b.solicitacao.getTime() : b.solicitacao.getTime() - a.solicitacao.getTime();
       } else {
-        // Ordenação alfabética
+        // alfabética
         if (a[key] < b[key]) return solicitacaoSort.direction === 'asc' ? -1 : 1;
         if (a[key] > b[key]) return solicitacaoSort.direction === 'asc' ? 1 : -1;
         return 0;
@@ -85,10 +85,10 @@ export function DashboardPage() {
       if (key === 'devolucao') {
         const dateA = new Date(a.devolucao.split('/').reverse().join('-'));
         const dateB = new Date(b.devolucao.split('/').reverse().join('-'));
-        // Ordenação por data de devolução: asc = mais próximo de vencer primeiro
+        // por data (asc = mais antigo primeiro)
         return emprestimoSort.direction === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
       }
-      // Ordenação alfabética para outros campos
+      // alfabética
       if (a[key] < b[key]) return emprestimoSort.direction === 'asc' ? -1 : 1;
       if (a[key] > b[key]) return emprestimoSort.direction === 'asc' ? 1 : -1;
       return 0;
@@ -158,10 +158,11 @@ export function DashboardPage() {
   }, []);
 
   const getRowClass = (status: EmprestimoVencer['statusVencimento']) => {
+    const baseHover = 'hover:bg-gray-100/50 dark:hover:bg-white/10'; 
     switch (status) {
-      case 'vencido': return 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200';
-      case 'hoje': return 'bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200';
-      default: return 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
+      case 'vencido': return `bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 ${baseHover}`;
+      case 'hoje': return `bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200 ${baseHover}`;
+      default: return `hover:bg-gray-50 dark:hover:bg-gray-700/50`;
     }
   };
 
@@ -174,63 +175,73 @@ export function DashboardPage() {
         <StatCard iconUrl={bookIconUrl} title="LIVROS" value={stats?.livros ?? 0} />
         <StatCard iconUrl={usersIconUrl} title="ALUNOS" value={stats?.alunos ?? 0} />
         <StatCard iconUrl={loansIconUrl} title="EMPRÉSTIMOS" value={stats?.emprestimosAtivos ?? 0} />
-        <StatCard iconUrl={alertIconUrl} title="LIVROS EM ATRASO" value={stats?.atrasados ?? 0} variant="danger" />
+        <StatCard iconUrl={alertIconUrl} title="PENDÊNCIAS" value={stats?.atrasados ?? 0} variant="danger" />
       </div>
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+        {/* Solicitações de Empréstimo */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0">Solicitações de Empréstimo</h3>
-          <div className="overflow-y-auto flex-grow">
+          <div className="flex flex-col overflow-hidden flex-grow">
             <table className="w-full text-center">
-              <thead>
+              <thead className="bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                  <SortableTh onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
-                  <th className="py-2 px-2 text-center font-medium text-gray-500 dark:text-gray-400">Ações</th>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
+                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {sortedSolicitacoes.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
-                    <td className="py-3 px-2">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
             </table>
+            <div className="overflow-y-auto">
+              <table className="w-full text-center">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {sortedSolicitacoes.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
+                      <td className="py-3 px-2">
+                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
+        {/* Empréstimos Ativos */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0">Empréstimos Ativos</h3>
-          <div className="overflow-y-auto flex-grow">
+          <div className="flex flex-col overflow-hidden flex-grow">
             <table className="w-full text-center">
-              <thead>
+              <thead className="bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                  <SortableTh onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
-                  <th className="py-2 px-2 text-center font-medium text-gray-500 dark:text-gray-400">Ações</th>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
+                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {sortedEmprestimos.map((item) => (
-                  <tr key={item.id} className={getRowClass(item.statusVencimento)}>
-                    <td className="py-3 px-2 text-sm">{item.livro}</td>
-                    <td className="py-3 px-2 text-sm">{item.aluno}</td>
-                    <td className="py-3 px-2 text-sm font-medium">{item.devolucao}</td>
-                    <td className="py-3 px-2">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
             </table>
+            <div className="overflow-y-auto">
+              <table className="w-full text-center">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {sortedEmprestimos.map((item) => (
+                    <tr key={item.id} className={getRowClass(item.statusVencimento)}>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white">{item.livro}</td>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white">{item.aluno}</td>
+                      <td className="py-3 px-2 text-sm font-medium dark:text-white">{item.devolucao}</td>
+                      <td className="py-3 px-2">
+                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

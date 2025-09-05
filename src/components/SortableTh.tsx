@@ -7,14 +7,15 @@ interface SortableThProps {
     onClick: () => void;
     sortKey: string;
     sortConfig: { key: string; direction: SortDirection } | null;
+    className?: string;
 }
 
-export function SortableTh({ children, onClick, sortKey, sortConfig }: SortableThProps) {
+export function SortableTh({ children, onClick, sortKey, sortConfig, className }: SortableThProps) {
     const isSorted = sortConfig?.key === sortKey;
     const directionIcon = sortConfig?.direction === 'asc' ? '▲' : '▼';
 
     return (
-        <th className="py-2 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 text-center" onClick={onClick}>
+        <th className={`py-2 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 text-center ${className}`} onClick={onClick}>
             <div className="flex items-center justify-center">
                 <span>{children}</span>
                 {isSorted && <span className="ml-2 text-xs">{directionIcon}</span>}
