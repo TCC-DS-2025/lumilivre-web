@@ -1,3 +1,4 @@
+// src/layouts/MainLayout.tsx
 import { type ReactNode, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
@@ -6,14 +7,17 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-dark-background">
+    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden">
       <Header isSidebarExpanded={isSidebarExpanded} setSidebarExpanded={setIsSidebarExpanded} />
-      <Sidebar isExpanded={isSidebarExpanded} setExpanded={setIsSidebarExpanded} />
       
-      <div className={`transition-all duration-300 ease-in-out md:ml-20 ${isSidebarExpanded ? 'md:ml-64' : 'md:ml-20'}`}>
-        <main className="pt-20 p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar isExpanded={isSidebarExpanded} setExpanded={setIsSidebarExpanded} />
+        
+        <div className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out md:ml-20 ${isSidebarExpanded ? 'md:ml-64' : 'md:ml-20'}`}>
+          <main className="pt-20 p-4 sm:p-6 lg:p-8 h-full">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

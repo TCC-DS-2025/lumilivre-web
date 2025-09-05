@@ -52,7 +52,7 @@ export function LoginPage() {
             className="w-48 h-48 mx-auto"
           />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-            Lumi Livre
+            LumiLivre
           </h1>
         </div>
 

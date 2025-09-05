@@ -26,7 +26,7 @@ export default {
         'layout-desktop': 'auto 1fr', 
       },
       gridTemplateRows: {
-        'layout-desktop': '5rem 1fr', 
+        'layout-desktop': '4rem 1fr', 
       },
     },
   },

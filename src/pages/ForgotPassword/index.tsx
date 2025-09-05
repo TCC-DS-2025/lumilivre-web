@@ -41,7 +41,7 @@ export function ForgotPasswordPage() {
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-2">Recuperar Senha</h2>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
-            Digite seu e-mail para receber um link de redefinição.
+            Digite seu e-mail, caso esteja cadastrado, receberá um link para redefir sua senha.
           </p>
 
           {successMessage ? (

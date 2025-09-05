@@ -8,8 +8,8 @@ interface HeaderProps {
 
 export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
   return (
-    <header className="top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md">
-      <div className="flex items-center justify-between h-20 px-4 sm:px-6">
+    <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
         <div className="flex items-center">
           <button 
             className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300"
@@ -19,7 +19,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
           </button>
           
           <div className="flex items-center md:pl-[1.25rem]">
-            <img src={Logo} alt="Lumi Livre Logo" className="h-12 w-12 mr-3" />
+            <img src={Logo} alt="LumiLivre Logo" className="h-12 w-12 mr-3" />
             <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white">
               LumiLivre
             </span>
