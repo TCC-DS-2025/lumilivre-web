@@ -158,11 +158,11 @@ export function DashboardPage() {
   }, []);
 
   const getRowClass = (status: EmprestimoVencer['statusVencimento']) => {
-    const baseHover = 'hover:bg-gray-100/50 dark:hover:bg-white/10'; 
+    const baseHover = 'hover:brightness-90 transition-all duration-200'; 
     switch (status) {
       case 'vencido': return `bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 ${baseHover}`;
       case 'hoje': return `bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200 ${baseHover}`;
-      default: return `hover:bg-gray-50 dark:hover:bg-gray-700/50`;
+      default: return `hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200`;
     }
   };
 
@@ -186,9 +186,9 @@ export function DashboardPage() {
             <table className="w-full text-center">
               <thead className="bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
                   <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
@@ -197,7 +197,7 @@ export function DashboardPage() {
               <table className="w-full text-center">
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {sortedSolicitacoes.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200">
                       <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
                       <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
                       <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
@@ -219,9 +219,9 @@ export function DashboardPage() {
             <table className="w-full text-center">
               <thead className="bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white" onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
                   <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
