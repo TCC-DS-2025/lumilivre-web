@@ -170,7 +170,7 @@ export function DashboardPage() {
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col h-full">
+<div className="flex flex-col h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
         <StatCard iconUrl={bookIconUrl} title="LIVROS" value={stats?.livros ?? 0} />
         <StatCard iconUrl={usersIconUrl} title="ALUNOS" value={stats?.alunos ?? 0} />
@@ -179,45 +179,47 @@ export function DashboardPage() {
       </div>
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
-        {/* Solicitações de Empréstimo */}
+        {/*Solicitações de Empréstimo*/}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0">Solicitações de Empréstimo</h3>
-          <div className="flex flex-col overflow-hidden flex-grow">
+          <div className="overflow-y-auto flex-grow">
             <table className="w-full text-center">
-              <thead className="bg-white dark:bg-dark-card">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
+                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-1/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
                   <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {sortedSolicitacoes.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
+                    <td className="py-3 px-2">
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="overflow-y-auto">
-              <table className="w-full text-center">
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {sortedSolicitacoes.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200">
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
-                      <td className="py-3 px-2">
-                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
 
-        {/* Empréstimos Ativos */}
+        {/*Empréstimos Ativos*/}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0">Empréstimos Ativos</h3>
-          <div className="flex flex-col overflow-hidden flex-grow">
-            <table className="w-full text-center">
-              <thead className="bg-white dark:bg-dark-card">
+          <div className="overflow-y-auto flex-grow">
+            <table className="w-full text-center table-fixed">
+              <colgroup>
+                <col style={{ width: '35%' }} />
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '15%' }} />
+              </colgroup>
+              <thead className="sticky top-0 bg-white dark:bg-dark-card">
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700">
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
@@ -225,23 +227,19 @@ export function DashboardPage() {
                   <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
                 </tr>
               </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {sortedEmprestimos.map((item) => (
+                  <tr key={item.id} className={getRowClass(item.statusVencimento)}>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white truncate">{item.livro}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white truncate">{item.aluno}</td>
+                    <td className="py-3 px-2 text-sm font-medium text-gray-700 dark:text-white">{item.devolucao}</td>
+                    <td className="py-3 px-2">
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="overflow-y-auto">
-              <table className="w-full text-center">
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {sortedEmprestimos.map((item) => (
-                    <tr key={item.id} className={getRowClass(item.statusVencimento)}>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white">{item.livro}</td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white">{item.aluno}</td>
-                      <td className="py-3 px-2 text-sm font-medium dark:text-white">{item.devolucao}</td>
-                      <td className="py-3 px-2">
-                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover">Detalhes</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         </div>
       </div>
