@@ -9,7 +9,7 @@ interface HeaderProps {
 export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
   return (
     <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md">
-      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6 select-none">
         <div className="flex items-center">
           <button 
             className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300"
