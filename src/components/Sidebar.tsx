@@ -64,7 +64,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
                 <img 
                   src={isActive ? link.activeIcon : link.icon} 
                   alt={link.label} 
-                  className="w-6 h-6 shrink-0" 
+                  className="w-6 h-6 shrink-0 pointer-events-none" 
                 />
                 <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
                   <span className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}>
@@ -87,7 +87,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
               <img 
                 src={isActive ? settingsActiveIconUrl : settingsIconUrl} 
                 alt="Configurações" 
-                className="w-6 h-6 shrink-0" 
+                className="w-6 h-6 shrink-0 pointer-events-none" 
               />
               <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
                 <span className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}>
@@ -102,7 +102,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
           onClick={handleLogout}
           className={`w-full flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors duration-200 ${isExpanded ? '' : 'justify-center'}`}
         >
-          <img src={logoutIconUrl} alt="Sair" className="w-6 h-6 shrink-0" />
+          <img src={logoutIconUrl} alt="Sair" className="w-6 h-6 shrink-0 pointer-events-none" />
           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
             <span className="font-semibold whitespace-nowrap text-red-400">Sair</span>
           </div>

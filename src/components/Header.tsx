@@ -19,7 +19,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
           </button>
           
           <div className="flex items-center md:pl-[1.25rem]">
-            <img src={Logo} alt="LumiLivre Logo" className="h-12 w-12 mr-3" />
+            <img src={Logo} alt="LumiLivre Logo" className="h-12 w-12 mr-3 pointer-events-none" />
             <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white">
               LumiLivre
             </span>

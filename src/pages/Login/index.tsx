@@ -41,7 +41,7 @@ export function LoginPage() {
   };
 
   return (
-    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 relative">
+    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 relative select-none">
       
       <div className="w-full max-w-sm mx-auto">
         
@@ -49,7 +49,7 @@ export function LoginPage() {
           <img 
             src={Logo} 
             alt="Lumi Livre Logo" 
-            className="w-48 h-48 mx-auto"
+            className="w-48 h-48 mx-auto pointer-events-none"
           />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
             LumiLivre
@@ -70,7 +70,7 @@ export function LoginPage() {
               type="text"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
-              placeholder="Digite o seu usuário"
+              placeholder="Digite seu usuário"
               className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
               required
             />
@@ -88,7 +88,7 @@ export function LoginPage() {
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              placeholder="Digite sua senha aqui"
+              placeholder="Digite sua senha"
               className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
               required
             />

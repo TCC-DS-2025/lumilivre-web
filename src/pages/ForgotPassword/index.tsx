@@ -32,16 +32,16 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4">
+    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 select-none">
       <div className="w-full max-w-sm mx-auto">
-        <div className="text-center mb-5">
-          <img src={Logo} alt="Lumi Livre Logo" className="w-48 h-48 mx-auto" />
+        <div className="text-center">
+          <img src={Logo} alt="Lumi Livre Logo" className="w-48 h-48 mx-auto pointer-events-none" />
         </div>
         
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-2">Recuperar Senha</h2>
+          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-2">Esqueci Minha Senha</h2>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
-            Digite seu e-mail, caso esteja cadastrado, receberá um link para redefir sua senha.
+            Digite abaixo seu email.
           </p>
 
           {successMessage ? (
@@ -58,7 +58,7 @@ export function ForgotPasswordPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu.email@exemplo.com"
+                  placeholder="seuemail@exemplo.com"
                   className="w-full p-3 bg-white dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
                   required
                 />
@@ -74,7 +74,7 @@ export function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Enviando...' : 'ENVIAR LINK'}
                 </button>
