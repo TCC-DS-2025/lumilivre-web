@@ -190,7 +190,7 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} />
                 <col style={{ width: '20%' }} />
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md z-20">
                 <tr>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200 select-none" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200 select-none" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
@@ -225,7 +225,7 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} />
                 <col style={{ width: '20%' }} />
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md z-20">
                 <tr>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200 select-none" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200 select-none" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>

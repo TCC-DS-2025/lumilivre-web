@@ -48,7 +48,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-64' : 'w-20'}`}
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-52' : 'w-24'}`}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
@@ -57,7 +57,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
           <NavLink
             key={link.path}
             to={link.path}
-            className={({ isActive }) => `flex items-center p-3 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isExpanded ? '' : 'justify-center'} ${isActive ? 'bg-white/20' : ''}`}
+            className={({ isActive }) => `flex items-center p-3 pl-7 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
           >
             {({ isActive }) => (
               <>
@@ -80,7 +80,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
       <div className="p-2 border-t border-white/10 space-y-2">
         <NavLink
           to="/configuracoes"
-          className={({ isActive }) => `flex items-center p-3 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isExpanded ? '' : 'justify-center'} ${isActive ? 'bg-white/20' : ''}`}
+          className={({ isActive }) => `flex items-center p-3 pl-7 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
         >
           {({ isActive }) => (
             <>
@@ -100,7 +100,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
 
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors duration-200 ${isExpanded ? '' : 'justify-center'}`}
+          className={`w-full flex items-center p-3 pl-7 rounded-lg hover:bg-white/20 transition-colors duration-200`}
         >
           <img src={logoutIconUrl} alt="Sair" className="w-6 h-6 shrink-0 pointer-events-none" />
           <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
