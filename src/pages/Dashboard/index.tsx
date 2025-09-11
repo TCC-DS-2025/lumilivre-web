@@ -183,9 +183,15 @@ export function DashboardPage() {
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">Solicitações de Empréstimo</h3>
           <div className="overflow-y-auto flex-grow">
-            <table className="w-full text-center table-auto">
-              <thead className="sticky top-0 bg-white dark:bg-dark-card z-10">
-                <tr className="border-b-2 border-gray-200 dark:border-gray-700">
+            <table className="w-full text-center table-fixed">
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+              </colgroup>
+              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md">
+                <tr>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200 select-none" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-2/5 transition-all duration-200 select-none" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white w-1/5 transition-all duration-200 select-none" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
@@ -195,8 +201,8 @@ export function DashboardPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sortedSolicitacoes.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200">
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.aluno}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300">{item.livro}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.aluno}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.livro}</td>
                     <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
                     <td className="py-3 px-2">
                       <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 select-none">Detalhes</button>
@@ -214,13 +220,13 @@ export function DashboardPage() {
           <div className="overflow-y-auto flex-grow">
             <table className="w-full text-center table-fixed">
               <colgroup>
-                <col style={{ width: '35%' }} />
+                <col style={{ width: '30%' }} />
                 <col style={{ width: '30%' }} />
                 <col style={{ width: '20%' }} />
-                <col style={{ width: '15%' }} />
+                <col style={{ width: '20%' }} />
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card">
-                <tr className="border-b-2 border-gray-200 dark:border-gray-700">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md">
+                <tr>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200 select-none" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200 select-none" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white transition-all duration-200 select-none" onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
@@ -230,8 +236,8 @@ export function DashboardPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sortedEmprestimos.map((item) => (
                   <tr key={item.id} className={getRowClass(item.statusVencimento)}>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white truncate">{item.livro}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white truncate">{item.aluno}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.livro}</td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.aluno}</td>
                     <td className="py-3 px-2 text-sm font-medium text-gray-700 dark:text-white">{item.devolucao}</td>
                     <td className="py-3 px-2">
                       <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 select-none">Detalhes</button>
