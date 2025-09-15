@@ -6,6 +6,7 @@ import { LoginPage } from './pages/Login';
 import { ForgotPasswordPage } from './pages/ForgotPassword';
 import { DashboardPage } from './pages/Dashboard';
 import { MudarSenhaPage } from './pages/ChangePassword';
+import { EmprestimosPage } from './pages/Loans';
 
 function App() {
   return (
@@ -14,27 +15,29 @@ function App() {
       <Route path="/esqueci-a-senha" element={<ForgotPasswordPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
 
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <MainLayout> 
-              <DashboardPage />
-            </MainLayout>
-          </ProtectedRoute>
-        } 
-      />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <MainLayout> 
+            <DashboardPage />
+          </MainLayout>
+        </ProtectedRoute>
+      }/>
 
-      <Route 
-        path="/" 
-        element={
+      <Route path="/emprestimos" element={ 
+        <ProtectedRoute>
+          <MainLayout>
+            <EmprestimosPage />
+          </MainLayout>
+        </ProtectedRoute> 
+      }/>
+      
+      <Route path="/" element={
           <ProtectedRoute>
             <MainLayout> 
               <DashboardPage />
             </MainLayout>
           </ProtectedRoute>
-        } 
-      />
+      }/>
     </Routes>
   );
 }

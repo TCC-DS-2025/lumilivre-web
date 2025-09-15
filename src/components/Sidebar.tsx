@@ -57,7 +57,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
           <NavLink
             key={link.path}
             to={link.path}
-            className={({ isActive }) => `flex items-center p-3 pl-7 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
+            className={({ isActive }) => `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
           >
             {({ isActive }) => (
               <>
@@ -66,7 +66,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
                   alt={link.label} 
                   className="w-6 h-6 shrink-0 pointer-events-none" 
                 />
-                <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
+                <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
                   <span className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}>
                     {link.label}
                   </span>
@@ -80,7 +80,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
       <div className="p-2 border-t border-white/10 space-y-2">
         <NavLink
           to="/configuracoes"
-          className={({ isActive }) => `flex items-center p-3 pl-7 rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
+          className={({ isActive }) => `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`}
         >
           {({ isActive }) => (
             <>
@@ -89,7 +89,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
                 alt="Configurações" 
                 className="w-6 h-6 shrink-0 pointer-events-none" 
               />
-              <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
+              <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
                 <span className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}>
                   Configurações
                 </span>
@@ -100,10 +100,10 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
 
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center p-3 pl-7 rounded-lg hover:bg-white/20 transition-colors duration-200`}
+          className={`w-full flex items-center p-3 justify-center rounded-lg hover:bg-white/20 transition-colors duration-200`}
         >
           <img src={logoutIconUrl} alt="Sair" className="w-6 h-6 shrink-0 pointer-events-none" />
-          <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
+          <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}>
             <span className="font-semibold whitespace-nowrap text-red-400">Sair</span>
           </div>
         </button>

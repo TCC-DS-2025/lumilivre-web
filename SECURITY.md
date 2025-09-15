@@ -1,6 +1,6 @@
-# Política de Segurança - Lumi Livre Web
+# Política de Segurança - LumiLivre 
 
-Este documento descreve as principais medidas e políticas de segurança implementadas no frontend da aplicação Lumi Livre.
+Principais medidas e políticas de segurança implementadas na aplicação LumiLivre.
 
 ## Visão Geral da Arquitetura de Segurança
 
@@ -16,7 +16,7 @@ Nossa segurança da aplicação é baseada em um fluxo de autenticação via **J
 
 ### 2. Gerenciamento de Sessão e Rotas Protegidas
 
-- **Estado de Autenticação:** O estado de login do usuário é gerenciado globalmente através do `AuthContext` do React.
+- **Autenticação:** O estado de login do usuário é gerenciado globalmente através do `AuthContext` do React.
 - **Persistência de Sessão:** A sessão do usuário é mantida entre recarregamentos da página, lendo o token do `localStorage` na inicialização da aplicação.
 - **Rotas Protegidas:** O acesso a páginas sensíveis (como o Dashboard e todas as telas de gerenciamento) é controlado pelo componente `ProtectedRoute`. Este componente verifica se o usuário está autenticado. Caso contrário, o usuário é automaticamente redirecionado para a página de login.
 - **Logout Seguro:** A função de logout remove o token JWT do `localStorage` e limpa o estado de autenticação, encerrando a sessão do usuário de forma segura.

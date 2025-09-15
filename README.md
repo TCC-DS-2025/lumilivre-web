@@ -1,6 +1,6 @@
-# Lumi Livre - Aplicação Frontend
+# LumiLivre - Aplicação Frontend
 
-Este é o repositório do frontend da aplicação Lumi Livre, desenvolvido para a interface de administração do sistema bibliotecário. A aplicação é uma **Single-Page Application (SPA)** construída com as tecnologias mais modernas do ecossistema React.
+Repositório do frontend da aplicação LumiLivre, desenvolvido para a interface de administração do sistema bibliotecário.
 
 ## Visão Geral da Tecnologia
 
@@ -24,8 +24,8 @@ Garanta que você tenha as seguintes ferramentas instaladas:
 
 | Ferramenta | Versão Mínima | Instalação (Windows - via [Chocolatey](https://chocolatey.org/)) | Instalação (Linux - via apt/dnf)                                |
 | ---------- | ------------- | --------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Node.js**| `18.x` ou `20.x`| `choco install nodejs-lts`                                      | Gerenciado via `nvm` (Node Version Manager) é o recomendado. |
-| **Git**    | `2.x`         | `choco install git`                                             | `sudo apt-get install git` ou `sudo dnf install git`           |
+| **Node.js**| `^18.x`        | `choco install nodejs-lts`                                      | Gerenciado via `nvm` (Node Version Manager) é o recomendado. |
+| **Git**    | `^2.x`         | `choco install git`                                             | `sudo apt-get install git` ou `sudo dnf install git`           |
 
 **Verificação:**
 Após a instalação, abra um novo terminal e verifique as versões com:
@@ -39,12 +39,12 @@ git --version
 
 1.  **Clone o repositório:**
     ```bash
-    git clone <url_do_repositorio_frontend>
-    cd lumi-livre-web
+    git clone https://github.com/TCC-DS-2025/lumilivre-web
+    cd lumilivre-web
     ```
 
 2.  **Instale as dependências:**
-    Este comando irá baixar todas as bibliotecas listadas no `package.json` para a pasta `node_modules`.
+    Bibliotecas listadas no `package.json` para a pasta `node_modules`.
     ```bash
     npm install
     ```
@@ -52,7 +52,7 @@ git --version
 3.  **Configure a Conexão com a API:**
     A aplicação precisa saber onde o backend está rodando.
     *   Crie um arquivo na raiz do projeto chamado `.env.local`.
-    *   Adicione a seguinte linha a este arquivo, apontando para a URL do seu backend local:
+    *   Adicione a seguinte linha a este arquivo, apontando para a URL do seu backend (exemplo local):
         ```
         VITE_API_BASE_URL=http://localhost:8080
         ```
@@ -66,7 +66,7 @@ Com tudo configurado, inicie o servidor de desenvolvimento:
 npm run dev
 ```
 
-O servidor iniciará e a aplicação estará disponível, geralmente no endereço **[http://localhost:5173](http://localhost:5173)**. O terminal indicará a URL exata. A página abrirá automaticamente no seu navegador e será recarregada a cada alteração que você fizer no código.
+O servidor iniciará e a aplicação estará disponível, geralmente no endereço **[http://localhost:5173](http://localhost:5173)**. O terminal indicará a URL exata. A página abrirá automaticamente no seu navegador e será recarregada a cada alteração.
 
 ---
 
