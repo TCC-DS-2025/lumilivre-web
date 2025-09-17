@@ -185,12 +185,12 @@ export function DashboardPage() {
           <div className="overflow-y-auto flex-grow">
             <table className="w-full text-center table-fixed">
               <colgroup>
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '20%' }} />
+                <col style={{ width: '25%' }} /> {/* Aluno */}
+                <col style={{ width: '30%' }} /> {/* Livro */}
+                <col style={{ width: '25%' }} /> {/* Solicitação */}
+                <col style={{ width: '20%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-none dark:border-b z-20">
                 <tr className='select-none'>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
@@ -220,12 +220,12 @@ export function DashboardPage() {
           <div className="overflow-y-auto flex-grow ">
             <table className="w-full text-center table-fixed">
               <colgroup>
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '20%' }} />
+                <col style={{ width: '30%' }} /> {/* Livro */}
+                <col style={{ width: '30%' }} /> {/* Aluno */}
+                <col style={{ width: '20%' }} /> {/* Devolução */}
+                <col style={{ width: '15%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-none dark:border-b z-20">
                 <tr className='select-none'>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
