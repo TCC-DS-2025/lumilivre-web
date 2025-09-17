@@ -15,10 +15,12 @@ export function SortableTh({ children, onClick, sortKey, sortConfig, className }
     const directionIcon = sortConfig?.direction === 'asc' ? '▲' : '▼';
 
     return (
-        <th className={`py-2 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 text-center ${className}`} onClick={onClick}>
+        <th className={`py-2 px-2 cursor-pointer ${className}`} onClick={onClick}>
             <div className="flex items-center justify-center">
                 <span>{children}</span>
-                {isSorted && <span className="ml-2 text-xs">{directionIcon}</span>}
+                <span className={`ml-2 text-xs transition-all duration-200 ${isSorted ? 'relative opacity-100' : 'absolute opacity-0 duration-0'}`}>
+                    {directionIcon}
+                </span>
             </div>
         </th>
     );
