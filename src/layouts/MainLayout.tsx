@@ -7,7 +7,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden transition-colors duration-200">
       <Header isSidebarExpanded={isSidebarExpanded} setSidebarExpanded={setIsSidebarExpanded} />
       
       <div className="flex flex-1 overflow-hidden">

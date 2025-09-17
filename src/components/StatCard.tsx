@@ -11,7 +11,7 @@ interface StatCardProps {
 export function StatCard({ iconUrl, title, value, variant = 'default', to }: StatCardProps) {
     const isDanger = variant === 'danger';
     return (
-        <Link to={to} className="flex items-center bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105">
+        <Link to={to} className="flex items-center bg-white dark:bg-dark-card hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:scale-105">
             <div className={`p-7 ${isDanger ? 'bg-red-500' : 'bg-lumi-primary'}`}>
                 <img src={iconUrl} alt={title} className="w-10 h-10 select-none pointer-events-none" />
             </div>

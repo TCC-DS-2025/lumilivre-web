@@ -19,18 +19,18 @@ interface Emprestimo {
 }
 
 const mockEmprestimos: Emprestimo[] = [ // mock
-    { id: 1, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
-    { id: 2, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
-    { id: 3, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
-    { id: 4, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
-    { id: 5, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
-    { id: 6, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
-    { id: 7, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
-    { id: 8, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
-    { id: 9, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas',emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
-    { id: 10, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
-    { id: 11, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
-    { id: 12, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 1, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
+    { id: 2, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 3, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
+    { id: 4, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 5, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
+    { id: 6, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 7, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
+    { id: 8, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 9, status: 'ativo', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas',emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-10-25') },
+    { id: 10, status: 'atrasado', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
+    { id: 11, status: 'vence-hoje', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date() },
+    { id: 12, status: 'concluido', livro: 'O Pequeno Príncipe', tombo: '978327323207', aluno: 'Clodoaldo da Silva', curso: 'Desenvolvimento de Sistemas', emprestimo: new Date('2025-03-15'), devolucao: new Date('2025-03-04') },
 ];
 
 export function EmprestimosPage() {
@@ -95,7 +95,7 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
             </div>
 
             <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-                <div className="overflow-y-auto">
+                <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
                     <table className="min-w-full table-auto">
                         <colgroup>
                             <col style={{ width: '8%' }} /> {/* Status */}
@@ -119,9 +119,9 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
                                 <th className="p-4 text-sm font-bold text-white tracking-wider rounded-tr-lg">Ações</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 text-center">
+                        <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
                         {sortedEmprestimos.map((item) => (
-                            <tr key={item.id} className="hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200">
+                            <tr key={item.id} className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0">
                                 <td className="p-4 whitespace-nowrap"><StatusIndicator status={item.status} /></td>
                                 <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">{item.livro}</td>
                                 <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{item.tombo}</td>
