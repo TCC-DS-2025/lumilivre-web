@@ -73,7 +73,7 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
         <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-6 shrink-0">
                 <div className="flex items-center space-x-4">
-                    <div className="relative mr-2 transition-all duration-200 transform hover:scale-105 select-none">
+                    <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
                         <input 
                             type="text" 
                             placeholder="Faça sua pesquisa de empréstimo"
@@ -88,7 +88,7 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
                         <span>Filtro Avançado</span>
                     </button>
                 </div>
-                <button className="flex items-center bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
+                <button className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
                     <img src={addIconUrl} alt="Novo Empréstimo" className="w-6 h-6 mr-2" />
                     <span>NOVO EMPRÉSTIMO</span>
                 </button>
@@ -98,13 +98,13 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
                 <div className="overflow-y-auto">
                     <table className="min-w-full table-auto">
                         <colgroup>
-                            <col style={{ width: '7%' }} /> {/* Status */}
+                            <col style={{ width: '8%' }} /> {/* Status */}
                             <col style={{ width: '20%' }} /> {/* Livro */}
-                            <col style={{ width: '10%' }} /> {/* Tombo */}
+                            <col style={{ width: '11%' }} /> {/* Tombo */}
                             <col style={{ width: '20%' }} /> {/* Aluno */}
                             <col style={{ width: '15%' }} /> {/* Curso */}
-                            <col style={{ width: '12%' }} /> {/* Empréstimo */}
-                            <col style={{ width: '11%' }} /> {/* Devolução */}
+                            <col style={{ width: '11%' }} /> {/* Empréstimo */}
+                            <col style={{ width: '10%' }} /> {/* Devolução */}
                             <col style={{ width: '5%' }} />  {/* Ações */}
                         </colgroup>
                         <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
@@ -127,8 +127,8 @@ const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
                                 <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{item.tombo}</td>
                                 <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">{item.aluno}</td>
                                 <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">{item.curso}</td>
-                                <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{item.emprestimo.toLocaleDateString('pt-BR')}</td>
-                                <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{item.devolucao.toLocaleDateString('pt-BR')}</td>
+                                <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">{item.emprestimo.toLocaleDateString('pt-BR')}</td>
+                                <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">{item.devolucao.toLocaleDateString('pt-BR')}</td>
                                 <td className="p-4 whitespace-nowrap">
                                     <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">DETALHES</button>
                                 </td>

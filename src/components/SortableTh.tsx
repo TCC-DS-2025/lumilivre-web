@@ -18,7 +18,7 @@ export function SortableTh({ children, onClick, sortKey, sortConfig, className }
         <th className={`py-2 px-2 cursor-pointer ${className}`} onClick={onClick}>
             <div className="flex items-center justify-center">
                 <span>{children}</span>
-                <span className={`ml-2 text-xs transition-all duration-200 ${isSorted ? 'relative opacity-100' : 'absolute opacity-0 duration-0'}`}>
+                <span className={`ml-2 text-xs transition-all ${isSorted ? 'relative opacity-100 duration-200' : 'absolute opacity-0 duration-0'}`}>
                     {directionIcon}
                 </span>
             </div>
