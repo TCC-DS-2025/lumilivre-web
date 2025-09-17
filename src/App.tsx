@@ -7,6 +7,7 @@ import { ForgotPasswordPage } from './pages/ForgotPassword';
 import { DashboardPage } from './pages/Dashboard';
 import { MudarSenhaPage } from './pages/ChangePassword';
 import { EmprestimosPage } from './pages/Loans';
+import { AlunosPage } from './pages/Students';
 
 function App() {
   return (
@@ -30,6 +31,13 @@ function App() {
           </MainLayout>
         </ProtectedRoute> 
       }/>
+      
+      <Route path="/alunos" element={ 
+        <ProtectedRoute>
+          <MainLayout>
+            <AlunosPage />
+          </MainLayout>
+        </ProtectedRoute> } />
       
       <Route path="/" element={
           <ProtectedRoute>
