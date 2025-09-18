@@ -32,7 +32,7 @@ export function MudarSenhaPage() {
                 if (isValid) {
                     setIsTokenValid(true);
                 } else {
-                    setError("Token inválido ou expirado. Por favor, solicite um novo link.");
+                    setError("Ocorreu um erro: Token inválido ou expirado. Por favor, solicite um novo link.");
                 }
             } catch {
                 setError("Ocorreu um erro ao validar o token.");
@@ -89,7 +89,7 @@ export function MudarSenhaPage() {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="novaSenha" className="block text-sm font-medium text-lumi-primary mb-1 pl-3">Nova Senha</label>
+                <label htmlFor="novaSenha" className="block text-sm font-medium text-lumi-label mb-1 pl-3">Nova Senha</label>
                 <input 
                     id="novaSenha" 
                     type="password" 
@@ -97,11 +97,11 @@ export function MudarSenhaPage() {
                     onChange={e => setNovaSenha(e.target.value)} 
                     placeholder="Digite uma nova senha"
                     required 
-                    className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+                    className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
                     />
             </div>
             <div>
-                <label htmlFor="confirmarSenha" className="block text-sm font-medium text-lumi-primary mb-1 pl-3">Confirmar Senha</label>
+                <label htmlFor="confirmarSenha" className="block text-sm font-medium text-lumi-label mb-1 pl-3">Confirmar Senha</label>
                 <input 
                     id="confirmarSenha" 
                     type="password" 
@@ -109,7 +109,7 @@ export function MudarSenhaPage() {
                     onChange={e => setConfirmarSenha(e.target.value)} 
                     placeholder="Digite novamente a senha"
                     required 
-                    className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+                    className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
                 />
             </div>
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -117,9 +117,9 @@ export function MudarSenhaPage() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+                    className="w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? 'Salvando...' : 'SALVAR SENHA'}
+                    {isLoading ? 'Salvando...' : 'SALVAR'}
                 </button>
             </div>
         </form>
@@ -127,7 +127,7 @@ export function MudarSenhaPage() {
     };
 
     return (
-        <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 select-none">
+        <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 select-none">
             <div className="w-full max-w-sm mx-auto">
                 <div className="text-center">
                     <img src={Logo} alt="LumiLivre Logo" className="w-48 h-48 mx-auto pointer-events-none" />

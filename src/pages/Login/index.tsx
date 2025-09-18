@@ -41,14 +41,14 @@ export function LoginPage() {
   };
 
   return (
-    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 relative transition-all duration-200 select-none">
+    <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative transition-all duration-200 select-none">
       
       <div className="w-full max-w-sm mx-auto">
         
         <div className="text-center mb-5">
           <img 
             src={Logo} 
-            alt="Lumi Livre Logo" 
+            alt="LumiLivre Logo" 
             className="w-48 h-48 mx-auto pointer-events-none"
           />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
@@ -61,7 +61,7 @@ export function LoginPage() {
           <div>
             <label 
               htmlFor="usuario" 
-              className="block text-sm font-medium text-lumi-primary mb-1 pl-3"
+              className="block text-sm font-medium text-lumi-label mb-1 pl-3"
             >
               Usuário
             </label>
@@ -71,7 +71,7 @@ export function LoginPage() {
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
               placeholder="Digite seu usuário"
-              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200"
+              className="w-full p-3 bg-white dark:bg-dark-card rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
             />
           </div>
@@ -79,7 +79,7 @@ export function LoginPage() {
           <div>
             <label 
               htmlFor="senha" 
-              className="block text-sm font-medium text-lumi-primary mb-1 pl-3"
+              className="block text-sm font-medium text-lumi-label mb-1 pl-3"
             >
               Senha
             </label>
@@ -89,7 +89,7 @@ export function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="Digite sua senha"
-              className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition duration-200"
+              className="w-full p-3 bg-white dark:bg-gray-800 rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
             />
           </div>
@@ -104,7 +104,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Entrando...' : 'ENTRAR'}
             </button>
