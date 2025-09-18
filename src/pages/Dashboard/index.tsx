@@ -11,7 +11,11 @@ import loansIconUrl from '../../assets/icons/loans.svg';
 
 import { getContagemLivros } from '../../services/livroService';
 import { getContagemAlunos } from '../../services/alunoService';
-import { getContagemAtrasados, getContagemEmprestimosTotais, buscarEmprestimosAtivosEAtrasados } from '../../services/emprestimoService';
+import {
+  getContagemAtrasados,
+  getContagemEmprestimosTotais,
+  buscarEmprestimosAtivosEAtrasados,
+} from '../../services/emprestimoService';
 
 interface Stats {
   livros: number;
@@ -23,26 +27,28 @@ interface Stats {
 interface EmprestimoVencer {
   id: number;
   livro: string;
-  isbn: string; 
+  isbn: string;
   aluno: string;
   retirada: string;
   devolucao: string;
   statusVencimento: 'vencido' | 'hoje' | 'no-prazo';
 }
 
-interface Solicitacao { // mock
+interface Solicitacao {
+  // mock
   id: number;
   aluno: string;
   livro: string;
   solicitacao: Date;
 }
 
-const mockSolicitacoes: Solicitacao[] = Array.from({ length: 15 }, (_, i) => ({ // mock
+const mockSolicitacoes: Solicitacao[] = Array.from({ length: 15 }, (_, i) => ({
+  // mock
   id: i + 1,
   aluno: `Neemias Cormino ${i + 1}`,
   livro: `O Senhor dos Anéis Vol. ${i + 1}`,
-  solicitacao: new Date(new Date().setDate(new Date().getDate() - (i * 2))),
-})); 
+  solicitacao: new Date(new Date().setDate(new Date().getDate() - i * 2)),
+}));
 
 export function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -51,8 +57,14 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [solicitacaoSort, setSolicitacaoSort] = useState<{ key: keyof Solicitacao; direction: 'asc' | 'desc' }>({ key: 'solicitacao', direction: 'asc' });
-  const [emprestimoSort, setEmprestimoSort] = useState<{ key: keyof EmprestimoVencer; direction: 'asc' | 'desc' }>({ key: 'devolucao', direction: 'asc' });
+  const [solicitacaoSort, setSolicitacaoSort] = useState<{
+    key: keyof Solicitacao;
+    direction: 'asc' | 'desc';
+  }>({ key: 'solicitacao', direction: 'asc' });
+  const [emprestimoSort, setEmprestimoSort] = useState<{
+    key: keyof EmprestimoVencer;
+    direction: 'asc' | 'desc';
+  }>({ key: 'devolucao', direction: 'asc' });
 
   const sortedSolicitacoes = useMemo(() => {
     let sortableItems = [...solicitacoes];
@@ -60,11 +72,15 @@ export function DashboardPage() {
       const key = solicitacaoSort.key;
       if (key === 'solicitacao') {
         // por data (asc = mais antigo primeiro)
-        return solicitacaoSort.direction === 'asc' ? a.solicitacao.getTime() - b.solicitacao.getTime() : b.solicitacao.getTime() - a.solicitacao.getTime();
+        return solicitacaoSort.direction === 'asc'
+          ? a.solicitacao.getTime() - b.solicitacao.getTime()
+          : b.solicitacao.getTime() - a.solicitacao.getTime();
       } else {
         // alfabética
-        if (a[key] < b[key]) return solicitacaoSort.direction === 'asc' ? -1 : 1;
-        if (a[key] > b[key]) return solicitacaoSort.direction === 'asc' ? 1 : -1;
+        if (a[key] < b[key])
+          return solicitacaoSort.direction === 'asc' ? -1 : 1;
+        if (a[key] > b[key])
+          return solicitacaoSort.direction === 'asc' ? 1 : -1;
         return 0;
       }
     });
@@ -87,7 +103,9 @@ export function DashboardPage() {
         const dateA = new Date(a.devolucao.split('/').reverse().join('-'));
         const dateB = new Date(b.devolucao.split('/').reverse().join('-'));
         // por data (asc = mais antigo primeiro)
-        return emprestimoSort.direction === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+        return emprestimoSort.direction === 'asc'
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
       }
       // alfabética
       if (a[key] < b[key]) return emprestimoSort.direction === 'asc' ? -1 : 1;
@@ -104,24 +122,30 @@ export function DashboardPage() {
     }
     setEmprestimoSort({ key, direction });
   };
-  
+
   useEffect(() => {
     const carregarDados = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const [contagemLivros, contagemAlunos, contagemEmprestimos, contagemAtrasados, listaEmprestimos] = await Promise.all([
-            getContagemLivros(), 
-            getContagemAlunos(), 
-            getContagemEmprestimosTotais(), 
-            getContagemAtrasados(),      
-            buscarEmprestimosAtivosEAtrasados() 
+        const [
+          contagemLivros,
+          contagemAlunos,
+          contagemEmprestimos,
+          contagemAtrasados,
+          listaEmprestimos,
+        ] = await Promise.all([
+          getContagemLivros(),
+          getContagemAlunos(),
+          getContagemEmprestimosTotais(),
+          getContagemAtrasados(),
+          buscarEmprestimosAtivosEAtrasados(),
         ]);
 
         setStats({
-          livros: contagemLivros, 
-          alunos: contagemAlunos, 
-          emprestimosAtivos: contagemEmprestimos, 
+          livros: contagemLivros,
+          alunos: contagemAlunos,
+          emprestimosAtivos: contagemEmprestimos,
           atrasados: contagemAtrasados,
         });
 
@@ -131,10 +155,12 @@ export function DashboardPage() {
         const dadosTabela = listaEmprestimos.map((e: Emprestimo) => {
           const dataDevolucao = new Date(e.dataDevolucao);
           dataDevolucao.setHours(0, 0, 0, 0);
-          
-          let statusVencimento: EmprestimoVencer['statusVencimento'] = 'no-prazo';
+
+          let statusVencimento: EmprestimoVencer['statusVencimento'] =
+            'no-prazo';
           if (dataDevolucao < hoje) statusVencimento = 'vencido';
-          else if (dataDevolucao.getTime() === hoje.getTime()) statusVencimento = 'hoje';
+          else if (dataDevolucao.getTime() === hoje.getTime())
+            statusVencimento = 'hoje';
 
           return {
             id: e.id,
@@ -147,10 +173,11 @@ export function DashboardPage() {
           };
         });
         setEmprestimos(dadosTabela);
-
       } catch (err) {
-        console.error("Erro ao carregar dados do dashboard:", err);
-        setError("Não foi possível carregar os dados. Verifique a conexão com a API.");
+        console.error('Erro ao carregar dados do dashboard:', err);
+        setError(
+          'Não foi possível carregar os dados. Verifique a conexão com a API.',
+        );
       } finally {
         setIsLoading(false);
       }
@@ -159,11 +186,14 @@ export function DashboardPage() {
   }, []);
 
   const getRowClass = (status: EmprestimoVencer['statusVencimento']) => {
-    const baseHover = 'hover:brightness-90 transition-all duration-200'; 
+    const baseHover = 'hover:brightness-90 transition-all duration-200';
     switch (status) {
-      case 'vencido': return `bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 ${baseHover}`;
-      case 'hoje': return `bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200 ${baseHover}`;
-      default: return `hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200`;
+      case 'vencido':
+        return `bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 ${baseHover}`;
+      case 'hoje':
+        return `bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200 ${baseHover}`;
+      default:
+        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200`;
     }
   };
 
@@ -173,16 +203,39 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
-        <StatCard to="/livros" iconUrl={bookIconUrl} title="LIVROS" value={stats?.livros ?? 0} />
-        <StatCard to="/alunos" iconUrl={usersIconUrl} title="ALUNOS" value={stats?.alunos ?? 0} />
-        <StatCard to="/emprestimos" iconUrl={loansIconUrl} title="EMPRÉSTIMOS" value={stats?.emprestimosAtivos ?? 0} />
-        <StatCard to="/emprestimos" iconUrl={alertIconUrl} title="PENDÊNCIAS" value={stats?.atrasados ?? 0} variant="danger" />
+        <StatCard
+          to="/livros"
+          iconUrl={bookIconUrl}
+          title="LIVROS"
+          value={stats?.livros ?? 0}
+        />
+        <StatCard
+          to="/alunos"
+          iconUrl={usersIconUrl}
+          title="ALUNOS"
+          value={stats?.alunos ?? 0}
+        />
+        <StatCard
+          to="/emprestimos"
+          iconUrl={loansIconUrl}
+          title="EMPRÉSTIMOS"
+          value={stats?.emprestimosAtivos ?? 0}
+        />
+        <StatCard
+          to="/emprestimos"
+          iconUrl={alertIconUrl}
+          title="PENDÊNCIAS"
+          value={stats?.atrasados ?? 0}
+          variant="danger"
+        />
       </div>
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
         {/*Solicitações de Empréstimo*/}
         <div className="bg-white dark:bg-dark-card transition-colors duration-200 p-6 rounded-lg shadow-md flex flex-col min-h-0">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">Solicitações de Empréstimo</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
+            Solicitações de Empréstimo
+          </h3>
           <div className="overflow-y-auto flex-grow">
             <table className="w-full text-center table-fixed">
               <colgroup>
@@ -192,21 +245,55 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} /> {/* Ações */}
               </colgroup>
               <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
-                <tr className='select-none'>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-1/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('solicitacao')} sortConfig={solicitacaoSort} sortKey="solicitacao">Solicitação</SortableTh>
-                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
+                <tr className="select-none">
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200"
+                    onClick={() => requestSolicitacaoSort('aluno')}
+                    sortConfig={solicitacaoSort}
+                    sortKey="aluno"
+                  >
+                    Aluno
+                  </SortableTh>
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200"
+                    onClick={() => requestSolicitacaoSort('livro')}
+                    sortConfig={solicitacaoSort}
+                    sortKey="livro"
+                  >
+                    Livro
+                  </SortableTh>
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-1/5 transition-all duration-200"
+                    onClick={() => requestSolicitacaoSort('solicitacao')}
+                    sortConfig={solicitacaoSort}
+                    sortKey="solicitacao"
+                  >
+                    Solicitação
+                  </SortableTh>
+                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y bg-white dark:bg-dark-card transition-colors duration-200">
                 {sortedSolicitacoes.map((item) => (
-                  <tr key={item.id} className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0">
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.aluno}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.livro}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">{item.solicitacao.toLocaleDateString('pt-BR')}</td>
+                  <tr
+                    key={item.id}
+                    className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0"
+                  >
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.aluno}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.livro}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">
+                      {item.solicitacao.toLocaleDateString('pt-BR')}
+                    </td>
                     <td className="py-3 px-2">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">Detalhes</button>
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                        Detalhes
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -217,7 +304,9 @@ export function DashboardPage() {
 
         {/*Empréstimos Ativos*/}
         <div className="bg-white dark:bg-dark-card transition-colors duration-200 p-6 rounded-lg shadow-md flex flex-col min-h-0">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">Empréstimos Ativos</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
+            Empréstimos Ativos
+          </h3>
           <div className="overflow-y-auto flex-grow ">
             <table className="w-full text-center table-fixed">
               <colgroup>
@@ -227,21 +316,55 @@ export function DashboardPage() {
                 <col style={{ width: '15%' }} /> {/* Ações */}
               </colgroup>
               <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
-                <tr className='select-none'>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
-                  <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('devolucao')} sortConfig={emprestimoSort} sortKey="devolucao">Devolução</SortableTh>
-                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">Ações</th>
+                <tr className="select-none">
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    onClick={() => requestEmprestimoSort('livro')}
+                    sortConfig={emprestimoSort}
+                    sortKey="livro"
+                  >
+                    Livro
+                  </SortableTh>
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    onClick={() => requestEmprestimoSort('aluno')}
+                    sortConfig={emprestimoSort}
+                    sortKey="aluno"
+                  >
+                    Aluno
+                  </SortableTh>
+                  <SortableTh
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    onClick={() => requestEmprestimoSort('devolucao')}
+                    sortConfig={emprestimoSort}
+                    sortKey="devolucao"
+                  >
+                    Devolução
+                  </SortableTh>
+                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y bg-white dark:bg-dark-card transition-colors duration-200">
                 {sortedEmprestimos.map((item) => (
-                  <tr key={item.id} className={getRowClass(item.statusVencimento)}>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.livro}</td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">{item.aluno}</td>
-                    <td className="py-3 px-2 text-sm font-medium text-gray-700 dark:text-white">{item.devolucao}</td>
+                  <tr
+                    key={item.id}
+                    className={getRowClass(item.statusVencimento)}
+                  >
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.livro}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.aluno}
+                    </td>
+                    <td className="py-3 px-2 text-sm font-medium text-gray-700 dark:text-white">
+                      {item.devolucao}
+                    </td>
                     <td className="py-3 px-2">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">Detalhes</button>
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                        Detalhes
+                      </button>
                     </td>
                   </tr>
                 ))}

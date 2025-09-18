@@ -4,7 +4,7 @@ import { type ReactNode } from 'react';
 import { LoadingIcon } from './LoadingIcon';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth(); 
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (

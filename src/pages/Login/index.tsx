@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../../components/ThemeToggle';
-import { login as apiLogin } from '../../services/authService'; 
+import { login as apiLogin } from '../../services/authService';
 
 import Logo from '../../assets/images/logo.png';
 
@@ -12,7 +12,7 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { login: setAuthUser } = useAuth(); // salva o estado globalmente
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -22,19 +22,23 @@ export function LoginPage() {
 
     try {
       const responseData = await apiLogin({ user: usuario, senha: senha });
-      
+
       const userToStore = {
         id: responseData.id,
         email: responseData.email,
         role: responseData.role,
-        token: responseData.token
+        token: responseData.token,
       };
-      
+
       setAuthUser(userToStore);
-      
+
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.response?.data || 'Usuário ou senha inválidos.');
+      setError(
+        err.response?.data?.message ||
+          err.response?.data ||
+          'Usuário ou senha inválidos.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -42,13 +46,11 @@ export function LoginPage() {
 
   return (
     <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative transition-all duration-200 select-none">
-      
       <div className="w-full max-w-sm mx-auto">
-        
         <div className="text-center mb-5">
-          <img 
-            src={Logo} 
-            alt="LumiLivre Logo" 
+          <img
+            src={Logo}
+            alt="LumiLivre Logo"
             className="w-48 h-48 mx-auto pointer-events-none"
           />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
@@ -57,10 +59,9 @@ export function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-2">
-          
           <div>
-            <label 
-              htmlFor="usuario" 
+            <label
+              htmlFor="usuario"
               className="block text-sm font-medium text-lumi-label mb-1 pl-3"
             >
               Usuário
@@ -77,8 +78,8 @@ export function LoginPage() {
           </div>
 
           <div>
-            <label 
-              htmlFor="senha" 
+            <label
+              htmlFor="senha"
               className="block text-sm font-medium text-lumi-label mb-1 pl-3"
             >
               Senha
@@ -109,15 +110,16 @@ export function LoginPage() {
               {isLoading ? 'Entrando...' : 'ENTRAR'}
             </button>
           </div>
-
         </form>
 
         <div className="text-center mt-3">
-          <Link to="/esqueci-a-senha" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">
+          <Link
+            to="/esqueci-a-senha"
+            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline"
+          >
             Esqueceu sua senha?
           </Link>
         </div>
-        
       </div>
 
       <div className="absolute bottom-5 left-5">

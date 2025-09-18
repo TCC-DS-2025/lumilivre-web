@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  type ReactNode,
+} from 'react';
 import api from '../services/api';
 
 interface User {
@@ -11,7 +17,7 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  isLoading: boolean; 
+  isLoading: boolean;
   login: (userData: User) => void;
   logout: () => void;
 }
@@ -20,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -29,13 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsedUser: User = JSON.parse(storedUser);
         setUser(parsedUser);
 
-        api.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`; // configura o token do usuário no axios
+        api.defaults.headers.common['Authorization'] =
+          `Bearer ${parsedUser.token}`; // configura o token do usuário no axios
       }
     } catch (error) {
-      console.error("Falha ao carregar dados do usuário", error);
-      setUser(null); 
+      console.error('Falha ao carregar dados do usuário', error);
+      setUser(null);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   }, []);
 
@@ -56,7 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, isLoading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

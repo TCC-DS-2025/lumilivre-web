@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // efeito que roda toda vez que o 'theme' muda
   useEffect(() => {
     const root = window.document.documentElement;
-    
+
     root.classList.remove(theme === 'light' ? 'dark' : 'light');
     root.classList.add(theme);
 

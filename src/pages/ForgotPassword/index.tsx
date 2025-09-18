@@ -23,9 +23,12 @@ export function ForgotPasswordPage() {
 
     try {
       const data = await requestPasswordReset(email);
-      setSuccessMessage(data.mensagem); 
+      setSuccessMessage(data.mensagem);
     } catch (err: any) {
-      setError(err.response?.data?.mensagem || 'Ocorreu um erro ao processar sua solicitação.');
+      setError(
+        err.response?.data?.mensagem ||
+          'Ocorreu um erro ao processar sua solicitação.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -35,11 +38,17 @@ export function ForgotPasswordPage() {
     <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 select-none">
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center">
-          <img src={Logo} alt="Lumi Livre Logo" className="w-48 h-48 mx-auto pointer-events-none" />
+          <img
+            src={Logo}
+            alt="Lumi Livre Logo"
+            className="w-48 h-48 mx-auto pointer-events-none"
+          />
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-2">Esqueci Minha Senha</h2>
+          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-2">
+            Esqueci Minha Senha
+          </h2>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
             Digite abaixo seu email.
           </p>
@@ -52,7 +61,12 @@ export function ForgotPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-lumi-label mb-1 pl-3">E-mail</label>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-lumi-label mb-1 pl-3"
+                >
+                  E-mail
+                </label>
                 <input
                   id="email"
                   type="email"
@@ -83,7 +97,10 @@ export function ForgotPasswordPage() {
           )}
 
           <div className="text-center mt-6">
-            <Link to="/login" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline">
+            <Link
+              to="/login"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline"
+            >
               Voltar para o Login
             </Link>
           </div>

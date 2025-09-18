@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { MainLayout } from './layouts/MainLayout'; 
+import { MainLayout } from './layouts/MainLayout';
 
 import { LoginPage } from './pages/Login';
 import { ForgotPasswordPage } from './pages/ForgotPassword';
@@ -16,36 +16,49 @@ function App() {
       <Route path="/esqueci-a-senha" element={<ForgotPasswordPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
 
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <MainLayout> 
-            <DashboardPage />
-          </MainLayout>
-        </ProtectedRoute>
-      }/>
-
-      <Route path="/emprestimos" element={ 
-        <ProtectedRoute>
-          <MainLayout>
-            <EmprestimosPage />
-          </MainLayout>
-        </ProtectedRoute> 
-      }/>
-      
-      <Route path="/alunos" element={ 
-        <ProtectedRoute>
-          <MainLayout>
-            <AlunosPage />
-          </MainLayout>
-        </ProtectedRoute> } />
-      
-      <Route path="/" element={
+      <Route
+        path="/dashboard"
+        element={
           <ProtectedRoute>
-            <MainLayout> 
+            <MainLayout>
               <DashboardPage />
             </MainLayout>
           </ProtectedRoute>
-      }/>
+        }
+      />
+
+      <Route
+        path="/emprestimos"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <EmprestimosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/alunos"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <AlunosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <DashboardPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

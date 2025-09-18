@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', 
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -14,23 +11,18 @@ export default {
         'lumi-label-alt': '#8B5CF6',
         'dark-header': '#1F2937',
         'dark-background': '#111827',
-        'dark-card': '#1F2937'
+        'dark-card': '#1F2937',
       },
-    gridTemplateAreas: {
-        'layout-desktop': [
-          'header header',
-          'sidebar main',
-        ],
+      gridTemplateAreas: {
+        'layout-desktop': ['header header', 'sidebar main'],
       },
       gridTemplateColumns: {
-        'layout-desktop': 'auto 1fr', 
+        'layout-desktop': 'auto 1fr',
       },
       gridTemplateRows: {
-        'layout-desktop': '4rem 1fr', 
+        'layout-desktop': '4rem 1fr',
       },
     },
   },
-  plugins: [
-    require('@savvywombat/tailwindcss-grid-areas'),
-  ],
-}
+  plugins: [require('@savvywombat/tailwindcss-grid-areas')],
+};
