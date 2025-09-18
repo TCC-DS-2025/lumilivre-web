@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { StatCard } from '../../components/StatCard';
-import { SortableTh } from '../../components/SortableTh'; 
+import { SortableTh } from '../../components/SortableTh';
 import type { Emprestimo } from '../../types';
+import { LoadingIcon } from '../../components/LoadingIcon';
 
 import bookIconUrl from '../../assets/icons/books.svg';
 import usersIconUrl from '../../assets/icons/users.svg';
@@ -166,11 +167,11 @@ export function DashboardPage() {
     }
   };
 
-  if (isLoading) return <div className="p-4 text-center text-gray-500 dark:text-gray-300">Carregando dashboard...</div>;
+  if (isLoading) return <LoadingIcon />;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
   return (
-<div className="flex flex-col h-full">
+    <div className="flex flex-col h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
         <StatCard to="/livros" iconUrl={bookIconUrl} title="LIVROS" value={stats?.livros ?? 0} />
         <StatCard to="/alunos" iconUrl={usersIconUrl} title="ALUNOS" value={stats?.alunos ?? 0} />
@@ -190,7 +191,7 @@ export function DashboardPage() {
                 <col style={{ width: '25%' }} /> {/* Solicitação */}
                 <col style={{ width: '20%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-none dark:border-b z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
                 <tr className='select-none'>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('aluno')} sortConfig={solicitacaoSort} sortKey="aluno">Aluno</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200" onClick={() => requestSolicitacaoSort('livro')} sortConfig={solicitacaoSort} sortKey="livro">Livro</SortableTh>
@@ -225,7 +226,7 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} /> {/* Devolução */}
                 <col style={{ width: '15%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-none dark:border-b z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
                 <tr className='select-none'>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('livro')} sortConfig={emprestimoSort} sortKey="livro">Livro</SortableTh>
                   <SortableTh className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200" onClick={() => requestEmprestimoSort('aluno')} sortConfig={emprestimoSort} sortKey="aluno">Aluno</SortableTh>
