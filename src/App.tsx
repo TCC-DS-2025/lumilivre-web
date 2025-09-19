@@ -7,6 +7,7 @@ import { ForgotPasswordPage } from './pages/ForgotPassword';
 import { DashboardPage } from './pages/Dashboard';
 import { MudarSenhaPage } from './pages/ChangePassword';
 import { EmprestimosPage } from './pages/Loans';
+import { LivrosPage } from './pages/Books';
 import { AlunosPage } from './pages/Students';
 
 function App() {
@@ -33,6 +34,17 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <EmprestimosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/livros"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <LivrosPage />
             </MainLayout>
           </ProtectedRoute>
         }
