@@ -51,15 +51,17 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
 
           {/* se estiver não na tela de início fica clicável */}
           {isHomePage ? (
-            <div className="flex items-center cursor-default">
+            <div className="flex items-center cursor-default p-2 -ml-2">
               {logoContent}
             </div>
           ) : (
             <Link
               to="/dashboard"
-              className="flex items-center rounded-lg p-2 -ml-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/10"
+              className="flex items-center rounded-lg p-2 -ml-2 group"
             >
-              {logoContent}
+              <div className="transition-all duration-200 group-hover:opacity-75">
+                {logoContent}
+              </div>
             </Link>
           )}
         </div>
