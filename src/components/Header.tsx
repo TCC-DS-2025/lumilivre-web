@@ -8,12 +8,10 @@ interface HeaderProps {
 }
 
 export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
-  // 2. Pegamos a localização atual da página
   const location = useLocation();
   const isHomePage =
     location.pathname === '/dashboard' || location.pathname === '/';
 
-  // 3. Criamos o conteúdo da logo como um fragmento de JSX para evitar repetição
   const logoContent = (
     <div className="flex items-center">
       <img

@@ -188,6 +188,20 @@ export function EmprestimosPage() {
     );
   };
 
+  const getRowClass = (status: StatusEmprestimo) => {
+    const baseHover = 'transition-colors duration-200 hover:duration-0';
+    switch (status) {
+      case 'atrasado':
+        return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/40 dark:hover:bg-red-500/40 ${baseHover}`;
+      case 'vence-hoje':
+        return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/40 dark:hover:bg-yellow-300/35 ${baseHover}`;
+      case 'ativo':
+      case 'concluido':
+      default:
+        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 ${baseHover}`;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6 shrink-0">
@@ -299,14 +313,11 @@ export function EmprestimosPage() {
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
               {sortedEmprestimos.map((item) => (
-                <tr
-                  key={item.id}
-                  className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0"
-                >
+                <tr key={item.id} className={getRowClass(item.status)}>
                   <td className="p-4 whitespace-nowrap">
                     <StatusIndicator status={item.status} />
                   </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
+                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
                     {item.livro}
                   </td>
                   <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">

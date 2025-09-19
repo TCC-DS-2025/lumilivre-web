@@ -31,7 +31,7 @@ interface EmprestimoVencer {
   aluno: string;
   retirada: string;
   devolucao: string;
-  statusVencimento: 'vencido' | 'hoje' | 'no-prazo';
+  statusVencimento: 'atrasado' | 'vence-hoje' | 'ativo';
 }
 
 interface Solicitacao {
@@ -156,11 +156,10 @@ export function DashboardPage() {
           const dataDevolucao = new Date(e.dataDevolucao);
           dataDevolucao.setHours(0, 0, 0, 0);
 
-          let statusVencimento: EmprestimoVencer['statusVencimento'] =
-            'no-prazo';
-          if (dataDevolucao < hoje) statusVencimento = 'vencido';
+          let statusVencimento: EmprestimoVencer['statusVencimento'] = 'ativo';
+          if (dataDevolucao < hoje) statusVencimento = 'atrasado';
           else if (dataDevolucao.getTime() === hoje.getTime())
-            statusVencimento = 'hoje';
+            statusVencimento = 'vence-hoje';
 
           return {
             id: e.id,
@@ -186,14 +185,15 @@ export function DashboardPage() {
   }, []);
 
   const getRowClass = (status: EmprestimoVencer['statusVencimento']) => {
-    const baseHover = 'hover:brightness-90 transition-all duration-200';
+    const baseHover = 'transition-colors duration-200 hover:duration-0';
     switch (status) {
-      case 'vencido':
-        return `bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 ${baseHover}`;
-      case 'hoje':
-        return `bg-yellow-100 dark:bg-yellow-700/40 text-yellow-800 dark:text-yellow-200 ${baseHover}`;
+      case 'atrasado':
+        return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/40 dark:hover:bg-red-500/40 ${baseHover}`;
+      case 'vence-hoje':
+        return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/40 dark:hover:bg-yellow-300/35 ${baseHover}`;
+      case 'ativo':
       default:
-        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200`;
+        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 ${baseHover}`;
     }
   };
 
@@ -244,7 +244,7 @@ export function DashboardPage() {
                 <col style={{ width: '25%' }} /> {/* Solicitação */}
                 <col style={{ width: '20%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-white/50 z-20">
                 <tr className="select-none">
                   <SortableTh
                     className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200"
@@ -307,7 +307,7 @@ export function DashboardPage() {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Empréstimos Ativos
           </h3>
-          <div className="overflow-y-auto flex-grow ">
+          <div className="overflow-y-auto flex-grow">
             <table className="w-full text-center table-fixed">
               <colgroup>
                 <col style={{ width: '30%' }} /> {/* Livro */}
@@ -315,7 +315,7 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} /> {/* Devolução */}
                 <col style={{ width: '15%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-gray-500 dark:border-b z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-white/50 z-20">
                 <tr className="select-none">
                   <SortableTh
                     className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"

@@ -30,12 +30,12 @@ export function StatCard({
       </div>
       <div className="p-4 flex flex-col justify-center select-none">
         <p
-          className={`text-base font-semibold ${isDanger ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}
+          className={`text-base font-semibold ${isDanger ? 'text-red-500 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
         >
           {title}
         </p>
         <p
-          className={`text-4xl font-bold ${isDanger ? 'text-red-600' : 'text-gray-800 dark:text-white'}`}
+          className={`text-4xl font-bold ${isDanger ? 'text-red-500 dark:text-white' : 'text-gray-800 dark:text-white'}`}
         >
           {value}
         </p>

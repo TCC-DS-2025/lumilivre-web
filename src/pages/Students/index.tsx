@@ -243,13 +243,12 @@ export function AlunosPage() {
         <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
           <table className="min-w-full table-auto ">
             <colgroup>
-              <col style={{ width: '8%' }} /> {/* Penalidade */}
+              <col style={{ width: '10%' }} /> {/* Penalidade */}
               <col style={{ width: '10%' }} /> {/* Matrícula */}
-              <col style={{ width: '17%' }} /> {/* Aluno */}
               <col style={{ width: '15%' }} /> {/* Curso */}
-              <col style={{ width: '10%' }} /> {/* CPF */}
+              <col style={{ width: '20%' }} /> {/* Aluno */}
               <col style={{ width: '10%' }} /> {/* Nascimento */}
-              <col style={{ width: '15%' }} /> {/* Email */}
+              <col style={{ width: '20%' }} /> {/* Email */}
               <col style={{ width: '10%' }} /> {/* Contato */}
               <col style={{ width: '5%' }} /> {/* Ações */}
             </colgroup>
@@ -273,14 +272,6 @@ export function AlunosPage() {
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
-                  onClick={() => requestSort('nome')}
-                  sortConfig={sortConfig}
-                  sortKey="nome"
-                >
-                  Aluno
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
                   onClick={() => requestSort('curso')}
                   sortConfig={sortConfig}
                   sortKey="curso"
@@ -289,11 +280,11 @@ export function AlunosPage() {
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
-                  onClick={() => requestSort('cpf')}
+                  onClick={() => requestSort('nome')}
                   sortConfig={sortConfig}
-                  sortKey="cpf"
+                  sortKey="nome"
                 >
-                  CPF
+                  Aluno
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
@@ -336,14 +327,11 @@ export function AlunosPage() {
                   <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
                     {item.matricula}
                   </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                    {item.nome}
-                  </td>
                   <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
                     {item.curso}
                   </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {item.cpf}
+                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
+                    {item.nome}
                   </td>
                   <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                     {item.nascimento.toLocaleDateString('pt-BR')}
