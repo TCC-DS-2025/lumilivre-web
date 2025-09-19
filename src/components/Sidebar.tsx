@@ -7,19 +7,15 @@ import bookIconUrl from '../assets/icons/books.svg';
 import bookActiveIconUrl from '../assets/icons/books-active.svg';
 import usersIconUrl from '../assets/icons/users.svg';
 import usersActiveIconUrl from '../assets/icons/users-active.svg';
-import coursesIconUrl from '../assets/icons/courses.svg';
-import coursesActiveIconUrl from '../assets/icons/courses-active.svg';
 import loansIconUrl from '../assets/icons/loans.svg';
 import loansActiveIconUrl from '../assets/icons/loans-active.svg';
-import cddIconUrl from '../assets/icons/cdd.svg';
-import cddActiveIconUrl from '../assets/icons/cdd-active.svg';
-import genresIconUrl from '../assets/icons/genres.svg';
-import genresActiveIconUrl from '../assets/icons/genres-active.svg';
-import authorsIconUrl from '../assets/icons/authors.svg';
-import authorsActiveIconUrl from '../assets/icons/authors-active.svg';
 import settingsIconUrl from '../assets/icons/settings.svg';
 import settingsActiveIconUrl from '../assets/icons/settings-active.svg';
 import logoutIconUrl from '../assets/icons/logout.svg';
+import reportIconUrl from '../assets/icons/report.svg';
+import reportActiveIconUrl from '../assets/icons/report-active.svg';
+import rankingIconUrl from '../assets/icons/ranking.svg';
+import rankingActiveIconUrl from '../assets/icons/ranking-active.svg';
 
 const navLinks = [
   {
@@ -35,40 +31,28 @@ const navLinks = [
     activeIcon: loansActiveIconUrl,
   },
   {
-    path: '/alunos',
-    label: 'Alunos',
-    icon: usersIconUrl,
-    activeIcon: usersActiveIconUrl,
-  },
-  {
     path: '/livros',
     label: 'Livros',
     icon: bookIconUrl,
     activeIcon: bookActiveIconUrl,
   },
   {
-    path: '/autores',
-    label: 'Autores',
-    icon: authorsIconUrl,
-    activeIcon: authorsActiveIconUrl,
+    path: '/alunos',
+    label: 'Alunos',
+    icon: usersIconUrl,
+    activeIcon: usersActiveIconUrl,
   },
   {
-    path: '/generos',
-    label: 'Gêneros',
-    icon: genresIconUrl,
-    activeIcon: genresActiveIconUrl,
+    path: '/classificacao',
+    label: 'Classificação',
+    icon: rankingIconUrl,
+    activeIcon: rankingActiveIconUrl,
   },
   {
-    path: '/cdd',
-    label: 'CDD',
-    icon: cddIconUrl,
-    activeIcon: cddActiveIconUrl,
-  },
-  {
-    path: '/cursos',
-    label: 'Cursos',
-    icon: coursesIconUrl,
-    activeIcon: coursesActiveIconUrl,
+    path: '/relatorios',
+    label: 'Relatórios',
+    icon: reportIconUrl,
+    activeIcon: reportActiveIconUrl,
   },
 ];
 
