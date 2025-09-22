@@ -211,7 +211,7 @@ export function LivrosPage() {
               />
             </div>
           </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
+          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
             <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
             <span>Filtro Avançado</span>
           </button>
@@ -239,7 +239,7 @@ export function LivrosPage() {
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('status')}
                   sortConfig={sortConfig}
                   sortKey="status"
@@ -247,7 +247,7 @@ export function LivrosPage() {
                   Status
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('tombo')}
                   sortConfig={sortConfig}
                   sortKey="tombo"
@@ -255,7 +255,7 @@ export function LivrosPage() {
                   Tombo
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('isbn')}
                   sortConfig={sortConfig}
                   sortKey="isbn"
@@ -263,7 +263,7 @@ export function LivrosPage() {
                   ISBN
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('cdd')}
                   sortConfig={sortConfig}
                   sortKey="cdd"
@@ -271,7 +271,7 @@ export function LivrosPage() {
                   CDD
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('genero')}
                   sortConfig={sortConfig}
                   sortKey="genero"
@@ -279,7 +279,7 @@ export function LivrosPage() {
                   Gênero
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('titulo')}
                   sortConfig={sortConfig}
                   sortKey="titulo"
@@ -287,7 +287,7 @@ export function LivrosPage() {
                   Livro
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('autor')}
                   sortConfig={sortConfig}
                   sortKey="autor"
@@ -295,7 +295,7 @@ export function LivrosPage() {
                   Autor
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('editora')}
                   sortConfig={sortConfig}
                   sortKey="editora"
@@ -311,7 +311,7 @@ export function LivrosPage() {
               {sortedLivros.map((item) => (
                 <tr
                   key={item.id}
-                  className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0"
+                  className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                 >
                   <td className="p-4 whitespace-nowrap">
                     <StatusIndicator status={item.status} />

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import Logo from '../../assets/images/logo.png';
 import {
   validarTokenReset,
   mudarSenhaComToken,
 } from '../../services/authService';
+
+import Logo from '../../assets/icons/logo.svg';
 
 export function MudarSenhaPage() {
   const [searchParams] = useSearchParams();

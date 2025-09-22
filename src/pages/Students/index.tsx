@@ -228,7 +228,7 @@ export function AlunosPage() {
               />
             </div>
           </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
+          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
             <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
             <span>Filtro Avançado</span>
           </button>
@@ -255,7 +255,7 @@ export function AlunosPage() {
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('penalidade')}
                   sortConfig={sortConfig}
                   sortKey="penalidade"
@@ -263,7 +263,7 @@ export function AlunosPage() {
                   Penalidade
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('matricula')}
                   sortConfig={sortConfig}
                   sortKey="matricula"
@@ -271,7 +271,7 @@ export function AlunosPage() {
                   Matrícula
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('curso')}
                   sortConfig={sortConfig}
                   sortKey="curso"
@@ -279,7 +279,7 @@ export function AlunosPage() {
                   Curso
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('nome')}
                   sortConfig={sortConfig}
                   sortKey="nome"
@@ -287,7 +287,7 @@ export function AlunosPage() {
                   Aluno
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('nascimento')}
                   sortConfig={sortConfig}
                   sortKey="nascimento"
@@ -295,7 +295,7 @@ export function AlunosPage() {
                   Nascimento
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('email')}
                   sortConfig={sortConfig}
                   sortKey="email"
@@ -303,7 +303,7 @@ export function AlunosPage() {
                   Email
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('contato')}
                   sortConfig={sortConfig}
                   sortKey="contato"
@@ -319,7 +319,7 @@ export function AlunosPage() {
               {sortedAlunos.map((item) => (
                 <tr
                   key={item.id}
-                  className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0"
+                  className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                 >
                   <td className="p-4 whitespace-nowrap">
                     <PenalidadeIndicator status={item.penalidade} />
@@ -343,7 +343,7 @@ export function AlunosPage() {
                     {item.contato}
                   </td>
                   <td className="p-4 whitespace-nowrap">
-                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
                       DETALHES
                     </button>
                   </td>

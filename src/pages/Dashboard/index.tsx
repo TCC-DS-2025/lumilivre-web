@@ -193,7 +193,7 @@ export function DashboardPage() {
         return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/40 dark:hover:bg-yellow-300/35 ${baseHover}`;
       case 'ativo':
       default:
-        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 ${baseHover}`;
+        return `hover:bg-gray-300 dark:hover:bg-gray-600 ${baseHover}`;
     }
   };
 
@@ -244,10 +244,10 @@ export function DashboardPage() {
                 <col style={{ width: '25%' }} /> {/* Solicitação */}
                 <col style={{ width: '20%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-white/50 z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-sm dark:shadow-white z-20">
                 <tr className="select-none">
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-2/5 transition-all duration-200"
                     onClick={() => requestSolicitacaoSort('aluno')}
                     sortConfig={solicitacaoSort}
                     sortKey="aluno"
@@ -255,7 +255,7 @@ export function DashboardPage() {
                     Aluno
                   </SortableTh>
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-2/5 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-2/5 transition-all duration-200"
                     onClick={() => requestSolicitacaoSort('livro')}
                     sortConfig={solicitacaoSort}
                     sortKey="livro"
@@ -263,7 +263,7 @@ export function DashboardPage() {
                     Livro
                   </SortableTh>
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 w-1/5 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-1/5 transition-all duration-200"
                     onClick={() => requestSolicitacaoSort('solicitacao')}
                     sortConfig={solicitacaoSort}
                     sortKey="solicitacao"
@@ -279,7 +279,7 @@ export function DashboardPage() {
                 {sortedSolicitacoes.map((item) => (
                   <tr
                     key={item.id}
-                    className="transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:duration-0"
+                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                   >
                     <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
                       {item.aluno}
@@ -315,10 +315,10 @@ export function DashboardPage() {
                 <col style={{ width: '20%' }} /> {/* Devolução */}
                 <col style={{ width: '15%' }} /> {/* Ações */}
               </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-white/50 z-20">
+              <thead className="sticky top-0 bg-white dark:bg-dark-card transition-colors duration-200 shadow-md dark:shadow-sm dark:shadow-white z-20">
                 <tr className="select-none">
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
                     onClick={() => requestEmprestimoSort('livro')}
                     sortConfig={emprestimoSort}
                     sortKey="livro"
@@ -326,7 +326,7 @@ export function DashboardPage() {
                     Livro
                   </SortableTh>
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
                     onClick={() => requestEmprestimoSort('aluno')}
                     sortConfig={emprestimoSort}
                     sortKey="aluno"
@@ -334,7 +334,7 @@ export function DashboardPage() {
                     Aluno
                   </SortableTh>
                   <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-200"
+                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
                     onClick={() => requestEmprestimoSort('devolucao')}
                     sortConfig={emprestimoSort}
                     sortKey="devolucao"

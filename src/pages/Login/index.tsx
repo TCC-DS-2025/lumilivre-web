@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { login as apiLogin } from '../../services/authService';
 
-import Logo from '../../assets/images/logo.png';
+import Logo from '../../assets/icons/logo.svg';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');

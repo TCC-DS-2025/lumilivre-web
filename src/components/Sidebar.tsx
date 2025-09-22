@@ -1,5 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { NavLink } from 'react-router-dom';
 
 import homeIconUrl from '../assets/icons/home.svg';
 import homeActiveIconUrl from '../assets/icons/home-active.svg';
@@ -11,7 +10,6 @@ import loansIconUrl from '../assets/icons/loans.svg';
 import loansActiveIconUrl from '../assets/icons/loans-active.svg';
 import settingsIconUrl from '../assets/icons/settings.svg';
 import settingsActiveIconUrl from '../assets/icons/settings-active.svg';
-import logoutIconUrl from '../assets/icons/logout.svg';
 import reportIconUrl from '../assets/icons/report.svg';
 import reportActiveIconUrl from '../assets/icons/report-active.svg';
 import rankingIconUrl from '../assets/icons/ranking.svg';
@@ -62,14 +60,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-52' : 'w-24'}`}
@@ -133,24 +123,6 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
             </>
           )}
         </NavLink>
-
-        <button
-          onClick={handleLogout}
-          className={`w-full flex items-center p-3 justify-center rounded-lg hover:bg-white/20 transition-colors duration-200`}
-        >
-          <img
-            src={logoutIconUrl}
-            alt="Sair"
-            className="w-6 h-6 shrink-0 pointer-events-none"
-          />
-          <div
-            className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}
-          >
-            <span className="font-semibold whitespace-nowrap text-red-400">
-              Sair
-            </span>
-          </div>
-        </button>
       </div>
     </aside>
   );

@@ -192,13 +192,13 @@ export function EmprestimosPage() {
     const baseHover = 'transition-colors duration-200 hover:duration-0';
     switch (status) {
       case 'atrasado':
-        return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/40 dark:hover:bg-red-500/40 ${baseHover}`;
+        return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/60 dark:hover:bg-red-500/60 ${baseHover}`;
       case 'vence-hoje':
-        return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/40 dark:hover:bg-yellow-300/35 ${baseHover}`;
+        return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/55 dark:hover:bg-yellow-300/50 ${baseHover}`;
       case 'ativo':
       case 'concluido':
       default:
-        return `hover:bg-gray-100 dark:hover:bg-gray-700/50 ${baseHover}`;
+        return `hover:bg-gray-300 dark:hover:bg-gray-600 ${baseHover}`;
     }
   };
 
@@ -220,7 +220,7 @@ export function EmprestimosPage() {
               />
             </div>
           </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
+          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
             <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
             <span>Filtro Avançado</span>
           </button>
@@ -251,7 +251,7 @@ export function EmprestimosPage() {
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('status')}
                   sortConfig={sortConfig}
                   sortKey="status"
@@ -259,7 +259,7 @@ export function EmprestimosPage() {
                   Status
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('livro')}
                   sortConfig={sortConfig}
                   sortKey="livro"
@@ -267,7 +267,7 @@ export function EmprestimosPage() {
                   Livro
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('tombo')}
                   sortConfig={sortConfig}
                   sortKey="tombo"
@@ -275,7 +275,7 @@ export function EmprestimosPage() {
                   Tombo
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('aluno')}
                   sortConfig={sortConfig}
                   sortKey="aluno"
@@ -283,7 +283,7 @@ export function EmprestimosPage() {
                   Aluno
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('curso')}
                   sortConfig={sortConfig}
                   sortKey="curso"
@@ -291,7 +291,7 @@ export function EmprestimosPage() {
                   Curso
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('emprestimo')}
                   sortConfig={sortConfig}
                   sortKey="emprestimo"
@@ -299,7 +299,7 @@ export function EmprestimosPage() {
                   Empréstimo
                 </SortableTh>
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/20"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('devolucao')}
                   sortConfig={sortConfig}
                   sortKey="devolucao"
