@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { ThemeToggle } from '../../components/ThemeToggle';
-import { login as apiLogin } from '../../services/authService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { ThemeToggle } from '../../../components/ThemeToggle';
+import { login as apiLogin } from '../../../services/authService';
 
-import Logo from '../../assets/icons/logo.svg';
+import Logo from '../../../assets/icons/logo.svg';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');

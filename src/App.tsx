@@ -2,10 +2,11 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 
-import { LoginPage } from './pages/Login';
-import { ForgotPasswordPage } from './pages/ForgotPassword';
-import { DashboardPage } from './pages/Dashboard';
-import { MudarSenhaPage } from './pages/ChangePassword';
+import { LoginPage } from './pages/Auth/Login';
+import { EsqueciSenhaPage } from './pages/Auth/ForgotPassword';
+import { MudarSenhaPage } from './pages/Auth/ChangePassword';
+
+import { DashboardPage } from './pages/Start';
 import { EmprestimosPage } from './pages/Loans';
 import { LivrosPage } from './pages/Books';
 import { AlunosPage } from './pages/Students';
@@ -14,7 +15,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/esqueci-a-senha" element={<ForgotPasswordPage />} />
+      <Route path="/esqueci-a-senha" element={<EsqueciSenhaPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
 
       <Route

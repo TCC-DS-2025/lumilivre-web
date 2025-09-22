@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { requestPasswordReset } from '../../services/authService';
+import { requestPasswordReset } from '../../../services/authService';
 
-import Logo from '../../assets/icons/logo.svg';
+import Logo from '../../../assets/icons/logo.svg';
 
-export function ForgotPasswordPage() {
+export function EsqueciSenhaPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -3,9 +3,9 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   validarTokenReset,
   mudarSenhaComToken,
-} from '../../services/authService';
+} from '../../../services/authService';
 
-import Logo from '../../assets/icons/logo.svg';
+import Logo from '../../../assets/icons/logo.svg';
 
 export function MudarSenhaPage() {
   const [searchParams] = useSearchParams();
