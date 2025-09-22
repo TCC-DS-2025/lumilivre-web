@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 
 import homeIconUrl from '../assets/icons/home.svg';
 import homeActiveIconUrl from '../assets/icons/home-active.svg';
@@ -14,6 +15,8 @@ import reportIconUrl from '../assets/icons/report.svg';
 import reportActiveIconUrl from '../assets/icons/report-active.svg';
 import rankingIconUrl from '../assets/icons/ranking.svg';
 import rankingActiveIconUrl from '../assets/icons/ranking-active.svg';
+import pinIconUrl from '../assets/icons/pin.svg';
+import pinActiveIconUrl from '../assets/icons/pin-active.svg';
 
 const navLinks = [
   {
@@ -60,13 +63,48 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
+  const [isPinned, setIsPinned] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (!isPinned) {
+      setExpanded(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isPinned) {
+      setExpanded(false);
+    }
+  };
+
+  // Inverte o estado de 'fixado'
+  const handlePinToggle = () => {
+    const newPinState = !isPinned;
+    setIsPinned(newPinState);
+    setExpanded(newPinState);
+  };
+
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-52' : 'w-24'}`}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-48' : 'w-24'}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <nav className="flex-1 p-2 space-y-2 overflow-y-auto mt-4">
+      <div className="relative top-1 flex items-center justify-end">
+        <button
+          onClick={handlePinToggle}
+          className={`transition-all duration-200 hover:opacity-75 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          title={isPinned ? 'Desafixar menu' : 'Fixar menu'}
+        >
+          <img
+            src={isPinned ? pinActiveIconUrl : pinIconUrl}
+            alt="Fixar menu"
+            className="w-6 h-6"
+          />
+        </button>
+      </div>
+
+      <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
         {navLinks.map((link) => (
           <NavLink
             key={link.path}
