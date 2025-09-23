@@ -1,11 +1,17 @@
 import { useState, useMemo } from 'react';
 import { SortableTh } from '../../components/SortableTh';
+import { TableFooter } from '../../components/TableFooter';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
 import searchIconUrl from '../../assets/icons/search.svg';
 
 type StatusExemplar = 'disponivel' | 'emprestado';
+
+const livrosLegend = [
+  { status: 'disponivel', label: 'Disponível', color: 'bg-green-500' },
+  { status: 'emprestado', label: 'Emprestado', color: 'bg-yellow-500' },
+];
 
 interface Livro {
   id: string;
@@ -160,17 +166,29 @@ export function LivrosPage() {
     key: keyof Livro;
     direction: 'asc' | 'desc';
   }>({ key: 'titulo', direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const sortedLivros = useMemo(() => {
+  const paginatedAndSortedLivros = useMemo(() => {
     let sortableItems = [...livros];
+
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
-      if (a[key] < b[key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return sortConfig.direction === 'asc' ? 1 : -1;
+      if (a[key] < b[key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (a[key] > b[key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
       return 0;
     });
-    return sortableItems;
-  }, [livros, sortConfig]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
+  }, [livros, sortConfig, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(livros.length / itemsPerPage);
 
   const requestSort = (key: keyof Livro) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -223,7 +241,7 @@ export function LivrosPage() {
       </div>
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
           <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '8%' }} /> {/* Status */}
@@ -308,7 +326,7 @@ export function LivrosPage() {
               </tr>
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
-              {sortedLivros.map((item) => (
+              {paginatedAndSortedLivros.map((item) => (
                 <tr
                   key={item.id}
                   className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
@@ -347,6 +365,23 @@ export function LivrosPage() {
             </tbody>
           </table>
         </div>
+        <TableFooter
+          legendItems={livrosLegend.map((l) => ({
+            label: l.label,
+            color: l.color,
+          }))}
+          pagination={{
+            currentPage,
+            totalPages,
+            itemsPerPage,
+            totalItems: livros.length,
+          }}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={(size) => {
+            setItemsPerPage(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
     </div>
   );

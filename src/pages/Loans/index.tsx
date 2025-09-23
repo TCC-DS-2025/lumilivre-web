@@ -160,8 +160,8 @@ export function EmprestimosPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const paginatedAndSortedEmprestimos = useMemo(() => {
-    // 1. Ordena a lista completa primeiro
     let sortableItems = [...emprestimos];
+
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
       if (key === 'emprestimo' || key === 'devolucao') {
@@ -174,7 +174,6 @@ export function EmprestimosPage() {
       return 0;
     });
 
-    // 2. Pagina a lista já ordenada
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
