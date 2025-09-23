@@ -87,7 +87,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
             <img
               src={logoutIconUrl}
               alt="Sair"
-              className="w-6 pointer-events-none"
+              className="w-5 pointer-events-none"
             />
             <span className="font-bold text-red-500">
               Sair

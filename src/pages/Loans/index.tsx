@@ -156,8 +156,11 @@ export function EmprestimosPage() {
     key: keyof Emprestimo;
     direction: 'asc' | 'desc';
   }>({ key: 'devolucao', direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const sortedEmprestimos = useMemo(() => {
+  const paginatedAndSortedEmprestimos = useMemo(() => {
+    // 1. Ordena a lista completa primeiro
     let sortableItems = [...emprestimos];
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
@@ -170,8 +173,14 @@ export function EmprestimosPage() {
       if (a[key] > b[key]) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-    return sortableItems;
-  }, [emprestimos, sortConfig]);
+
+    // 2. Pagina a lista já ordenada
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
+  }, [emprestimos, sortConfig, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(emprestimos.length / itemsPerPage);
 
   const requestSort = (key: keyof Emprestimo) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -190,7 +199,7 @@ export function EmprestimosPage() {
     };
     return (
       <div
-        className={`w-3 h-3 rounded-full mx-auto ${colorMap[status]}`}
+        className={`w-3 h-3 rounded-full mx-auto shadow-md ${colorMap[status]}`}
         title={status.replace('-', ' ').toUpperCase()}
       />
     );
@@ -209,20 +218,6 @@ export function EmprestimosPage() {
         return `hover:bg-gray-300 dark:hover:bg-gray-600 ${baseHover}`;
     }
   };
-
-  // estados de paginação
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  const paginatedAndSortedEmprestimos = useMemo(() => {
-    let sortableItems = [...emprestimos];
-
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
-  }, [emprestimos, sortConfig, currentPage, itemsPerPage]);
-
-  const totalPages = Math.ceil(emprestimos.length / itemsPerPage);
 
   return (
     <div className="flex flex-col h-full">
@@ -258,7 +253,7 @@ export function EmprestimosPage() {
       </div>
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
           <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '8%' }} /> {/* Status */}

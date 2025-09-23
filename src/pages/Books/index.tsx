@@ -187,7 +187,7 @@ export function LivrosPage() {
     };
     return (
       <div
-        className={`w-3 h-3 rounded-full mx-auto ${colorMap[status]}`}
+        className={`w-3 h-3 rounded-full mx-auto shadow-md ${colorMap[status]}`}
         title={status.toUpperCase()}
       />
     );
