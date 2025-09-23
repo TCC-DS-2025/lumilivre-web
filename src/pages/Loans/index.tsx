@@ -8,6 +8,13 @@ import searchIconUrl from '../../assets/icons/search.svg';
 
 type StatusEmprestimo = 'ativo' | 'atrasado' | 'vence-hoje' | 'concluido';
 
+const emprestimosLegend = [
+  { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
+  { status: 'vence-hoje', label: 'Vence Hoje', color: 'bg-yellow-500' },
+  { status: 'atrasado', label: 'Atrasado', color: 'bg-red-500' },
+  { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
+];
+
 interface Emprestimo {
   id: number;
   status: StatusEmprestimo;
@@ -141,13 +148,6 @@ const mockEmprestimos: Emprestimo[] = [
     emprestimo: new Date('2025-03-15'),
     devolucao: new Date('2025-03-04'),
   },
-];
-
-const emprestimosLegend = [
-  { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
-  { status: 'vence-hoje', label: 'Vence Hoje', color: 'bg-yellow-500' },
-  { status: 'atrasado', label: 'Atrasado', color: 'bg-red-500' },
-  { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
 ];
 
 export function EmprestimosPage() {

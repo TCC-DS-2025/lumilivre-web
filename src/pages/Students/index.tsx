@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SortableTh } from '../../components/SortableTh';
+import { TableFooter } from '../../components/TableFooter';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -10,6 +11,13 @@ type StatusPenalidade =
   | 'advertencia'
   | 'suspensao'
   | 'inativo';
+
+const alunosLegend = [
+  { status: 'sem-penalidade', label: 'Sem Penalidade', color: 'bg-green-500' },
+  { status: 'advertencia', label: 'Advertência', color: 'bg-yellow-500' },
+  { status: 'suspensao', label: 'Suspensão', color: 'bg-orange-500' },
+  { status: 'inativo', label: 'Inativo', color: 'bg-red-500' },
+];
 
 interface Aluno {
   id: number;
@@ -164,9 +172,12 @@ export function AlunosPage() {
     key: keyof Aluno;
     direction: 'asc' | 'desc';
   }>({ key: 'nome', direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const sortedAlunos = useMemo(() => {
+  const paginatedAndSortedAlunos = useMemo(() => {
     let sortableItems = [...alunos];
+
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
       if (key === 'nascimento') {
@@ -174,12 +185,22 @@ export function AlunosPage() {
           ? a[key].getTime() - b[key].getTime()
           : b[key].getTime() - a[key].getTime();
       }
-      if (a[key] < b[key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return sortConfig.direction === 'asc' ? 1 : -1;
+
+      if (a[key] < b[key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (a[key] > b[key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
       return 0;
     });
-    return sortableItems;
-  }, [alunos, sortConfig]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
+  }, [alunos, sortConfig, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(alunos.length / itemsPerPage);
 
   const requestSort = (key: keyof Aluno) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -240,7 +261,7 @@ export function AlunosPage() {
       </div>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
           <table className="min-w-full table-auto ">
             <colgroup>
               <col style={{ width: '10%' }} /> {/* Penalidade */}
@@ -316,7 +337,7 @@ export function AlunosPage() {
               </tr>
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
-              {sortedAlunos.map((item) => (
+              {paginatedAndSortedAlunos.map((item) => (
                 <tr
                   key={item.id}
                   className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
@@ -352,6 +373,24 @@ export function AlunosPage() {
             </tbody>
           </table>
         </div>
+
+        <TableFooter
+          legendItems={alunosLegend.map((l) => ({
+            label: l.label,
+            color: l.color,
+          }))}
+          pagination={{
+            currentPage,
+            totalPages,
+            itemsPerPage,
+            totalItems: alunos.length,
+          }}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={(size) => {
+            setItemsPerPage(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
     </div>
   );
