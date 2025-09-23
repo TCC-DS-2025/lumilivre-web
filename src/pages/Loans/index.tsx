@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { SortableTh } from '../../components/SortableTh';
+import { TableFooter } from '../../components/TableFooter';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -142,6 +143,13 @@ const mockEmprestimos: Emprestimo[] = [
   },
 ];
 
+const emprestimosLegend = [
+  { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
+  { status: 'vence-hoje', label: 'Vence Hoje', color: 'bg-yellow-500' },
+  { status: 'atrasado', label: 'Atrasado', color: 'bg-red-500' },
+  { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
+];
+
 export function EmprestimosPage() {
   const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
   const [sortConfig, setSortConfig] = useState<{
@@ -202,6 +210,20 @@ export function EmprestimosPage() {
     }
   };
 
+  // estados de paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const paginatedAndSortedEmprestimos = useMemo(() => {
+    let sortableItems = [...emprestimos];
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
+  }, [emprestimos, sortConfig, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(emprestimos.length / itemsPerPage);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6 shrink-0">
@@ -220,7 +242,7 @@ export function EmprestimosPage() {
               />
             </div>
           </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
+          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
             <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
             <span>Filtro Avançado</span>
           </button>
@@ -236,7 +258,7 @@ export function EmprestimosPage() {
       </div>
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
+        <div className="overflow-y-auto bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
           <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '8%' }} /> {/* Status */}
@@ -251,7 +273,7 @@ export function EmprestimosPage() {
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/30"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('status')}
                   sortConfig={sortConfig}
                   sortKey="status"
@@ -306,13 +328,13 @@ export function EmprestimosPage() {
                 >
                   Devolução
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider rounded-tr-lg">
+                <th className="p-4 text-sm font-bold text-white tracking-wider ">
                   Ações
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
-              {sortedEmprestimos.map((item) => (
+              {paginatedAndSortedEmprestimos.map((item) => (
                 <tr key={item.id} className={getRowClass(item.status)}>
                   <td className="p-4 whitespace-nowrap">
                     <StatusIndicator status={item.status} />
@@ -345,6 +367,24 @@ export function EmprestimosPage() {
             </tbody>
           </table>
         </div>
+
+        <TableFooter
+          legendItems={emprestimosLegend.map((l) => ({
+            label: l.label,
+            color: l.color,
+          }))}
+          pagination={{
+            currentPage,
+            totalPages,
+            itemsPerPage,
+            totalItems: emprestimos.length,
+          }}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={(size) => {
+            setItemsPerPage(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
     </div>
   );
