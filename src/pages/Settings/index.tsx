@@ -6,7 +6,6 @@ import downloadIconUrl from '../../assets/icons/download.svg';
 import lockIconUrl from '../../assets/icons/lock.svg';
 import sunIconUrl from '../../assets/icons/sun.svg';
 import moonIconUrl from '../../assets/icons/moon.svg';
-import computerIconUrl from '../../assets/icons/computer.svg';
 
 const SettingItem = ({
   icon,
@@ -34,7 +33,7 @@ const SettingItem = ({
 );
 
 export function ConfiguracoesPage() {
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
 
   return (
     <div className="flex flex-col h-full">
