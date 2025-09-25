@@ -261,7 +261,7 @@ export function AlunosPage() {
       </div>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
           <table className="min-w-full table-auto ">
             <colgroup>
               <col style={{ width: '10%' }} /> {/* Penalidade */}
@@ -276,7 +276,7 @@ export function AlunosPage() {
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider rounded-tl-lg transition-all duration-200 hover:bg-white/30"
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('penalidade')}
                   sortConfig={sortConfig}
                   sortKey="penalidade"
@@ -331,7 +331,7 @@ export function AlunosPage() {
                 >
                   Contato
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider rounded-tr-lg">
+                <th className="p-4 text-sm font-bold text-white rounded-tr-lg tracking-wider">
                   Ações
                 </th>
               </tr>
@@ -364,7 +364,7 @@ export function AlunosPage() {
                     {item.contato}
                   </td>
                   <td className="p-4 whitespace-nowrap">
-                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
+                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
                       DETALHES
                     </button>
                   </td>

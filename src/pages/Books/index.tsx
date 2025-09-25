@@ -240,8 +240,8 @@ export function LivrosPage() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
           <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '8%' }} /> {/* Status */}

@@ -89,7 +89,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
               alt="Sair"
               className="w-5 pointer-events-none"
             />
-            <span className="font-bold text-red-500">
+            <span className="font-bold text-red-400">
               Sair
             </span>
           </button>

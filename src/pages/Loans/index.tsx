@@ -251,8 +251,8 @@ export function EmprestimosPage() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
+        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
           <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '8%' }} /> {/* Status */}
@@ -322,12 +322,12 @@ export function EmprestimosPage() {
                 >
                   Devolução
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider ">
+                <th className="p-4 text-sm font-bold text-white rounded-tr-lg tracking-wider ">
                   Ações
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
+            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
               {paginatedAndSortedEmprestimos.map((item) => (
                 <tr key={item.id} className={getRowClass(item.status)}>
                   <td className="p-4 whitespace-nowrap">

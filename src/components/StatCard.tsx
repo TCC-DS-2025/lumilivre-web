@@ -28,9 +28,9 @@ export function StatCard({
           className="w-10 h-10 select-none pointer-events-none"
         />
       </div>
-      <div className="p-4 flex flex-col justify-center select-none">
+      <div className="p-4 flex flex-col justify-center transition-all duration-200 select-none">
         <p
-          className={`text-base font-semibold ${isDanger ? 'text-red-500 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}
+          className={`text-base font-semibold ${isDanger ? 'text-red-400 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`}
         >
           {title}
         </p>

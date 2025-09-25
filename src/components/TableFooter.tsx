@@ -49,7 +49,7 @@ export function TableFooter({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 shrink-0 select-none">
+    <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
       <div className="flex-1">
         {legendItems && legendItems.length > 0 && (
           <StatusLegend items={legendItems} />
@@ -68,7 +68,8 @@ export function TableFooter({
             className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border shadow-lg dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
           >
             <option value={10}>10</option>
-            <option value={25}>25</option>
+            <option value={10}>20</option>
+            <option value={25}>30</option>
             <option value={50}>50</option>
           </select>
         </div>

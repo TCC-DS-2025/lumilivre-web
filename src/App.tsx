@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 
@@ -14,10 +15,12 @@ import { AlunosPage } from './pages/Students';
 function App() {
   return (
     <Routes>
+      {/* rotas públicas */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/esqueci-a-senha" element={<EsqueciSenhaPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
 
+      {/* rotas privadas */}
       <Route
         path="/dashboard"
         element={
