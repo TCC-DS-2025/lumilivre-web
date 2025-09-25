@@ -11,6 +11,7 @@ import { DashboardPage } from './pages/Start';
 import { EmprestimosPage } from './pages/Loans';
 import { LivrosPage } from './pages/Books';
 import { AlunosPage } from './pages/Students';
+import { ConfiguracoesPage } from './pages/Settings';
 
 function App() {
   return (
@@ -60,6 +61,17 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <AlunosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/configuracoes"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ConfiguracoesPage />
             </MainLayout>
           </ProtectedRoute>
         }
