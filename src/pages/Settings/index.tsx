@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ThemeContext } from '../../contexts/ThemeContext';
 
 import uploadIconUrl from '../../assets/icons/upload.svg';
@@ -39,11 +39,25 @@ const SettingItem = ({
 );
 
 export function ConfiguracoesPage() {
-  const { theme } = useContext(ThemeContext);
+  const { theme, setTheme } = useContext(ThemeContext);
 
+  const [effectiveTheme, setEffectiveTheme] = useState(theme);
+
+  useEffect(() => {
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      setEffectiveTheme(mediaQuery.matches ? 'dark' : 'light');
+      const handler = (e: MediaQueryListEvent) =>
+        setEffectiveTheme(e.matches ? 'dark' : 'light');
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    } else {
+      setEffectiveTheme(theme);
+    }
+  }, [theme]);
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-6 shrink-0">
+      <div className="mb-6 shrink-0 transition-all duration-200">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Olá, Bibliotecário!
         </h1>
@@ -85,22 +99,27 @@ export function ConfiguracoesPage() {
           </h2>
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
             <SettingItem
-              icon={theme === 'light' ? moonIconUrl : sunIconUrl}
+              icon={effectiveTheme === 'light' ? moonIconUrl : sunIconUrl}
               title="Tema"
               description="Escolha entre o tema claro, escuro ou o padrão do sistema."
             >
-              <div className="flex items-center space-x-2 p-1 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 transition-all duration-200 select-none">
+              <div className="flex items-center space-x-2 p-1 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 transition-all duration-200">
                 <button
+                  onClick={() => setTheme('light')}
                   className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'light' ? 'bg-white shadow' : 'hover:bg-gray-600'}`}
                 >
                   Claro
                 </button>
                 <button
+                  onClick={() => setTheme('dark')}
                   className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'dark' ? 'bg-gray-800 text-white shadow' : 'hover:bg-gray-600'}`}
                 >
                   Escuro
                 </button>
-                <button className="px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 hover:bg-gray-600">
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'system' ? 'bg-lumi-primary text-white shadow' : 'hover:bg-gray-600'}`}
+                >
                   Automático
                 </button>
               </div>
