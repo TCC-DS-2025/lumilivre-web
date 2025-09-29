@@ -30,7 +30,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
         alt="LumiLivre Logo"
         className="h-12 w-12 mr-3 pointer-events-none"
       />
-      <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white">
+      <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white transition-all duration-200">
         LumiLivre
       </span>
     </div>
