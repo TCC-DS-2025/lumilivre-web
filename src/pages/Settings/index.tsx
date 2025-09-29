@@ -43,28 +43,37 @@ export function ConfiguracoesPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow transition-all duration-200">
+      <div className="mb-6 shrink-0">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          Olá, Bibliotecário!
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400">
+          Gerencie suas preferências e dados do sistema.
+        </p>
+      </div>
+
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
         <div className="p-6">
           <h2 className="text-lg font-bold text-lumi-primary mb-4 select-none">
             Gerenciamento de Dados
           </h2>
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
             <SettingItem
-              icon={uploadIconUrl}
+              icon={downloadIconUrl}
               title="Importar Dados"
               description="Importe dados de alunos ou livros a partir de um arquivo."
             >
               <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-                Importar
+                Mais Opções
               </button>
             </SettingItem>
             <SettingItem
-              icon={downloadIconUrl}
+              icon={uploadIconUrl}
               title="Exportar Dados"
               description="Exporte relatórios completos em formato CSV ou PDF."
             >
               <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-                Exportar
+                Mais Opções
               </button>
             </SettingItem>
           </div>
