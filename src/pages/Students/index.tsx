@@ -361,7 +361,7 @@ export function AlunosPage() {
         onClose={() => setIsModalOpen(false)}
         title="Cadastrar Novo Aluno"
       >
-        <NovoAluno onClose={() => setIsModalOpen(false)} />
+        <NovoAluno />
       </Modal>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
