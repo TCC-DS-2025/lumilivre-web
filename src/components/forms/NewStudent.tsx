@@ -63,8 +63,8 @@ export function NovoAluno() {
   const [isNovoCursoModalOpen, setIsNovoCursoModalOpen] = useState(false);
 
   const [novoCursoNome, setNovoCursoNome] = useState('');
-  const [novoTurno, setNovoTurno] = useState(''); // futuro
-  const [novoModulo, setNovoModulo] = useState(''); // futuro
+  // const [novoTurno, setNovoTurno] = useState(''); // futuro
+  // const [novoModulo, setNovoModulo] = useState(''); // futuro
 
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
