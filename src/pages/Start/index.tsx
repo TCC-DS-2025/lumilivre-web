@@ -42,13 +42,98 @@ interface Solicitacao {
   solicitacao: Date;
 }
 
-const mockSolicitacoes: Solicitacao[] = Array.from({ length: 15 }, (_, i) => ({
-  // mock
-  id: i + 1,
-  aluno: `Neemias Cormino ${i + 1}`,
-  livro: `O Senhor dos Anéis Vol. ${i + 1}`,
-  solicitacao: new Date(new Date().setDate(new Date().getDate() - i * 2)),
-}));
+const mockSolicitacoes: Solicitacao[] = [
+  {
+    id: 1,
+    aluno: 'Neemias Cormino',
+    livro: 'Dom Casmurro',
+    solicitacao: new Date('2025-09-28'),
+  },
+  {
+    id: 2,
+    aluno: 'João Pedro Martins',
+    livro: 'O Pequeno Príncipe',
+    solicitacao: new Date('2025-09-26'),
+  },
+  {
+    id: 3,
+    aluno: 'Maria Clara Fernandes',
+    livro: 'Capitães da Areia',
+    solicitacao: new Date('2025-09-24'),
+  },
+  {
+    id: 4,
+    aluno: 'Carlos Henrique Lima',
+    livro: '1984',
+    solicitacao: new Date('2025-09-22'),
+  },
+  {
+    id: 5,
+    aluno: 'Larissa Costa',
+    livro: 'Memórias Póstumas de Brás Cubas',
+    solicitacao: new Date('2025-09-20'),
+  },
+  {
+    id: 6,
+    aluno: 'Pedro Augusto Nunes',
+    livro: 'O Hobbit',
+    solicitacao: new Date('2025-09-18'),
+  },
+  {
+    id: 7,
+    aluno: 'Fernanda Oliveira',
+    livro: 'A Revolução dos Bichos',
+    solicitacao: new Date('2025-09-16'),
+  },
+  {
+    id: 8,
+    aluno: 'Lucas Almeida',
+    livro: 'A Hora da Estrela',
+    solicitacao: new Date('2025-09-14'),
+  },
+  {
+    id: 9,
+    aluno: 'Juliana Mendes',
+    livro: 'O Cortiço',
+    solicitacao: new Date('2025-09-12'),
+  },
+  {
+    id: 10,
+    aluno: 'Gustavo Ribeiro',
+    livro: 'Harry Potter e a Pedra Filosofal',
+    solicitacao: new Date('2025-09-10'),
+  },
+  {
+    id: 11,
+    aluno: 'Camila Duarte',
+    livro: 'Orgulho e Preconceito',
+    solicitacao: new Date('2025-09-08'),
+  },
+  {
+    id: 12,
+    aluno: 'Thiago Santos',
+    livro: 'It - A Coisa',
+    solicitacao: new Date('2025-09-06'),
+  },
+  {
+    id: 13,
+    aluno: 'Isabela Rocha',
+    livro: 'A Menina que Roubava Livros',
+    solicitacao: new Date('2025-09-04'),
+  },
+  {
+    id: 14,
+    aluno: 'Rafael Souza',
+    livro: 'O Código Da Vinci',
+    solicitacao: new Date('2025-09-02'),
+  },
+  {
+    id: 15,
+    aluno: 'Gabriela Lima',
+    livro: 'Moby Dick',
+    solicitacao: new Date('2025-08-31'),
+  },
+];
 
 export function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
