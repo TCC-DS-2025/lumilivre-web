@@ -1,4 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
+import { Modal } from '../Modal';
 import addIconUrl from '../../assets/icons/add.svg';
 // import { buscarEnderecoPorCep } from '../../services/cepService';
 // import { buscarCursos } from '../../services/cursoService';
@@ -58,6 +59,8 @@ const FormInput = ({
 };
 
 export function NovoAluno({ onClose }: { onClose: () => void }) {
+  const [isNovoCursoModalOpen, setIsNovoCursoModalOpen] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
     nomeCompleto: '',
@@ -164,7 +167,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                   value={formData.dataNascimento}
                   onChange={handleChange}
                 />
-                <div>
+                <div className="md:col-span-2">
                   <label htmlFor="email" className={labelStyles}>
                     E-mail*
                   </label>
@@ -179,34 +182,69 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                     required
                   />
                 </div>
-                <div>
-                  <label htmlFor="cursoId" className={labelStyles}>
-                    Curso*
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    <select
-                      id="cursoId"
-                      name="cursoId"
-                      value={formData.cursoId}
-                      onChange={handleChange}
-                      className={inputStyles}
-                      required
-                    >
-                      <option value="">Selecione um curso</option>
-                      {cursos.map((curso) => (
-                        <option key={curso.id} value={curso.id}>
-                          {curso.nome}
-                        </option>
-                      ))}
-                    </select>
+                <div className="md:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
+                    <div>
+                      <label htmlFor="cursoId" className={labelStyles}>
+                        Curso*
+                      </label>
+                      <select
+                        id="cursoId"
+                        name="cursoId"
+                        value={formData.cursoId}
+                        onChange={handleChange}
+                        className={inputStyles}
+                        required
+                      >
+                        <option value="">Selecione um curso</option>
+                        {cursos.map((curso) => (
+                          <option key={curso.id} value={curso.id}>
+                            {curso.nome}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="turno" className={labelStyles}>
+                        Turno*
+                      </label>
+                      <select
+                        id="turno"
+                        name="turno"
+                        className={inputStyles}
+                        required
+                      >
+                        <option value="">Selecione</option>
+                        <option value="MANHA">Matutino</option>
+                        <option value="TARDE">Vespertino</option>
+                        <option value="NOITE">Noturno</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="modulo" className={labelStyles}>
+                        Módulo*
+                      </label>
+                      <select
+                        id="modulo"
+                        name="modulo"
+                        className={inputStyles}
+                        required
+                      >
+                        <option value="">Selecione</option>
+                        <option value="1">1º Semestre</option>
+                        <option value="2">2º Semestre</option>
+                        <option value="3">3º Semestre</option>
+                      </select>
+                    </div>
                     <button
                       type="button"
-                      className="bg-gray-400 dark:bg-transparent p-1 dark:p-0 rounded-md hover:opacity-75 transition-all transform hover:scale-110 duration-200"
+                      onClick={() => setIsNovoCursoModalOpen(true)}
+                      className="p-2 mb-0.5 bg-gray-400 dark:bg-transparent rounded-md hover:opacity-75 transition-all transform hover:scale-110 duration-200"
                     >
                       <img
                         src={addIconUrl}
                         alt="Adicionar Curso"
-                        className="w-8 h-8"
+                        className="w-6 h-6"
                       />
                     </button>
                   </div>
@@ -316,6 +354,33 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
           </section>
         </form>
       </div>
+
+      <Modal
+        isOpen={isNovoCursoModalOpen}
+        onClose={() => setIsNovoCursoModalOpen(false)}
+        title="Cadastrar Novo Curso"
+      >
+        <div className="space-y-4">
+          <FormInput
+            label="Nome do Curso"
+            id="novoCursoNome"
+            type="text"
+            placeholder="Ex: Logística"
+          />
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                console.log('Lógica para salvar o novo curso aqui...');
+                setIsNovoCursoModalOpen(false);
+              }}
+              className="bg-green-500 text-white font-bold py-2 px-4 rounded-lg ..."
+            >
+              Criar
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <button
         type="submit"

@@ -248,7 +248,6 @@ const mockLivros: Livro[] = [
   },
 ];
 
-
 export function LivrosPage() {
   const [livros] = useState<Livro[]>(mockLivros);
   const [sortConfig, setSortConfig] = useState<{
