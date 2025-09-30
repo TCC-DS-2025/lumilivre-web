@@ -401,7 +401,7 @@ export function EmprestimosPage() {
                 >
                   Devolução
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white rounded-tr-lg tracking-wider ">
+                <th className="p-4 text-sm font-bold text-white tracking-wider">
                   Ações
                 </th>
               </tr>

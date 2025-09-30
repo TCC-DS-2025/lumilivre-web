@@ -257,7 +257,6 @@ const mockAlunos: Aluno[] = [
   },
 ];
 
-
 export function AlunosPage() {
   const [alunos] = useState<Aluno[]>(mockAlunos);
   const [sortConfig, setSortConfig] = useState<{
@@ -323,8 +322,7 @@ export function AlunosPage() {
     );
   };
 
-  // configurações do modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // configurações do modal
 
   return (
     <div className="flex flex-col h-full">
@@ -437,7 +435,7 @@ export function AlunosPage() {
                 >
                   Contato
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white rounded-tr-lg tracking-wider">
+                <th className="p-4 text-sm font-bold text-white tracking-wider">
                   Ações
                 </th>
               </tr>

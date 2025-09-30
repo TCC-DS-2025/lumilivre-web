@@ -355,29 +355,110 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
         </form>
       </div>
 
+      {/* modal para criação de curso, turno e módulo */}
       <Modal
         isOpen={isNovoCursoModalOpen}
         onClose={() => setIsNovoCursoModalOpen(false)}
-        title="Cadastrar Novo Curso"
+        title="Gerenciamento de Cursos"
       >
-        <div className="space-y-4">
-          <FormInput
-            label="Nome do Curso"
-            id="novoCursoNome"
-            type="text"
-            placeholder="Ex: Logística"
-          />
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                console.log('Lógica para salvar o novo curso aqui...');
-                setIsNovoCursoModalOpen(false);
-              }}
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded-lg ..."
+        <div className="space-y-6">
+          <p className="text-sm text-center text-gray-600 dark:text-gray-400 -mt-2">
+            Não encontrou nas listas de seleção o que precisa? Cadastre por aqui
+            seu Curso, Turno e ou Módulo, os mesmo ficarão disponíveis
+            imediatamente.
+          </p>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="novoCursoNome"
+              className="block text-sm font-medium text-gray-700 dark:text-white"
             >
-              Criar
-            </button>
+              Novo Curso
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                id="novoCursoNome"
+                type="text"
+                placeholder="Ex: Logística"
+                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => console.log('Salvando novo módulo...')}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center justify-center gap-x-2">
+                  <img
+                    src={addIconUrl}
+                    alt="Icone de adicionar"
+                    className="w-6 h-6"
+                  />
+                  <span>CRIAR</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="novoTurnoNome"
+              className="block text-sm font-medium text-gray-700 dark:text-white"
+            >
+              Novo Turno
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                id="novoTurnoNome"
+                type="text"
+                placeholder="Ex: Integral"
+                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => console.log('Salvando novo módulo...')}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center justify-center gap-x-2">
+                  <img
+                    src={addIconUrl}
+                    alt="Icone de adicionar"
+                    className="w-6 h-6"
+                  />
+                  <span>CRIAR</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="novoModuloNome"
+              className="block text-sm font-medium text-gray-700 dark:text-white"
+            >
+              Novo Módulo
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                id="novoModuloNome"
+                type="text"
+                placeholder="Ex: 4º Módulo"
+                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => console.log('Salvando novo módulo...')}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center justify-center gap-x-2">
+                  <img
+                    src={addIconUrl}
+                    alt="Icone de adicionar"
+                    className="w-6 h-6"
+                  />
+                  <span>CRIAR</span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </Modal>

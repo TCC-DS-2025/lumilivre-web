@@ -408,7 +408,7 @@ export function LivrosPage() {
                 >
                   Editora
                 </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider rounded-tr-lg">
+                <th className="p-4 text-sm font-bold text-white tracking-wider">
                   Ações
                 </th>
               </tr>
