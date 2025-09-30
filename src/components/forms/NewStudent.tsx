@@ -1,8 +1,9 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../Modal';
 import addIconUrl from '../../assets/icons/add.svg';
-// import { buscarEnderecoPorCep } from '../../services/cepService';
-// import { buscarCursos } from '../../services/cursoService';
+
+import { buscarEnderecoPorCep } from '../../services/cepService';
+import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
 
 interface FormData {
   matricula: string;
@@ -58,8 +59,12 @@ const FormInput = ({
   );
 };
 
-export function NovoAluno({ onClose }: { onClose: () => void }) {
+export function NovoAluno() {
   const [isNovoCursoModalOpen, setIsNovoCursoModalOpen] = useState(false);
+
+  const [novoCursoNome, setNovoCursoNome] = useState('');
+  const [novoTurno, setNovoTurno] = useState(''); // futuro
+  const [novoModulo, setNovoModulo] = useState(''); // futuro
 
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
@@ -82,12 +87,21 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
   const [isCepLoading, setIsCepLoading] = useState(false);
 
   useEffect(() => {
-    // Mock para cursos
-    setCursos([
-      { id: 1, nome: 'Desenvolvimento de Sistemas' },
-      { id: 2, nome: 'Enfermagem' },
-      { id: 3, nome: 'Administração' },
-    ]);
+    const carregarCursos = async () => {
+      try {
+        const cursosDaApi = await buscarCursos();
+        setCursos(cursosDaApi);
+      } catch (error) {
+        console.warn('API de cursos indisponível, usando dados mockados.');
+        setCursos([
+          // mock, caso a api falhe
+          { id: 1, nome: 'Desenvolvimento de Sistemas' },
+          { id: 2, nome: 'Enfermagem' },
+          { id: 3, nome: 'Administração' },
+        ]);
+      }
+    };
+    carregarCursos();
   }, []);
 
   const handleChange = (
@@ -97,8 +111,28 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // logica para o preenchimento dos campos de endereço pelo cep
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // lógica de CEP
+    const newCep = e.target.value.replace(/\D/g, '');
+    setFormData((prev) => ({ ...prev, cep: newCep }));
+
+    if (newCep.length === 8) {
+      setIsCepLoading(true);
+      try {
+        const endereco = await buscarEnderecoPorCep(newCep);
+        setFormData((prev) => ({
+          ...prev,
+          logradouro: endereco.logradouro,
+          bairro: endereco.bairro,
+          localidade: endereco.localidade,
+          uf: endereco.uf,
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar CEP', error);
+      } finally {
+        setIsCepLoading(false);
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -108,6 +142,23 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
     const dataParaApi = { ...formData, nome, sobrenome };
     delete (dataParaApi as any).nomeCompleto;
     console.log('Dados prontos para enviar para a API:', dataParaApi);
+  };
+
+  const handleCriarCurso = async () => {
+    if (!novoCursoNome) return; // Não faz nada se o campo estiver vazio
+    try {
+      const novoCurso = await cadastrarCurso(novoCursoNome);
+      // Adiciona o novo curso à lista e o seleciona automaticamente
+      setCursos((prevCursos) => [...prevCursos, novoCurso]);
+      setFormData((prevData) => ({
+        ...prevData,
+        cursoId: String(novoCurso.id),
+      }));
+      setNovoCursoNome('');
+      setIsNovoCursoModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao criar curso:', error);
+    }
   };
 
   const labelStyles =
@@ -123,6 +174,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
           onSubmit={handleSubmit}
           className="space-y-6"
         >
+          {/* campos dados pessoais */}
           <section>
             <div className="space-y-4">
               <FormInput
@@ -253,6 +305,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
             </div>
           </section>
 
+          {/* campos do endereço */}
           <section className="pt-4 border-t dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <div className="md:col-span-2">
@@ -380,11 +433,13 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                 id="novoCursoNome"
                 type="text"
                 placeholder="Ex: Logística"
+                value={novoCursoNome}
+                onChange={(e) => setNovoCursoNome(e.target.value)}
                 className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
               />
               <button
                 type="button"
-                onClick={() => console.log('Salvando novo módulo...')}
+                onClick={handleCriarCurso}
                 className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center gap-x-2">
