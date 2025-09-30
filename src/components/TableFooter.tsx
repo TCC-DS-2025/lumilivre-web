@@ -68,7 +68,6 @@ export function TableFooter({
             className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border shadow-lg dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
           >
             <option value={10}>10</option>
-            <option value={10}>20</option>
             <option value={25}>30</option>
             <option value={50}>50</option>
           </select>

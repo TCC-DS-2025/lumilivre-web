@@ -49,7 +49,7 @@ const SubPageHeader = ({
   <div className="flex items-center mb-4 select-none">
     <button
       onClick={onBack}
-      className="p-2 mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-110"
+      className="p-2 mr-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-110"
     >
       <img src={backIconUrl} alt="Voltar" className="w-5 h-5" />
     </button>

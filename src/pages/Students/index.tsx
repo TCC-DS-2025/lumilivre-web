@@ -2,6 +2,9 @@ import { useState, useMemo } from 'react';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 
+import { Modal } from '../../components/Modal';
+import { NovoAluno } from '../../components/forms/NewStudent';
+
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
 import searchIconUrl from '../../assets/icons/search.svg';
@@ -231,6 +234,9 @@ export function AlunosPage() {
     );
   };
 
+  // configurações do modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6 shrink-0">
@@ -254,11 +260,22 @@ export function AlunosPage() {
             <span>Filtro Avançado</span>
           </button>
         </div>
-        <button className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none"
+        >
           <img src={addIconUrl} alt="Novo Aluno" className="w-6 h-6 mr-2" />
           <span>NOVO ALUNO</span>
         </button>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Cadastrar Novo Aluno"
+      >
+        <NovoAluno onClose={() => setIsModalOpen(false)} />
+      </Modal>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
