@@ -17,11 +17,16 @@ export interface ListaAluno {
 }
 
 export const buscarAlunosParaAdmin = async (
+  texto?: string,
   page = 0,
   size = 10,
 ): Promise<Page<ListaAluno>> => {
   const response = await api.get('/alunos/home', {
-    params: { page, size },
+    params: {
+      texto, 
+      page,
+      size,
+    },
   });
   return response.data;
 };

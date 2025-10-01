@@ -82,7 +82,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
 
           <button
             onClick={Logout}
-            className="flex items-center justify-center space-x-2 p-2 px-3 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+            className="flex items-center justify-center space-x-2 p-2 px-3 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
           >
             <img
               src={logoutIconUrl}

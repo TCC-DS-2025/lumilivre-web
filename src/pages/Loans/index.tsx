@@ -302,22 +302,18 @@ export function EmprestimosPage() {
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div className="flex items-center space-x-4">
           <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
+            <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
+              <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
+            </button>
             <input
               type="text"
-              placeholder="Faça sua pesquisa de empréstimo"
-              className="pl-10 pr-4 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
+              placeholder="Faça sua pesquisa de aluno"
+              className="pl-5 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
             />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <img
-                src={searchIconUrl}
-                alt="Pesquisar"
-                className="w-5 h-5 text-gray-400"
-              />
-            </div>
           </div>
           <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
-            <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
             <span>Filtro Avançado</span>
+            <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
           </button>
         </div>
         <button className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
