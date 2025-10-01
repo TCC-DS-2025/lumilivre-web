@@ -13,6 +13,7 @@ import {
   buscarAlunosParaAdmin,
   type ListaAluno,
 } from '../../services/alunoService';
+import { LoadingIcon } from '../../components/LoadingIcon';
 
 // funcionalidade a desenvolver no backend
 type StatusPenalidade =
@@ -41,9 +42,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Neemias Cormino',
 //     cpf: '123.456.789-00',
 //     nascimento: new Date('2005-05-20'),
-//     curso: 'Desenvolvimento de Sistemas',
+//     cursoNome: 'Desenvolvimento de Sistemas',
 //     email: 'neemias.cormino@etec.sp.gov.br',
-//     contato: '(11) 98765-4321',
+//     celular: '(11) 98765-4321',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -52,9 +53,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'João Selvagem',
 //     cpf: '111.222.333-44',
 //     nascimento: new Date('2004-08-15'),
-//     curso: 'Enfermagem',
+//     cursoNome: 'Enfermagem',
 //     email: 'joao.selvagem@etec.sp.gov.br',
-//     contato: '(11) 91234-5678',
+//     celular: '(11) 91234-5678',
 //     penalidade: 'advertencia',
 //   },
 //   {
@@ -63,9 +64,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Maria Oliveira',
 //     cpf: '222.333.444-55',
 //     nascimento: new Date('2006-01-30'),
-//     curso: 'Administração',
+//     cursoNome: 'Administração',
 //     email: 'maria.oliveira@etec.sp.gov.br',
-//     contato: '(11) 95678-1234',
+//     celular: '(11) 95678-1234',
 //     penalidade: 'suspensao',
 //   },
 //   {
@@ -74,9 +75,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Carlos Pereira',
 //     cpf: '333.444.555-66',
 //     nascimento: new Date('2005-11-10'),
-//     curso: 'Logística',
+//     cursoNome: 'Logística',
 //     email: 'carlos.pereira@etec.sp.gov.br',
-//     contato: '(11) 98888-7777',
+//     celular: '(11) 98888-7777',
 //     penalidade: 'inativo',
 //   },
 //   {
@@ -85,9 +86,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Ana Beatriz Souza',
 //     cpf: '444.555.666-77',
 //     nascimento: new Date('2006-02-18'),
-//     curso: 'Contabilidade',
+//     cursoNome: 'Contabilidade',
 //     email: 'ana.souza@etec.sp.gov.br',
-//     contato: '(11) 93456-7890',
+//     celular: '(11) 93456-7890',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -96,9 +97,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Pedro Henrique Santos',
 //     cpf: '555.666.777-88',
 //     nascimento: new Date('2004-07-12'),
-//     curso: 'Desenvolvimento de Sistemas',
+//     cursoNome: 'Desenvolvimento de Sistemas',
 //     email: 'pedro.santos@etec.sp.gov.br',
-//     contato: '(11) 92345-6789',
+//     celular: '(11) 92345-6789',
 //     penalidade: 'advertencia',
 //   },
 //   {
@@ -107,9 +108,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Luana Costa',
 //     cpf: '666.777.888-99',
 //     nascimento: new Date('2005-12-05'),
-//     curso: 'Enfermagem',
+//     cursoNome: 'Enfermagem',
 //     email: 'luana.costa@etec.sp.gov.br',
-//     contato: '(11) 93210-9876',
+//     celular: '(11) 93210-9876',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -118,9 +119,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Rafael Almeida',
 //     cpf: '777.888.999-00',
 //     nascimento: new Date('2006-03-22'),
-//     curso: 'Administração',
+//     cursoNome: 'Administração',
 //     email: 'rafael.almeida@etec.sp.gov.br',
-//     contato: '(11) 97654-3210',
+//     celular: '(11) 97654-3210',
 //     penalidade: 'suspensao',
 //   },
 //   {
@@ -129,9 +130,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Gabriela Martins',
 //     cpf: '888.999.000-11',
 //     nascimento: new Date('2005-09-17'),
-//     curso: 'Logística',
+//     cursoNome: 'Logística',
 //     email: 'gabriela.martins@etec.sp.gov.br',
-//     contato: '(11) 94567-1234',
+//     celular: '(11) 94567-1234',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -140,9 +141,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Felipe Rocha',
 //     cpf: '999.000.111-22',
 //     nascimento: new Date('2004-04-28'),
-//     curso: 'Contabilidade',
+//     cursoNome: 'Contabilidade',
 //     email: 'felipe.rocha@etec.sp.gov.br',
-//     contato: '(11) 98700-1122',
+//     celular: '(11) 98700-1122',
 //     penalidade: 'advertencia',
 //   },
 //   {
@@ -151,9 +152,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Larissa Lima',
 //     cpf: '101.202.303-44',
 //     nascimento: new Date('2006-06-14'),
-//     curso: 'Desenvolvimento de Sistemas',
+//     cursoNome: 'Desenvolvimento de Sistemas',
 //     email: 'larissa.lima@etec.sp.gov.br',
-//     contato: '(11) 94433-2211',
+//     celular: '(11) 94433-2211',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -162,9 +163,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Mateus Fernandes',
 //     cpf: '202.303.404-55',
 //     nascimento: new Date('2005-10-03'),
-//     curso: 'Enfermagem',
+//     cursoNome: 'Enfermagem',
 //     email: 'mateus.fernandes@etec.sp.gov.br',
-//     contato: '(11) 95522-3344',
+//     celular: '(11) 95522-3344',
 //     penalidade: 'inativo',
 //   },
 //   {
@@ -173,9 +174,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Isabela Nunes',
 //     cpf: '303.404.505-66',
 //     nascimento: new Date('2004-01-25'),
-//     curso: 'Administração',
+//     cursoNome: 'Administração',
 //     email: 'isabela.nunes@etec.sp.gov.br',
-//     contato: '(11) 92233-4455',
+//     celular: '(11) 92233-4455',
 //     penalidade: 'suspensao',
 //   },
 //   {
@@ -184,9 +185,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Lucas Barbosa',
 //     cpf: '404.505.606-77',
 //     nascimento: new Date('2006-08-09'),
-//     curso: 'Logística',
+//     cursoNome: 'Logística',
 //     email: 'lucas.barbosa@etec.sp.gov.br',
-//     contato: '(11) 93344-5566',
+//     celular: '(11) 93344-5566',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -195,9 +196,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Camila Duarte',
 //     cpf: '505.606.707-88',
 //     nascimento: new Date('2005-11-19'),
-//     curso: 'Contabilidade',
+//     cursoNome: 'Contabilidade',
 //     email: 'camila.duarte@etec.sp.gov.br',
-//     contato: '(11) 94455-6677',
+//     celular: '(11) 94455-6677',
 //     penalidade: 'advertencia',
 //   },
 //   {
@@ -206,9 +207,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Thiago Ribeiro',
 //     cpf: '606.707.808-99',
 //     nascimento: new Date('2006-07-07'),
-//     curso: 'Desenvolvimento de Sistemas',
+//     cursoNome: 'Desenvolvimento de Sistemas',
 //     email: 'thiago.ribeiro@etec.sp.gov.br',
-//     contato: '(11) 95566-7788',
+//     celular: '(11) 95566-7788',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -217,9 +218,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Juliana Mendes',
 //     cpf: '707.808.909-00',
 //     nascimento: new Date('2004-03-29'),
-//     curso: 'Enfermagem',
+//     cursoNome: 'Enfermagem',
 //     email: 'juliana.mendes@etec.sp.gov.br',
-//     contato: '(11) 96677-8899',
+//     celular: '(11) 96677-8899',
 //     penalidade: 'suspensao',
 //   },
 //   {
@@ -228,9 +229,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Gustavo Azevedo',
 //     cpf: '808.909.010-11',
 //     nascimento: new Date('2005-12-25'),
-//     curso: 'Administração',
+//     cursoNome: 'Administração',
 //     email: 'gustavo.azevedo@etec.sp.gov.br',
-//     contato: '(11) 97788-9900',
+//     celular: '(11) 97788-9900',
 //     penalidade: 'sem-penalidade',
 //   },
 //   {
@@ -239,9 +240,9 @@ interface Aluno extends ListaAluno {
 //     nome: 'Fernanda Castro',
 //     cpf: '909.010.111-22',
 //     nascimento: new Date('2006-05-02'),
-//     curso: 'Logística',
+//     cursoNome: 'Logística',
 //     email: 'fernanda.castro@etec.sp.gov.br',
-//     contato: '(11) 98899-0011',
+//     celular: '(11) 98899-0011',
 //     penalidade: 'advertencia',
 //   },
 //   {
@@ -250,17 +251,17 @@ interface Aluno extends ListaAluno {
 //     nome: 'André Lopes',
 //     cpf: '010.111.212-33',
 //     nascimento: new Date('2004-09-13'),
-//     curso: 'Contabilidade',
+//     cursoNome: 'Contabilidade',
 //     email: 'andre.lopes@etec.sp.gov.br',
-//     contato: '(11) 99900-1122',
+//     celular: '(11) 99900-1122',
 //     penalidade: 'inativo',
 //   },
 // ];
 
 export function AlunosPage() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [, setIsLoading] = useState(true); // isLoading
-  const [, setError] = useState<string | null>(null); // error
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -300,7 +301,7 @@ export function AlunosPage() {
           }),
         );
 
-        // const dadosFinais = [...alunosDaApi, ...mockAlunos]; // com mock
+        //const dadosFinais = [...alunosDaApi, ...mockAlunos]; // com mock
         const dadosFinais = alunosDaApi; // sem mock
         setAlunos(dadosFinais);
       } catch (err) {
@@ -512,39 +513,60 @@ export function AlunosPage() {
               </tr>
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
-              {paginatedAndSortedAlunos.map((item) => (
-                <tr
-                  key={item.id}
-                  className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
-                >
-                  <td className="p-4 whitespace-nowrap">
-                    <PenalidadeIndicator status={item.penalidade} />
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                    {item.matricula}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {item.cursoNome}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                    {item.nome}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {item.nascimento.toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {item.email}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {item.celular}
-                  </td>
-                  <td className="p-4 whitespace-nowrap">
-                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
-                      DETALHES
-                    </button>
+              {/* logica de carregamento dos dados da api */}
+              {isLoading ? (
+                <tr>
+                  <td colSpan={9} className="p-8">
+                    <LoadingIcon />
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-red-500">
+                    {error}
+                  </td>
+                </tr>
+              ) : paginatedAndSortedAlunos.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-gray-500">
+                    Nenhum aluno encontrado.
+                  </td>
+                </tr>
+              ) : (
+                paginatedAndSortedAlunos.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
+                  >
+                    <td className="p-4 whitespace-nowrap">
+                      <PenalidadeIndicator status={item.penalidade} />
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
+                      {item.matricula}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.cursoNome}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
+                      {item.nome}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                      {item.nascimento.toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.email}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                      {item.celular}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                        DETALHES
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
