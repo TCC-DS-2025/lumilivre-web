@@ -259,8 +259,8 @@ interface Aluno extends ListaAluno {
 
 export function AlunosPage() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setIsLoading] = useState(true); // isLoading
+  const [, setError] = useState<string | null>(null); // error
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
