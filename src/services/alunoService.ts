@@ -16,9 +16,31 @@ export interface ListaAluno {
   cursoNome: string;
 }
 
-export const buscarAlunosParaAdmin = async (page = 0, size = 10): Promise<Page<ListaAluno>> => {
+export const buscarAlunosParaAdmin = async (
+  page = 0,
+  size = 10,
+): Promise<Page<ListaAluno>> => {
   const response = await api.get('/alunos/home', {
-    params: { page, size }
+    params: { page, size },
   });
+  return response.data;
+};
+
+export interface AlunoPayload {
+  matricula: string;
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  celular?: string;
+  dataNascimento?: string;
+  email: string;
+  cursoId: number;
+  cep?: string;
+  numero?: number;
+  complemento?: string;
+}
+
+export const cadastrarAluno = async (alunoData: AlunoPayload) => {
+  const response = await api.post('/alunos/cadastrar', alunoData);
   return response.data;
 };

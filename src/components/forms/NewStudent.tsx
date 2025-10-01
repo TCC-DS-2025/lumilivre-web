@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../Modal';
 import addIconUrl from '../../assets/icons/add.svg';
 
+import { cadastrarAluno } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
 import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
 
@@ -59,7 +60,7 @@ const FormInput = ({
   );
 };
 
-export function NovoAluno() {
+export function NovoAluno({ onClose }: { onClose: () => void }) {
   const [isNovoCursoModalOpen, setIsNovoCursoModalOpen] = useState(false);
 
   const [novoCursoNome, setNovoCursoNome] = useState('');
@@ -89,8 +90,8 @@ export function NovoAluno() {
   useEffect(() => {
     const carregarCursos = async () => {
       try {
-        const cursosDaApi = await buscarCursos();
-        setCursos(cursosDaApi);
+        const paginaDeCursos = await buscarCursos();
+        setCursos(paginaDeCursos.content);
       } catch (error) {
         console.warn('API de cursos indisponível, usando dados mockados.');
         setCursos([
@@ -109,6 +110,40 @@ export function NovoAluno() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // envia os dados de cadastro do aluno para a api
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const [nome, ...sobrenomeArray] = formData.nomeCompleto.split(' ');
+    const sobrenome = sobrenomeArray.join(' ');
+
+    const dataParaApi = {
+      matricula: formData.matricula,
+      nome,
+      sobrenome,
+      cpf: formData.cpf.replace(/\D/g, ''),
+      celular: formData.celular.replace(/\D/g, ''),
+      dataNascimento: formData.dataNascimento,
+      email: formData.email,
+      cursoId: Number(formData.cursoId),
+      cep: formData.cep,
+      numero: Number(formData.numero),
+      complemento: formData.complemento,
+    };
+
+    try {
+      await cadastrarAluno(dataParaApi);
+      alert('Aluno cadastrado com sucesso!');
+      onClose();
+      // futuro: adicionar função para recarregar a lista de alunos
+    } catch (error: any) {
+      console.error('Erro ao cadastrar aluno:', error);
+      alert(
+        `Falha no cadastro: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+      );
+    }
   };
 
   // logica para o preenchimento dos campos de endereço pelo cep
@@ -135,20 +170,11 @@ export function NovoAluno() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const [nome, ...sobrenomeArray] = formData.nomeCompleto.split(' ');
-    const sobrenome = sobrenomeArray.join(' ');
-    const dataParaApi = { ...formData, nome, sobrenome };
-    delete (dataParaApi as any).nomeCompleto;
-    console.log('Dados prontos para enviar para a API:', dataParaApi);
-  };
-
+  // envia os dados de cadastro do curso para a api
   const handleCriarCurso = async () => {
-    if (!novoCursoNome) return; // Não faz nada se o campo estiver vazio
+    if (!novoCursoNome) return;
     try {
       const novoCurso = await cadastrarCurso(novoCursoNome);
-      // Adiciona o novo curso à lista e o seleciona automaticamente
       setCursos((prevCursos) => [...prevCursos, novoCurso]);
       setFormData((prevData) => ({
         ...prevData,

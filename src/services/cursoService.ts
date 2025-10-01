@@ -1,11 +1,12 @@
 import api from './api';
+import type { Page } from '../types';
 
 interface Curso {
   id: number;
   nome: string;
 }
 
-export const buscarCursos = async (): Promise<Curso[]> => {
+export const buscarCursos = async (): Promise<Page<Curso>> => {
   try {
     const response = await api.get('/cursos/buscar');
     return response.data;

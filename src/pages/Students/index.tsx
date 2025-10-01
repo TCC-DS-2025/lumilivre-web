@@ -321,7 +321,7 @@ export function AlunosPage() {
     direction: 'asc' | 'desc';
   }>({ key: 'nome', direction: 'asc' });
 
-  const paginatedAndSortedAlunos = useMemo(() => {
+  const sortedAlunos = useMemo(() => {
     let sortableItems = [...alunos];
 
     sortableItems.sort((a, b) => {
@@ -348,10 +348,8 @@ export function AlunosPage() {
       return 0;
     });
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
-  }, [alunos, sortConfig, currentPage, itemsPerPage]);
+    return sortableItems;
+  }, [alunos, sortConfig]);
 
   const totalPages = Math.ceil(alunos.length / itemsPerPage);
 
@@ -433,7 +431,7 @@ export function AlunosPage() {
         onClose={() => setIsModalOpen(false)}
         title="Cadastrar Novo Aluno"
       >
-        <NovoAluno />
+        <NovoAluno onClose={() => setIsModalOpen(false)} />
       </Modal>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
@@ -526,14 +524,14 @@ export function AlunosPage() {
                     {error}
                   </td>
                 </tr>
-              ) : paginatedAndSortedAlunos.length === 0 ? (
+              ) : sortedAlunos.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-gray-500">
                     Nenhum aluno encontrado.
                   </td>
                 </tr>
               ) : (
-                paginatedAndSortedAlunos.map((item) => (
+                sortedAlunos.map((item) => (
                   <tr
                     key={item.id}
                     className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
