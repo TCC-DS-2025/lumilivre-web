@@ -409,7 +409,10 @@ export function AlunosPage() {
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div className="flex items-center space-x-4">
           <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
-            <button onClick={handleBusca} className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
+            <button
+              onClick={handleBusca}
+              className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+            >
               <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
             </button>
             <input
@@ -449,14 +452,22 @@ export function AlunosPage() {
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
           <table className="min-w-full table-auto ">
             <colgroup>
-              <col style={{ width: '10%' }} /> {/* Penalidade */}
-              <col style={{ width: '10%' }} /> {/* Matrícula */}
-              <col style={{ width: '15%' }} /> {/* Curso */}
-              <col style={{ width: '20%' }} /> {/* Aluno */}
-              <col style={{ width: '10%' }} /> {/* Nascimento */}
-              <col style={{ width: '20%' }} /> {/* Email */}
-              <col style={{ width: '10%' }} /> {/* Contato */}
-              <col style={{ width: '5%' }} /> {/* Ações */}
+              <col style={{ width: '10%' }} />
+              {/* Penalidade */}
+              <col style={{ width: '10%' }} />
+              {/* Matrícula */}
+              <col style={{ width: '15%' }} />
+              {/* Curso */}
+              <col style={{ width: '20%' }} />
+              {/* Aluno */}
+              <col style={{ width: '10%' }} />
+              {/* Nascimento */}
+              <col style={{ width: '20%' }} />
+              {/* Email */}
+              <col style={{ width: '10%' }} />
+              {/* Contato */}
+              <col style={{ width: '5%' }} />
+              {/* Ações */}
             </colgroup>
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
@@ -478,9 +489,9 @@ export function AlunosPage() {
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('cursoNome')}
+                  onClick={() => requestSort('cursoNome')} // curso
                   sortConfig={sortConfig}
-                  sortKey="curso"
+                  sortKey="cursoNome"
                 >
                   Curso
                 </SortableTh>
@@ -512,7 +523,7 @@ export function AlunosPage() {
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('celular')} // contato
                   sortConfig={sortConfig}
-                  sortKey="contato"
+                  sortKey="celular"
                 >
                   Contato
                 </SortableTh>

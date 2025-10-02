@@ -5,6 +5,16 @@ import addIconUrl from '../../assets/icons/add.svg';
 import { cadastrarAluno } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
 import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
+import {
+  buscarModulos,
+  cadastrarModulo,
+  type Modulo,
+} from '../../services/moduloService';
+
+interface Curso {
+  id: number;
+  nome: string;
+}
 
 interface FormData {
   matricula: string;
@@ -14,6 +24,8 @@ interface FormData {
   dataNascimento: string;
   email: string;
   cursoId: string;
+  turno: string;
+  moduloId: string;
   cep: string;
   logradouro: string;
   bairro: string;
@@ -21,11 +33,6 @@ interface FormData {
   uf: string;
   numero: string;
   complemento: string;
-}
-
-interface Curso {
-  id: number;
-  nome: string;
 }
 
 const FormInput = ({
@@ -61,11 +68,13 @@ const FormInput = ({
 };
 
 export function NovoAluno({ onClose }: { onClose: () => void }) {
-  const [isNovoCursoModalOpen, setIsNovoCursoModalOpen] = useState(false);
-
+  const [isNovoCursoModuloModalOpen, setIsNovoCursoModuloModalOpen] = useState(false);
+  const [cursos, setCursos] = useState<Curso[]>([]);
   const [novoCursoNome, setNovoCursoNome] = useState('');
-  // const [novoTurno, setNovoTurno] = useState(''); // futuro
-  // const [novoModulo, setNovoModulo] = useState(''); // futuro
+  const [modulos, setModulos] = useState<Modulo[]>([]);
+  const [novoModuloNome, setNovoModuloNome] = useState('');
+
+  const [isCepLoading, setIsCepLoading] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
@@ -75,6 +84,8 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
     dataNascimento: '',
     email: '',
     cursoId: '',
+    turno: '',
+    moduloId: '',
     cep: '',
     logradouro: '',
     bairro: '',
@@ -84,14 +95,15 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
     complemento: '',
   });
 
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [isCepLoading, setIsCepLoading] = useState(false);
-
   useEffect(() => {
-    const carregarCursos = async () => {
+    const carregarDados = async () => {
       try {
-        const paginaDeCursos = await buscarCursos();
-        setCursos(paginaDeCursos.content);
+        const [cursosDaApi, modulosDaApi] = await Promise.all([
+          buscarCursos(),
+          buscarModulos(),
+        ]);
+        setCursos(cursosDaApi.content);
+        setModulos(modulosDaApi);
       } catch (error) {
         console.warn('API de cursos indisponível, usando dados mockados.');
         setCursos([
@@ -102,7 +114,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
         ]);
       }
     };
-    carregarCursos();
+    carregarDados();
   }, []);
 
   const handleChange = (
@@ -135,7 +147,6 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
 
     try {
       await cadastrarAluno(dataParaApi);
-      alert('Aluno cadastrado com sucesso!');
       onClose();
       // futuro: adicionar função para recarregar a lista de alunos
     } catch (error: any) {
@@ -181,9 +192,23 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
         cursoId: String(novoCurso.id),
       }));
       setNovoCursoNome('');
-      setIsNovoCursoModalOpen(false);
+      setIsNovoCursoModuloModalOpen(false);
     } catch (error) {
       console.error('Erro ao criar curso:', error);
+    }
+  };
+
+  // envia os dados de cadastro do modulo para a api
+  const handleCriarModulo = async () => {
+    if (!novoModuloNome) return;
+    try {
+      const novoModulo = await cadastrarModulo({ nome: novoModuloNome });
+      setModulos((prev) => [...prev, novoModulo]);
+      setFormData((prev) => ({ ...prev, moduloId: String(novoModulo.id) }));
+      setNovoModuloNome('');
+      setIsNovoCursoModuloModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao criar módulo:', error);
     }
   };
 
@@ -296,27 +321,32 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                         <option value="MANHA">Matutino</option>
                         <option value="TARDE">Vespertino</option>
                         <option value="NOITE">Noturno</option>
+                        <option value="INTEGRAL">Integral</option>
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="modulo" className={labelStyles}>
+                      <label htmlFor="moduloId" className={labelStyles}>
                         Módulo*
                       </label>
                       <select
-                        id="modulo"
-                        name="modulo"
+                        id="moduloId"
+                        name="moduloId"
+                        value={formData.moduloId}
+                        onChange={handleChange}
                         className={inputStyles}
                         required
                       >
-                        <option value="">Selecione</option>
-                        <option value="1">1º Semestre</option>
-                        <option value="2">2º Semestre</option>
-                        <option value="3">3º Semestre</option>
+                        <option value="">Selecione um módulo</option>
+                        {modulos.map((modulo) => (
+                          <option key={modulo.id} value={modulo.id}>
+                            {modulo.nome}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <button
                       type="button"
-                      onClick={() => setIsNovoCursoModalOpen(true)}
+                      onClick={() => setIsNovoCursoModuloModalOpen(true)}
                       className="p-2 mb-0.5 bg-gray-400 dark:bg-transparent rounded-md hover:opacity-75 transition-all transform hover:scale-110 duration-200"
                     >
                       <img
@@ -436,8 +466,8 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
 
       {/* modal para criação de curso, turno e módulo */}
       <Modal
-        isOpen={isNovoCursoModalOpen}
-        onClose={() => setIsNovoCursoModalOpen(false)}
+        isOpen={isNovoCursoModuloModalOpen}
+        onClose={() => setIsNovoCursoModuloModalOpen(false)}
         title="Gerenciamento de Cursos"
       >
         <div className="space-y-6">
@@ -482,37 +512,6 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
 
           <div className="space-y-2">
             <label
-              htmlFor="novoTurnoNome"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Novo Turno
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                id="novoTurnoNome"
-                type="text"
-                placeholder="Ex: Integral"
-                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => console.log('Salvando novo módulo...')}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center justify-center gap-x-2">
-                  <img
-                    src={addIconUrl}
-                    alt="Icone de adicionar"
-                    className="w-6 h-6"
-                  />
-                  <span>CRIAR</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label
               htmlFor="novoModuloNome"
               className="block text-sm font-medium text-gray-700 dark:text-white"
             >
@@ -523,11 +522,13 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                 id="novoModuloNome"
                 type="text"
                 placeholder="Ex: 4º Módulo"
+                value={novoModuloNome}
+                onChange={(e) => setNovoModuloNome(e.target.value)}
                 className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
               />
               <button
                 type="button"
-                onClick={() => console.log('Salvando novo módulo...')}
+                onClick={handleCriarModulo}
                 className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center gap-x-2">
