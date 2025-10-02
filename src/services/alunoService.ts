@@ -11,6 +11,8 @@ export interface ListaAluno {
   penalidade: string | null;
   matricula: string;
   nome: string;
+  sobrenome: string;
+  dataNascimento: string;
   email: string;
   celular: string;
   cursoNome: string;
@@ -23,7 +25,7 @@ export const buscarAlunosParaAdmin = async (
 ): Promise<Page<ListaAluno>> => {
   const response = await api.get('/alunos/home', {
     params: {
-      texto, 
+      texto,
       page,
       size,
     },
@@ -41,7 +43,7 @@ export interface AlunoPayload {
   email: string;
   cursoId: number;
   cep?: string;
-  numero?: number;
+  numero_casa?: number;
   complemento?: string;
 }
 

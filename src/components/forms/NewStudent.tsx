@@ -31,7 +31,7 @@ interface FormData {
   bairro: string;
   localidade: string;
   uf: string;
-  numero: string;
+  numero_casa: string;
   complemento: string;
 }
 
@@ -67,7 +67,7 @@ const FormInput = ({
   );
 };
 
-export function NovoAluno({ onClose }: { onClose: () => void }) {
+export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void; }) {
   const [isNovoCursoModuloModalOpen, setIsNovoCursoModuloModalOpen] = useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [novoCursoNome, setNovoCursoNome] = useState('');
@@ -91,7 +91,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
     bairro: '',
     localidade: '',
     uf: '',
-    numero: '',
+    numero_casa: '',
     complemento: '',
   });
 
@@ -105,13 +105,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
         setCursos(cursosDaApi.content);
         setModulos(modulosDaApi);
       } catch (error) {
-        console.warn('API de cursos indisponível, usando dados mockados.');
-        setCursos([
-          // mock, caso a api falhe
-          { id: 1, nome: 'Desenvolvimento de Sistemas' },
-          { id: 2, nome: 'Enfermagem' },
-          { id: 3, nome: 'Administração' },
-        ]);
+        console.warn('Cursos indisponível na api');
       }
     };
     carregarDados();
@@ -141,14 +135,14 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
       email: formData.email,
       cursoId: Number(formData.cursoId),
       cep: formData.cep,
-      numero: Number(formData.numero),
+      numero_casa: Number(formData.numero_casa),
       complemento: formData.complemento,
     };
 
     try {
       await cadastrarAluno(dataParaApi);
+      onSuccess();
       onClose();
-      // futuro: adicionar função para recarregar a lista de alunos
     } catch (error: any) {
       console.error('Erro ao cadastrar aluno:', error);
       alert(
@@ -286,7 +280,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_0.5fr_auto] gap-2 items-end">
                     <div>
                       <label htmlFor="cursoId" className={labelStyles}>
                         Curso*
@@ -299,7 +293,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                         className={inputStyles}
                         required
                       >
-                        <option value="">Selecione um curso</option>
+                        <option value="">Selecione</option>
                         {cursos.map((curso) => (
                           <option key={curso.id} value={curso.id}>
                             {curso.nome}
@@ -336,7 +330,7 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                         className={inputStyles}
                         required
                       >
-                        <option value="">Selecione um módulo</option>
+                        <option value="">Selecione</option>
                         {modulos.map((modulo) => (
                           <option key={modulo.id} value={modulo.id}>
                             {modulo.nome}
@@ -432,14 +426,14 @@ export function NovoAluno({ onClose }: { onClose: () => void }) {
                 />
               </div>
               <div className="md:col-span-2">
-                <label htmlFor="numero" className={labelStyles}>
+                <label htmlFor="numero_casa" className={labelStyles}>
                   Número
                 </label>
                 <input
-                  id="numero"
-                  name="numero"
-                  type="text"
-                  value={formData.numero}
+                  id="numero_casa"
+                  name="numero_casa"
+                  type="number"
+                  value={formData.numero_casa}
                   onChange={handleChange}
                   placeholder="123"
                   className={inputStyles}

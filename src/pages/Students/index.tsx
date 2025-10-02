@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
+import { LoadingIcon } from '../../components/LoadingIcon';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -13,7 +14,7 @@ import {
   buscarAlunosParaAdmin,
   type ListaAluno,
 } from '../../services/alunoService';
-import { LoadingIcon } from '../../components/LoadingIcon';
+import type { Page } from '../../types';
 
 // funcionalidade a desenvolver no backend
 type StatusPenalidade =
@@ -22,348 +23,125 @@ type StatusPenalidade =
   | 'suspensao'
   | 'inativo';
 
+type AlunoDisplay = ListaAluno & {
+  nomeCompleto: string;
+  nascimentoDate: Date;
+  penalidadeStatus: StatusPenalidade;
+};
+
 const alunosLegend = [
   { status: 'sem-penalidade', label: 'Sem Penalidade', color: 'bg-green-500' },
   { status: 'advertencia', label: 'Advertência', color: 'bg-yellow-500' },
   { status: 'suspensao', label: 'Suspensão', color: 'bg-orange-500' },
   { status: 'inativo', label: 'Inativo', color: 'bg-red-500' },
 ];
-interface Aluno extends ListaAluno {
-  id: number;
-  cpf: string;
-  nascimento: Date;
-  penalidade: StatusPenalidade | null;
-}
-
-// const mockAlunos: Aluno[] = [
-//   {
-//     id: 1,
-//     matricula: '23001',
-//     nome: 'Neemias Cormino',
-//     cpf: '123.456.789-00',
-//     nascimento: new Date('2005-05-20'),
-//     cursoNome: 'Desenvolvimento de Sistemas',
-//     email: 'neemias.cormino@etec.sp.gov.br',
-//     celular: '(11) 98765-4321',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 2,
-//     matricula: '23002',
-//     nome: 'João Selvagem',
-//     cpf: '111.222.333-44',
-//     nascimento: new Date('2004-08-15'),
-//     cursoNome: 'Enfermagem',
-//     email: 'joao.selvagem@etec.sp.gov.br',
-//     celular: '(11) 91234-5678',
-//     penalidade: 'advertencia',
-//   },
-//   {
-//     id: 3,
-//     matricula: '23003',
-//     nome: 'Maria Oliveira',
-//     cpf: '222.333.444-55',
-//     nascimento: new Date('2006-01-30'),
-//     cursoNome: 'Administração',
-//     email: 'maria.oliveira@etec.sp.gov.br',
-//     celular: '(11) 95678-1234',
-//     penalidade: 'suspensao',
-//   },
-//   {
-//     id: 4,
-//     matricula: '23004',
-//     nome: 'Carlos Pereira',
-//     cpf: '333.444.555-66',
-//     nascimento: new Date('2005-11-10'),
-//     cursoNome: 'Logística',
-//     email: 'carlos.pereira@etec.sp.gov.br',
-//     celular: '(11) 98888-7777',
-//     penalidade: 'inativo',
-//   },
-//   {
-//     id: 5,
-//     matricula: '23005',
-//     nome: 'Ana Beatriz Souza',
-//     cpf: '444.555.666-77',
-//     nascimento: new Date('2006-02-18'),
-//     cursoNome: 'Contabilidade',
-//     email: 'ana.souza@etec.sp.gov.br',
-//     celular: '(11) 93456-7890',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 6,
-//     matricula: '23006',
-//     nome: 'Pedro Henrique Santos',
-//     cpf: '555.666.777-88',
-//     nascimento: new Date('2004-07-12'),
-//     cursoNome: 'Desenvolvimento de Sistemas',
-//     email: 'pedro.santos@etec.sp.gov.br',
-//     celular: '(11) 92345-6789',
-//     penalidade: 'advertencia',
-//   },
-//   {
-//     id: 7,
-//     matricula: '23007',
-//     nome: 'Luana Costa',
-//     cpf: '666.777.888-99',
-//     nascimento: new Date('2005-12-05'),
-//     cursoNome: 'Enfermagem',
-//     email: 'luana.costa@etec.sp.gov.br',
-//     celular: '(11) 93210-9876',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 8,
-//     matricula: '23008',
-//     nome: 'Rafael Almeida',
-//     cpf: '777.888.999-00',
-//     nascimento: new Date('2006-03-22'),
-//     cursoNome: 'Administração',
-//     email: 'rafael.almeida@etec.sp.gov.br',
-//     celular: '(11) 97654-3210',
-//     penalidade: 'suspensao',
-//   },
-//   {
-//     id: 9,
-//     matricula: '23009',
-//     nome: 'Gabriela Martins',
-//     cpf: '888.999.000-11',
-//     nascimento: new Date('2005-09-17'),
-//     cursoNome: 'Logística',
-//     email: 'gabriela.martins@etec.sp.gov.br',
-//     celular: '(11) 94567-1234',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 10,
-//     matricula: '23010',
-//     nome: 'Felipe Rocha',
-//     cpf: '999.000.111-22',
-//     nascimento: new Date('2004-04-28'),
-//     cursoNome: 'Contabilidade',
-//     email: 'felipe.rocha@etec.sp.gov.br',
-//     celular: '(11) 98700-1122',
-//     penalidade: 'advertencia',
-//   },
-//   {
-//     id: 11,
-//     matricula: '23011',
-//     nome: 'Larissa Lima',
-//     cpf: '101.202.303-44',
-//     nascimento: new Date('2006-06-14'),
-//     cursoNome: 'Desenvolvimento de Sistemas',
-//     email: 'larissa.lima@etec.sp.gov.br',
-//     celular: '(11) 94433-2211',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 12,
-//     matricula: '23012',
-//     nome: 'Mateus Fernandes',
-//     cpf: '202.303.404-55',
-//     nascimento: new Date('2005-10-03'),
-//     cursoNome: 'Enfermagem',
-//     email: 'mateus.fernandes@etec.sp.gov.br',
-//     celular: '(11) 95522-3344',
-//     penalidade: 'inativo',
-//   },
-//   {
-//     id: 13,
-//     matricula: '23013',
-//     nome: 'Isabela Nunes',
-//     cpf: '303.404.505-66',
-//     nascimento: new Date('2004-01-25'),
-//     cursoNome: 'Administração',
-//     email: 'isabela.nunes@etec.sp.gov.br',
-//     celular: '(11) 92233-4455',
-//     penalidade: 'suspensao',
-//   },
-//   {
-//     id: 14,
-//     matricula: '23014',
-//     nome: 'Lucas Barbosa',
-//     cpf: '404.505.606-77',
-//     nascimento: new Date('2006-08-09'),
-//     cursoNome: 'Logística',
-//     email: 'lucas.barbosa@etec.sp.gov.br',
-//     celular: '(11) 93344-5566',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 15,
-//     matricula: '23015',
-//     nome: 'Camila Duarte',
-//     cpf: '505.606.707-88',
-//     nascimento: new Date('2005-11-19'),
-//     cursoNome: 'Contabilidade',
-//     email: 'camila.duarte@etec.sp.gov.br',
-//     celular: '(11) 94455-6677',
-//     penalidade: 'advertencia',
-//   },
-//   {
-//     id: 16,
-//     matricula: '23016',
-//     nome: 'Thiago Ribeiro',
-//     cpf: '606.707.808-99',
-//     nascimento: new Date('2006-07-07'),
-//     cursoNome: 'Desenvolvimento de Sistemas',
-//     email: 'thiago.ribeiro@etec.sp.gov.br',
-//     celular: '(11) 95566-7788',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 17,
-//     matricula: '23017',
-//     nome: 'Juliana Mendes',
-//     cpf: '707.808.909-00',
-//     nascimento: new Date('2004-03-29'),
-//     cursoNome: 'Enfermagem',
-//     email: 'juliana.mendes@etec.sp.gov.br',
-//     celular: '(11) 96677-8899',
-//     penalidade: 'suspensao',
-//   },
-//   {
-//     id: 18,
-//     matricula: '23018',
-//     nome: 'Gustavo Azevedo',
-//     cpf: '808.909.010-11',
-//     nascimento: new Date('2005-12-25'),
-//     cursoNome: 'Administração',
-//     email: 'gustavo.azevedo@etec.sp.gov.br',
-//     celular: '(11) 97788-9900',
-//     penalidade: 'sem-penalidade',
-//   },
-//   {
-//     id: 19,
-//     matricula: '23019',
-//     nome: 'Fernanda Castro',
-//     cpf: '909.010.111-22',
-//     nascimento: new Date('2006-05-02'),
-//     cursoNome: 'Logística',
-//     email: 'fernanda.castro@etec.sp.gov.br',
-//     celular: '(11) 98899-0011',
-//     penalidade: 'advertencia',
-//   },
-//   {
-//     id: 20,
-//     matricula: '23020',
-//     nome: 'André Lopes',
-//     cpf: '010.111.212-33',
-//     nascimento: new Date('2004-09-13'),
-//     cursoNome: 'Contabilidade',
-//     email: 'andre.lopes@etec.sp.gov.br',
-//     celular: '(11) 99900-1122',
-//     penalidade: 'inativo',
-//   },
-// ];
 
 export function AlunosPage() {
-  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [alunos, setAlunos] = useState<AlunoDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [pageData, setPageData] = useState<Page<AlunoDisplay> | null>(null);
 
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
 
-  useEffect(() => {
-    const carregarAlunos = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const paginaDeAlunos = await buscarAlunosParaAdmin(
-          filtroAtivo,
-          currentPage - 1,
-          itemsPerPage,
-        );
+  const carregarAlunos = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const paginaDeAlunos = await buscarAlunosParaAdmin(
+        filtroAtivo,
+        currentPage - 1,
+        itemsPerPage,
+      );
 
-        // garante que o status é válido
-        const toStatusPenalidade = (
-          status: string | null,
-        ): StatusPenalidade => {
-          const lowerStatus = status?.toLowerCase().replace('_', '-');
-          switch (lowerStatus) {
-            case 'sem-penalidade':
-            case 'advertencia':
-            case 'suspensao':
-            case 'inativo':
-              return lowerStatus;
-            default:
-              return 'sem-penalidade'; // fallback seguro
-          }
-        };
-
-        const alunosDaApi: Aluno[] = paginaDeAlunos.content.map(
-          (dto, index) => ({
-            ...dto, // ListaAluno (nome, email, celular, etc.)
-            id: index,
-            cpf: 'N/A', // endpoint /home?
-            nascimento: new Date(), // endpoint /home?
-            penalidade: toStatusPenalidade(dto.penalidade),
-          }),
-        );
-
-        //const dadosFinais = [...alunosDaApi, ...mockAlunos]; // com mock
-        const dadosFinais = alunosDaApi; // sem mock
-        setAlunos(dadosFinais);
-      } catch (err) {
-        console.error('Erro ao carregar alunos:', err);
-        setError('Não foi possível carregar os dados dos alunos.');
-      } finally {
-        setIsLoading(false);
+      if (!paginaDeAlunos || !paginaDeAlunos.content) {
+        setAlunos([]);
+        setPageData(null);
+        return;
       }
-    };
 
+      // garante que o status é válido
+      const toStatusPenalidade = (status: string | null): StatusPenalidade => {
+        const lowerStatus = status?.toLowerCase().replace('_', '-');
+        switch (lowerStatus) {
+          case 'sem-penalidade':
+          case 'advertencia':
+          case 'suspensao':
+          case 'inativo':
+            return lowerStatus;
+          default:
+            return 'sem-penalidade'; // fallback seguro
+        }
+      };
+
+      const alunosDaApi = paginaDeAlunos.content.map((dto) => ({
+        ...dto, // ListaAluno (matricula, nome, sobrenome, etc.)
+        nomeCompleto: `${dto.nome} ${dto.sobrenome}`,
+        nascimentoDate: new Date(dto.dataNascimento),
+        penalidadeStatus: toStatusPenalidade(dto.penalidade),
+      }));
+
+      const novaPaginaDeAlunos: Page<AlunoDisplay> = {
+        ...paginaDeAlunos,
+        content: alunosDaApi,
+      };
+
+      setPageData(novaPaginaDeAlunos);
+      setAlunos(alunosDaApi);
+    } catch (err) {
+      console.error('Erro ao carregar alunos:', err);
+      setError('Não foi possível carregar os dados dos alunos.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     carregarAlunos();
   }, [currentPage, itemsPerPage, filtroAtivo]);
 
   const handleBusca = () => {
-    setCurrentPage(1); // Sempre volta para a primeira página ao fazer uma nova busca
+    setCurrentPage(1);
     setFiltroAtivo(termoBusca);
+  };
+
+  // atualiza a tabela depois de um cadastro bem sucedido
+  const handleCadastroSucesso = () => {
+    carregarAlunos();
   };
 
   // organização das colunas
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Aluno;
+    key: keyof AlunoDisplay;
     direction: 'asc' | 'desc';
-  }>({ key: 'nome', direction: 'asc' });
+  }>({ key: 'nomeCompleto', direction: 'asc' });
 
   const sortedAlunos = useMemo(() => {
     let sortableItems = [...alunos];
-
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
-
-      if (key === 'nascimento') {
+      if (key === 'nascimentoDate') { // Use o campo de Data real
         return sortConfig.direction === 'asc'
           ? a[key].getTime() - b[key].getTime()
           : b[key].getTime() - a[key].getTime();
       }
-
       const valA = a[key as keyof typeof a];
       const valB = b[key as keyof typeof b];
-
-      if (valA === null) return -1;
-      if (valB === null) return 1;
-
-      if (valA < valB) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (valA > valB) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
+      if (valA === null) return 1; // Nulos no final
+      if (valB === null) return -1;
+      // Comparação de strings com localeCompare para acentos e caracteres especiais
+      return sortConfig.direction === 'asc'
+        ? String(valA).localeCompare(String(valB))
+        : String(valB).localeCompare(String(valA));
     });
-
     return sortableItems;
-  }, [alunos, sortConfig]);
+}, [alunos, sortConfig]);
 
-  const totalPages = Math.ceil(alunos.length / itemsPerPage);
-
-  const requestSort = (key: keyof Aluno) => {
+  const requestSort = (key: keyof AlunoDisplay) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -445,7 +223,10 @@ export function AlunosPage() {
         onClose={() => setIsModalOpen(false)}
         title="Cadastrar Novo Aluno"
       >
-        <NovoAluno onClose={() => setIsModalOpen(false)} />
+        <NovoAluno
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleCadastroSucesso}
+        />
       </Modal>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
@@ -473,9 +254,9 @@ export function AlunosPage() {
               <tr className="select-none">
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('penalidade')}
+                  onClick={() => requestSort('penalidadeStatus')}
                   sortConfig={sortConfig}
-                  sortKey="penalidade"
+                  sortKey="penalidadeStatus"
                 >
                   Penalidade
                 </SortableTh>
@@ -489,7 +270,7 @@ export function AlunosPage() {
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('cursoNome')} // curso
+                  onClick={() => requestSort('cursoNome')}
                   sortConfig={sortConfig}
                   sortKey="cursoNome"
                 >
@@ -497,17 +278,17 @@ export function AlunosPage() {
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('nome')}
+                  onClick={() => requestSort('nomeCompleto')}
                   sortConfig={sortConfig}
-                  sortKey="nome"
+                  sortKey="nomeCompleto"
                 >
                   Aluno
                 </SortableTh>
                 <SortableTh
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('nascimento')}
+                  onClick={() => requestSort('nascimentoDate')}
                   sortConfig={sortConfig}
-                  sortKey="nascimento"
+                  sortKey="nascimentoDate"
                 >
                   Nascimento
                 </SortableTh>
@@ -555,11 +336,11 @@ export function AlunosPage() {
               ) : (
                 sortedAlunos.map((item) => (
                   <tr
-                    key={item.id}
+                    key={item.matricula}
                     className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                   >
                     <td className="p-4 whitespace-nowrap">
-                      <PenalidadeIndicator status={item.penalidade} />
+                      <PenalidadeIndicator status={item.penalidadeStatus} />
                     </td>
                     <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
                       {item.matricula}
@@ -568,10 +349,10 @@ export function AlunosPage() {
                       {item.cursoNome}
                     </td>
                     <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                      {item.nome}
+                      {item.nomeCompleto}
                     </td>
                     <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.nascimento.toLocaleDateString('pt-BR')}
+                      {item.nascimentoDate.toLocaleDateString('pt-BR')}
                     </td>
                     <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
                       {item.email}
@@ -598,9 +379,9 @@ export function AlunosPage() {
           }))}
           pagination={{
             currentPage,
-            totalPages,
+            totalPages: pageData?.totalPages ?? 1,
             itemsPerPage,
-            totalItems: alunos.length,
+            totalItems: pageData?.totalElements ?? 0,
           }}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={(size) => {
