@@ -8,8 +8,7 @@ export interface Emprestimo {
     };
   };
   aluno: {
-    nome: string;
-    sobrenome: string;
+    nomeCompleto: string;
   };
   dataEmprestimo: string;
   dataDevolucao: string;

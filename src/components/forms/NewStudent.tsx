@@ -122,13 +122,9 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const [nome, ...sobrenomeArray] = formData.nomeCompleto.split(' ');
-    const sobrenome = sobrenomeArray.join(' ');
-
     const dataParaApi = {
       matricula: formData.matricula,
-      nome,
-      sobrenome,
+      nomeCompleto: formData.nomeCompleto,
       cpf: formData.cpf.replace(/\D/g, ''),
       celular: formData.celular.replace(/\D/g, ''),
       dataNascimento: formData.dataNascimento,
@@ -312,9 +308,9 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
                         required
                       >
                         <option value="">Selecione</option>
-                        <option value="MANHA">Matutino</option>
-                        <option value="TARDE">Vespertino</option>
-                        <option value="NOITE">Noturno</option>
+                        <option value="MANHA">Manhã</option>
+                        <option value="TARDE">Tarde</option>
+                        <option value="NOITE">Noite</option>
                         <option value="INTEGRAL">Integral</option>
                       </select>
                     </div>

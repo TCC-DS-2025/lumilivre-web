@@ -250,7 +250,7 @@ export function DashboardPage() {
             id: e.id,
             livro: e.exemplar?.livro?.nome || 'Livro não encontrado',
             isbn: e.exemplar?.livro?.isbn || 'N/A',
-            aluno: `${e.aluno?.nome || ''} ${e.aluno?.sobrenome || ''}`.trim(),
+            aluno: e.aluno?.nomeCompleto || "Aluno não encontrado",
             retirada: new Date(e.dataEmprestimo).toLocaleDateString('pt-BR'),
             devolucao: new Date(e.dataDevolucao).toLocaleDateString('pt-BR'),
             statusVencimento,

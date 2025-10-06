@@ -1,7 +1,7 @@
 import api from './api';
 import type { Page } from '../types';
 
-interface Curso {
+export interface Curso {
   id: number;
   nome: string;
 }

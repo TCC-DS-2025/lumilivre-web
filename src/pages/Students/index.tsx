@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
@@ -11,52 +11,89 @@ import addIconUrl from '../../assets/icons/add.svg';
 import searchIconUrl from '../../assets/icons/search.svg';
 
 import {
+  buscarAlunosAvancado,
   buscarAlunosParaAdmin,
   type ListaAluno,
 } from '../../services/alunoService';
 import type { Page } from '../../types';
+import { FiltroAvançado } from '../../components/AdvancedFilter';
 
-// funcionalidade a desenvolver no backend
 type StatusPenalidade =
   | 'sem-penalidade'
   | 'advertencia'
   | 'suspensao'
-  | 'inativo';
-
-type AlunoDisplay = ListaAluno & {
-  nomeCompleto: string;
-  nascimentoDate: Date;
-  penalidadeStatus: StatusPenalidade;
-};
+  | 'bloqueio'
+  | 'banimento';
 
 const alunosLegend = [
   { status: 'sem-penalidade', label: 'Sem Penalidade', color: 'bg-green-500' },
   { status: 'advertencia', label: 'Advertência', color: 'bg-yellow-500' },
   { status: 'suspensao', label: 'Suspensão', color: 'bg-orange-500' },
-  { status: 'inativo', label: 'Inativo', color: 'bg-red-500' },
+  { status: 'bloqueio', label: 'Bloqueio', color: 'bg-red-500' },
+  { status: 'banimento', label: 'Banimento', color: 'bg-black' },
 ];
 
+type AlunoDisplay = ListaAluno & {
+  nascimentoDate: Date;
+  penalidadeStatus: StatusPenalidade;
+};
+
 export function AlunosPage() {
+  // estados da pagina
   const [alunos, setAlunos] = useState<AlunoDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // estados de paginação e filtro
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageData, setPageData] = useState<Page<AlunoDisplay> | null>(null);
-
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterParams, setFilterParams] = useState({
+    penalidade: '',
+    cursoNome: '',
+    turno: '',
+    modulo: '',
+    dataNascimento: '',
+  });
+  const [activeFilters, setActiveFilters] = useState({});
 
-  const carregarAlunos = async () => {
+  const hasActiveFilters = useMemo(() => {
+    return Object.values(activeFilters).some((value) => value !== '');
+  }, [activeFilters]);
+
+  // organização das colunas
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof AlunoDisplay;
+    direction: 'asc' | 'desc';
+  }>({ key: 'nomeCompleto', direction: 'asc' });
+
+  const fetchAlunos = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const paginaDeAlunos = await buscarAlunosParaAdmin(
-        filtroAtivo,
-        currentPage - 1,
-        itemsPerPage,
-      );
+      let paginaDeAlunos;
+      const params = {
+        page: currentPage - 1,
+        size: itemsPerPage,
+        sort: `${sortConfig.key},${sortConfig.direction}`,
+      };
+
+      if (hasActiveFilters) {
+        paginaDeAlunos = await buscarAlunosAvancado({
+          ...activeFilters,
+          ...params,
+        });
+      } else {
+        paginaDeAlunos = await buscarAlunosParaAdmin(
+          filtroAtivo,
+          params.page,
+          params.size,
+          params.sort,
+        );
+      }
 
       if (!paginaDeAlunos || !paginaDeAlunos.content) {
         setAlunos([]);
@@ -66,12 +103,15 @@ export function AlunosPage() {
 
       // garante que o status é válido
       const toStatusPenalidade = (status: string | null): StatusPenalidade => {
-        const lowerStatus = status?.toLowerCase().replace('_', '-');
+        if (status === null) {
+          return 'sem-penalidade';
+        }
+        const lowerStatus = status.toLowerCase();
         switch (lowerStatus) {
-          case 'sem-penalidade':
           case 'advertencia':
           case 'suspensao':
-          case 'inativo':
+          case 'bloqueio':
+          case 'banimento':
             return lowerStatus;
           default:
             return 'sem-penalidade'; // fallback seguro
@@ -79,18 +119,12 @@ export function AlunosPage() {
       };
 
       const alunosDaApi = paginaDeAlunos.content.map((dto) => ({
-        ...dto, // ListaAluno (matricula, nome, sobrenome, etc.)
-        nomeCompleto: `${dto.nome} ${dto.sobrenome}`,
+        ...dto, // ListaAluno
         nascimentoDate: new Date(dto.dataNascimento),
         penalidadeStatus: toStatusPenalidade(dto.penalidade),
       }));
 
-      const novaPaginaDeAlunos: Page<AlunoDisplay> = {
-        ...paginaDeAlunos,
-        content: alunosDaApi,
-      };
-
-      setPageData(novaPaginaDeAlunos);
+      setPageData({ ...paginaDeAlunos, content: alunosDaApi });
       setAlunos(alunosDaApi);
     } catch (err) {
       console.error('Erro ao carregar alunos:', err);
@@ -98,33 +132,47 @@ export function AlunosPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, itemsPerPage, filtroAtivo, activeFilters, sortConfig]);
 
   useEffect(() => {
-    carregarAlunos();
-  }, [currentPage, itemsPerPage, filtroAtivo]);
+    fetchAlunos();
+  }, [fetchAlunos]);
+
+  const handleCadastroSucesso = () => {
+    fetchAlunos();
+  };
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setActiveFilters(filterParams);
+    setIsFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setCurrentPage(1);
+    setFilterParams({
+      penalidade: '',
+      cursoNome: '',
+      turno: '',
+      modulo: '',
+      dataNascimento: '',
+    });
+    setActiveFilters({});
+    setIsFilterOpen(false);
+  };
 
   const handleBusca = () => {
     setCurrentPage(1);
+    setActiveFilters({});
     setFiltroAtivo(termoBusca);
   };
-
-  // atualiza a tabela depois de um cadastro bem sucedido
-  const handleCadastroSucesso = () => {
-    carregarAlunos();
-  };
-
-  // organização das colunas
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof AlunoDisplay;
-    direction: 'asc' | 'desc';
-  }>({ key: 'nomeCompleto', direction: 'asc' });
 
   const sortedAlunos = useMemo(() => {
     let sortableItems = [...alunos];
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
-      if (key === 'nascimentoDate') { // Use o campo de Data real
+      if (key === 'nascimentoDate') {
+        // Use o campo de Data real
         return sortConfig.direction === 'asc'
           ? a[key].getTime() - b[key].getTime()
           : b[key].getTime() - a[key].getTime();
@@ -139,7 +187,7 @@ export function AlunosPage() {
         : String(valB).localeCompare(String(valA));
     });
     return sortableItems;
-}, [alunos, sortConfig]);
+  }, [alunos, sortConfig]);
 
   const requestSort = (key: keyof AlunoDisplay) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -155,20 +203,21 @@ export function AlunosPage() {
   }: {
     status: StatusPenalidade | null;
   }) => {
-    // se o valor for nulo ou inválido
     const safeStatus = status || 'sem-penalidade';
 
     const colorMap: Record<StatusPenalidade, string> = {
       'sem-penalidade': 'bg-green-500',
       advertencia: 'bg-yellow-500',
       suspensao: 'bg-orange-500',
-      inativo: 'bg-red-500',
+      bloqueio: 'bg-red-500',
+      banimento: 'bg-black',
     };
     const titleMap: Record<StatusPenalidade, string> = {
       'sem-penalidade': 'Sem Penalidades',
       advertencia: 'Advertência',
       suspensao: 'Suspensão',
-      inativo: 'Inativo',
+      bloqueio: 'Bloqueio',
+      banimento: 'Banimento',
     };
 
     return (
@@ -204,10 +253,26 @@ export function AlunosPage() {
               }}
             />
           </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
-            <span>Filtro Avançado</span>
-            <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen((prev) => !prev)}
+              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none"
+            >
+              <span>Filtro Avançado</span>
+              <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 mr-2" />
+            </button>
+
+            {isFilterOpen && (
+              <FiltroAvançado
+                filters={filterParams}
+                onFilterChange={(field, value) =>
+                  setFilterParams((prev) => ({ ...prev, [field]: value }))
+                }
+                onApply={handleApplyFilters}
+                onClear={handleClearFilters}
+              />
+            )}
+          </div>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -231,24 +296,16 @@ export function AlunosPage() {
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
-          <table className="min-w-full table-auto ">
+          <table className="min-w-full table-auto">
             <colgroup>
               <col style={{ width: '10%' }} />
-              {/* Penalidade */}
               <col style={{ width: '10%' }} />
-              {/* Matrícula */}
               <col style={{ width: '15%' }} />
-              {/* Curso */}
               <col style={{ width: '20%' }} />
-              {/* Aluno */}
               <col style={{ width: '10%' }} />
-              {/* Nascimento */}
               <col style={{ width: '20%' }} />
-              {/* Email */}
               <col style={{ width: '10%' }} />
-              {/* Contato */}
               <col style={{ width: '5%' }} />
-              {/* Ações */}
             </colgroup>
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
@@ -334,7 +391,7 @@ export function AlunosPage() {
                   </td>
                 </tr>
               ) : (
-                sortedAlunos.map((item) => (
+                alunos.map((item) => (
                   <tr
                     key={item.matricula}
                     className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
