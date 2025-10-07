@@ -91,7 +91,9 @@ export function TableFooter({
               alt="Seta para a Esquerda"
             />
           </button>
-          <span className="text-sm font-semibold dark:text-white">{currentPage}</span>
+          <span className="text-sm font-semibold dark:text-white">
+            {currentPage}
+          </span>
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}

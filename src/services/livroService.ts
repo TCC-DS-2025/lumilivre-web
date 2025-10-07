@@ -10,6 +10,8 @@ export interface ListaLivro {
   genero: string;
   autor: string;
   editora: string;
+  localizacao_fisica: string;
+  resposavel?: string;
 }
 
 export interface LivroFilterParams {

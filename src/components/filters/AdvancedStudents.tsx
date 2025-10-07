@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import { buscarCursos, type Curso } from '../services/cursoService';
-import { buscarModulos } from '../services/moduloService';
+import { buscarCursos, type Curso } from '../../services/cursoService';
+import { buscarModulos } from '../../services/moduloService';
 
 interface FilterPanelProps {
   filters: {

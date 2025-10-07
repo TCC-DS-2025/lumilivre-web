@@ -1,6 +1,7 @@
 export interface Emprestimo {
   id: number;
   exemplar: {
+    tombo: string;
     livro: {
       nome: string;
       isbn: string;

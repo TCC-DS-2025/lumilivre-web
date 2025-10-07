@@ -5,7 +5,7 @@ import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { LoadingIcon } from '../../components/LoadingIcon';
-import { FiltroAvançado } from '../../components/AdvancedFilter';
+import { FiltroAvançado } from '../../components/filters/AdvancedStudents';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -17,7 +17,6 @@ import {
   type ListaAluno,
 } from '../../services/alunoService';
 import type { Page } from '../../types';
-
 
 type StatusPenalidade =
   | 'sem-penalidade'
