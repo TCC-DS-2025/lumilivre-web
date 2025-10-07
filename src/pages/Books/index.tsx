@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
@@ -8,8 +9,6 @@ import { NovoLivro } from '../../components/forms/NewBook';
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
 import searchIconUrl from '../../assets/icons/search.svg';
-
-type StatusExemplar = 'disponivel' | 'emprestado';
 
 import {
   buscarLivrosParaAdmin,
@@ -21,20 +20,7 @@ const livrosLegend = [
   { label: 'Disponível', color: 'bg-green-500' },
   { label: 'Emprestado', color: 'bg-yellow-500' },
   { label: 'Indisponível', color: 'bg-gray-400' },
-  { label: 'Em Manutenção', color: 'bg-orange-500' },
 ];
-
-interface Livro {
-  id: string;
-  status: StatusExemplar;
-  tombo: string;
-  isbn: string;
-  cdd: string;
-  genero: string;
-  titulo: string;
-  autor: string;
-  editora: string;
-}
 
 export function LivrosPage() {
   const [livros, setLivros] = useState<ListaLivro[]>([]);
@@ -100,8 +86,7 @@ export function LivrosPage() {
     const statusInfo = {
       DISPONIVEL: { color: 'bg-green-500', title: 'Disponível' },
       EMPRESTADO: { color: 'bg-yellow-500', title: 'Emprestado' },
-      INDISPONIVEL: { color: 'bg-gray-400', title: 'Indisponível' },
-      EM_MANUTENCAO: { color: 'bg-orange-500', title: 'Em Manutenção' },
+      INDISPONIVEL: { color: 'bg-gray-400', title: 'Indisponível' }
     };
     const info = statusInfo[status as keyof typeof statusInfo] || {
       color: 'bg-gray-200',

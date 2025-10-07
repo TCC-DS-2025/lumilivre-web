@@ -5,6 +5,7 @@ import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { LoadingIcon } from '../../components/LoadingIcon';
+import { FiltroAvançado } from '../../components/AdvancedFilter';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -16,7 +17,7 @@ import {
   type ListaAluno,
 } from '../../services/alunoService';
 import type { Page } from '../../types';
-import { FiltroAvançado } from '../../components/AdvancedFilter';
+
 
 type StatusPenalidade =
   | 'sem-penalidade'
@@ -337,7 +338,7 @@ export function AlunosPage() {
                   className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
                   onClick={() => requestSort('nomeCompleto')}
                   sortConfig={sortConfig}
-                  sortKey="nomeCompleto"
+                  sortKey="nome"
                 >
                   Aluno
                 </SortableTh>

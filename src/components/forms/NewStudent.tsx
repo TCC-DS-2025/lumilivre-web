@@ -557,9 +557,10 @@ export function NovoAluno({
       <button
         type="submit"
         form="form-novo-aluno"
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+        disabled={isCepLoading}
+        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 disabled:bg-gray-400"
       >
-        SALVAR
+        {isCepLoading ? 'Buscando CEP...' : 'SALVAR'}
       </button>
     </div>
   );
