@@ -6,6 +6,12 @@ export interface Curso {
   nome: string;
 }
 
+export interface CursoPayload {
+  nome: string;
+  turno: string;
+  modulo: string;
+}
+
 export const buscarCursos = async (): Promise<Page<Curso>> => {
   try {
     const response = await api.get('/cursos/buscar');
@@ -16,7 +22,7 @@ export const buscarCursos = async (): Promise<Page<Curso>> => {
   }
 };
 
-export const cadastrarCurso = async (nome: string): Promise<Curso> => {
-  const response = await api.post('/cursos/cadastrar', { nome });
+export const cadastrarCurso = async (payload: CursoPayload): Promise<Curso> => {
+  const response = await api.post('/cursos/cadastrar', payload);
   return response.data;
 };

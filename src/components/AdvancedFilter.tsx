@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { buscarCursos, type Curso } from '../services/cursoService';
+import { buscarModulos } from '../services/moduloService';
 
 interface FilterPanelProps {
   filters: {
@@ -21,11 +23,13 @@ export function FiltroAvançado({
   onClear,
 }: FilterPanelProps) {
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [modulos, setModulos] = useState<string[]>([]);
 
   useEffect(() => {
-    Promise.all([buscarCursos()])
-      .then(([pageCursos]) => {
+    Promise.all([buscarCursos(), buscarModulos()])
+      .then(([pageCursos, listaModulos]) => {
         setCursos(pageCursos.content);
+        setModulos(listaModulos);
       })
       .catch(console.error);
   }, []);
@@ -82,7 +86,7 @@ export function FiltroAvançado({
               onChange={handleInputChange}
               className={inputStyles}
             >
-              <option value="">Todos os Cursos</option>
+              <option value="">Todos</option>
               {cursos.map((curso) => (
                 <option key={curso.id} value={curso.nome}>
                   {curso.nome}
@@ -107,14 +111,19 @@ export function FiltroAvançado({
           </div>
           <div>
             <label className={labelStyles}>Módulo</label>
-            <input
+            <select
               name="modulo"
-              type="text"
-              placeholder="Ex: 1º Bimestre"
               value={filters.modulo}
               onChange={handleInputChange}
               className={inputStyles}
-            />
+            >
+              <option value="">Todos</option>
+              {modulos.map((mod) => (
+                <option key={mod} value={mod}>
+                  {mod}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

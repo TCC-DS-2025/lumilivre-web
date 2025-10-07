@@ -4,12 +4,12 @@ import addIconUrl from '../../assets/icons/add.svg';
 
 import { cadastrarAluno } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
-import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
 import {
-  buscarModulos,
-  cadastrarModulo,
-  type Modulo,
-} from '../../services/moduloService';
+  buscarCursos,
+  cadastrarCurso,
+  type CursoPayload,
+} from '../../services/cursoService';
+import { buscarModulos } from '../../services/moduloService';
 
 interface Curso {
   id: number;
@@ -25,7 +25,7 @@ interface FormData {
   email: string;
   cursoId: string;
   turno: string;
-  moduloId: string;
+  modulo: string;
   cep: string;
   logradouro: string;
   bairro: string;
@@ -67,11 +67,18 @@ const FormInput = ({
   );
 };
 
-export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void; }) {
-  const [isNovoCursoModuloModalOpen, setIsNovoCursoModuloModalOpen] = useState(false);
+export function NovoAluno({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [isNovoCursoModuloModalOpen, setIsNovoCursoModuloModalOpen] =
+    useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [novoCursoNome, setNovoCursoNome] = useState('');
-  const [modulos, setModulos] = useState<Modulo[]>([]);
+  const [modulos, setModulos] = useState<string[]>([]);
   const [novoModuloNome, setNovoModuloNome] = useState('');
 
   const [isCepLoading, setIsCepLoading] = useState(false);
@@ -85,7 +92,7 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
     email: '',
     cursoId: '',
     turno: '',
-    moduloId: '',
+    modulo: '',
     cep: '',
     logradouro: '',
     bairro: '',
@@ -98,14 +105,14 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const [cursosDaApi, modulosDaApi] = await Promise.all([
+        const [cursosDaApi, modulosResponse] = await Promise.all([
           buscarCursos(),
           buscarModulos(),
         ]);
         setCursos(cursosDaApi.content);
-        setModulos(modulosDaApi);
+        setModulos(modulosResponse);
       } catch (error) {
-        console.warn('Cursos indisponível na api');
+        console.warn('Cursos ou módulos indisponíveis na api', error);
       }
     };
     carregarDados();
@@ -121,7 +128,6 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
   // envia os dados de cadastro do aluno para a api
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const dataParaApi = {
       matricula: formData.matricula,
       nomeCompleto: formData.nomeCompleto,
@@ -173,9 +179,19 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
 
   // envia os dados de cadastro do curso para a api
   const handleCriarCurso = async () => {
-    if (!novoCursoNome) return;
+    if (!novoCursoNome || !formData.turno || !formData.modulo) {
+      alert(
+        'Para criar um novo curso, preencha o nome do curso, e selecione um turno e um módulo no formulário principal.',
+      );
+      return;
+    }
     try {
-      const novoCurso = await cadastrarCurso(novoCursoNome);
+      const payload: CursoPayload = {
+        nome: novoCursoNome,
+        turno: formData.turno,
+        modulo: formData.modulo,
+      };
+      const novoCurso = await cadastrarCurso(payload);
       setCursos((prevCursos) => [...prevCursos, novoCurso]);
       setFormData((prevData) => ({
         ...prevData,
@@ -188,18 +204,20 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
     }
   };
 
-  // envia os dados de cadastro do modulo para a api
   const handleCriarModulo = async () => {
-    if (!novoModuloNome) return;
-    try {
-      const novoModulo = await cadastrarModulo({ nome: novoModuloNome });
-      setModulos((prev) => [...prev, novoModulo]);
-      setFormData((prev) => ({ ...prev, moduloId: String(novoModulo.id) }));
+    if (!novoModuloNome.trim() || modulos.includes(novoModuloNome.trim())) {
       setNovoModuloNome('');
-      setIsNovoCursoModuloModalOpen(false);
-    } catch (error) {
-      console.error('Erro ao criar módulo:', error);
+      return;
     }
+
+    const novoModulo = novoModuloNome.trim();
+
+    setModulos((prev) => [...prev, novoModulo].sort());
+
+    setFormData((prev) => ({ ...prev, modulo: novoModulo }));
+
+    setNovoModuloNome('');
+    setIsNovoCursoModuloModalOpen(false);
   };
 
   const labelStyles =
@@ -315,21 +333,22 @@ export function NovoAluno({ onClose, onSuccess }: { onClose: () => void; onSucce
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="moduloId" className={labelStyles}>
+                      <label htmlFor="modulo" className={labelStyles}>
                         Módulo*
                       </label>
                       <select
-                        id="moduloId"
-                        name="moduloId"
-                        value={formData.moduloId}
+                        id="modulo"
+                        name="modulo"
+                        value={formData.modulo}
                         onChange={handleChange}
                         className={inputStyles}
                         required
                       >
                         <option value="">Selecione</option>
-                        {modulos.map((modulo) => (
-                          <option key={modulo.id} value={modulo.id}>
-                            {modulo.nome}
+                        {modulos.map((mod) => (
+                          <option key={mod} value={mod}>
+                            {' '}
+                            {mod}
                           </option>
                         ))}
                       </select>

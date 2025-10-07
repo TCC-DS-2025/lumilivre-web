@@ -302,7 +302,7 @@ export function EmprestimosPage() {
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div className="flex items-center space-x-4">
           <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
-            <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
+            <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
               <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
             </button>
             <input
