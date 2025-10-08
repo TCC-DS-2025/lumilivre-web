@@ -32,7 +32,6 @@ export interface LivroPayload {
   numero_paginas: number;
   cdd: string;
   editora: string;
-  numero_capitulos?: number;
   classificacao_etaria: string;
   edicao?: string;
   volume?: number;

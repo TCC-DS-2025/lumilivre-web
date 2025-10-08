@@ -33,7 +33,6 @@ const estadoInicialFormulario: LivroPayload = {
   sinopse: '',
   edicao: '',
   volume: 0,
-  numero_capitulos: 0,
 };
 
 export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
@@ -122,7 +121,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         ...formData,
         numero_paginas: Number(formData.numero_paginas) || 0,
         volume: Number(formData.volume) || undefined,
-        numero_capitulos: Number(formData.numero_capitulos) || undefined,
         imagem: imagemPreview || '',
       };
 
