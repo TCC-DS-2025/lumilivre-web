@@ -188,19 +188,25 @@ export function LivrosPage() {
         <div className="flex items-center space-x-4">
           {/* botão voltar + titulo do livro */}
           {isExemplarView && selectedBook && (
-            <div className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-3 rounded-lg mb-4">
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white">
+            <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-200">
+              <button
+                onClick={handleVoltarParaLivros}
+                className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+              >
+                <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
+              </button>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4 transition-all duration-200">
                 Exemplares de:{' '}
                 <span className="text-lumi-primary">{selectedBook.nome}</span>
               </h2>
-              <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md">
-                DETALHES DO LIVRO
+              <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md">
+                DETALHES
               </button>
             </div>
           )}
 
           {/* input de pesquisa, filtro avançado e novo livro */}
-          <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
+          <div className="relative ml-3 mr-2 transition-all duration-200 select-none">
             <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
               <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
             </button>
@@ -261,7 +267,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('status')}
                       sortConfig={sortConfig}
                       sortKey="status"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[15%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
                     >
                       Status
                     </SortableTh>
@@ -269,7 +275,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('tomboExemplar')}
                       sortConfig={sortConfig}
                       sortKey="tomboExemplar"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[20%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[20%]"
                     >
                       Tombo
                     </SortableTh>
@@ -277,7 +283,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('localizacao_fisica')}
                       sortConfig={sortConfig}
                       sortKey="localizacao_fisica"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[30%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[30%]"
                     >
                       Localização
                     </SortableTh>
@@ -285,7 +291,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('responsavel')}
                       sortConfig={sortConfig}
                       sortKey="responsavel"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[35%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[35%]"
                     >
                       Responsável
                     </SortableTh>
@@ -296,7 +302,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('isbn')}
                       sortConfig={sortConfig}
                       sortKey="isbn"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[15%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
                     >
                       ISBN
                     </SortableTh>
@@ -304,7 +310,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('nome')}
                       sortConfig={sortConfig}
                       sortKey="nome"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[30%] text-left"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[30%]"
                     >
                       Livro
                     </SortableTh>
@@ -312,7 +318,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('autor')}
                       sortConfig={sortConfig}
                       sortKey="autor"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[20%] text-left"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[20%]"
                     >
                       Autor
                     </SortableTh>
@@ -320,7 +326,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('editora')}
                       sortConfig={sortConfig}
                       sortKey="editora"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[15%] text-left"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
                     >
                       Editora
                     </SortableTh>
@@ -328,7 +334,7 @@ export function LivrosPage() {
                       onClick={() => requestSort('quantidade')}
                       sortConfig={sortConfig}
                       sortKey="quantidade"
-                      className="p-4 text-sm font-bold tracking-wider hover:bg-white/30 w-[10%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[10%]"
                     >
                       Qtd.
                     </SortableTh>
@@ -339,7 +345,7 @@ export function LivrosPage() {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y text-center bg-white dark:bg-dark-card">
+            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
               {isLoading ? (
                 <tr>
                   <td colSpan={8}>
@@ -366,7 +372,7 @@ export function LivrosPage() {
                         ? (item as ListaLivro).tomboExemplar
                         : (item as LivroAgrupado).isbn
                     }
-                    className="transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                   >
                     {isExemplarView ? (
                       <>
@@ -387,19 +393,19 @@ export function LivrosPage() {
                       </>
                     ) : (
                       <>
-                        <td className="p-4 text-sm font-bold text-gray-700 dark:text-gray-300">
+                        <td className="p-4 text-sm font-bold text-black dark:text-white">
                           {item.isbn}
                         </td>
-                        <td className="p-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-left truncate">
+                        <td className="p-4 text-sm font-bold text-black dark:text-white text-center truncate">
                           {item.nome}
                         </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-left truncate">
+                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-center truncate">
                           {item.autor}
                         </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-left truncate">
+                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-center truncate">
                           {item.editora}
                         </td>
-                        <td className="p-4 text-sm font-bold text-gray-700 dark:text-gray-300">
+                        <td className="p-4 text-sm font-bold text-black dark:text-white">
                           {(item as LivroAgrupado).quantidade}
                         </td>
                         <td className="p-4 whitespace-nowrap">
@@ -426,6 +432,7 @@ export function LivrosPage() {
           </table>
         </div>
         <TableFooter
+          viewMode={isExemplarView ? 'normal' : 'exception'}
           legendItems={isExemplarView ? livrosLegend : undefined}
           pagination={{
             currentPage,

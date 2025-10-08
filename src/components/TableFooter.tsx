@@ -22,6 +22,7 @@ interface TableFooterProps {
   pagination: PaginationState;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (size: number) => void;
+  viewMode?: 'normal' | 'exception';
 }
 
 const StatusLegend: React.FC<{ items: LegendItem[] }> = ({ items }) => (
@@ -42,11 +43,46 @@ export function TableFooter({
   pagination,
   onPageChange,
   onItemsPerPageChange,
+  viewMode = 'normal'
 }: TableFooterProps) {
   const { currentPage, totalPages, itemsPerPage, totalItems } = pagination;
 
   const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+if (viewMode === 'exception') {
+    return (
+      <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
+        <div className="flex items-center space-x-2">
+          <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 transition-all duration-200 select-none">
+            Itens por página:
+          </span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+            className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border shadow-lg dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400 mr-4">
+            {startItem}-{endItem} de {totalItems}
+          </span>
+          <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <img src={arrowIconLeft} className="w-4 h-4" alt="Anterior" />
+          </button>
+          <span className="text-sm font-semibold dark:text-white">{currentPage}</span>
+          <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages || totalPages === 0} className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <img src={arrowIconRight} className="w-4 h-4" alt="Próximo" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
@@ -68,7 +104,7 @@ export function TableFooter({
             className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border shadow-lg dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
           >
             <option value={10}>10</option>
-            <option value={25}>30</option>
+            <option value={25}>25</option>
             <option value={50}>50</option>
           </select>
         </div>

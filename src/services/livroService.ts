@@ -11,7 +11,7 @@ export interface ListaLivro {
   autor: string;
   editora: string;
   localizacao_fisica: string;
-  resposavel?: string;
+  responsavel?: string;
 }
 
 export interface LivroFilterParams {
