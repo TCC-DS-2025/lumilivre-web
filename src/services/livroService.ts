@@ -111,3 +111,13 @@ export const buscarEnum = async (
   const response = await api.get(`/enums/${tipo}`);
   return response.data;
 };
+
+export const atualizarLivro = async (isbn: string, livroData: LivroPayload) => {
+  const response = await api.put(`/livros/${isbn}`, livroData);
+  return response.data;
+};
+
+export const excluirLivroComExemplares = async (isbn: string) => {
+  const response = await api.delete(`/livros/${isbn}/com-exemplares`);
+  return response.data;
+};

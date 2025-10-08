@@ -6,6 +6,7 @@ import { Modal } from '../../components/Modal';
 import { LoadingIcon } from '../../components/LoadingIcon';
 import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
+import { DetalhesLivroModal } from '../../components/ModalBookDetails';
 
 import filterIconUrl from '../../assets/icons/filter.svg';
 import addIconUrl from '../../assets/icons/add.svg';
@@ -50,6 +51,11 @@ export function LivrosPage() {
   });
   const [termoBusca, setTermoBusca] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // estados do botão de detalhes
+  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
+  const [livroSelecionado, setLivroSelecionado] =
+    useState<LivroAgrupado | null>(null);
 
   const fetchDados = useCallback(async () => {
     setIsLoading(true);
@@ -134,12 +140,17 @@ export function LivrosPage() {
     setSelectedBook(null);
   };
 
-  const requestSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+  const handleAbrirDetalhes = (livro: LivroAgrupado) => {
+    setLivroSelecionado(livro);
+    setIsDetalhesOpen(true);
+  };
+
+  const handleFecharDetalhes = (foiAtualizado?: boolean) => {
+    setIsDetalhesOpen(false);
+    setLivroSelecionado(null);
+    if (foiAtualizado) {
+      fetchDados();
     }
-    setSortConfig({ key, direction });
   };
 
   const StatusIndicator = ({ status }: { status: string }) => {
@@ -157,6 +168,14 @@ export function LivrosPage() {
         title={info.title}
       />
     );
+  };
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
   };
 
   // paginação para a lista de exemplares
@@ -200,7 +219,10 @@ export function LivrosPage() {
                 Exemplares de:{' '}
                 <span className="text-lumi-primary">{selectedBook.nome}</span>
               </h2>
-              <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md">
+              <button
+                onClick={() => handleAbrirDetalhes(selectedBook!)}
+                className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
+              >
                 DETALHES
               </button>
             </div>
@@ -260,6 +282,12 @@ export function LivrosPage() {
           />
         )}
       </Modal>
+
+      <DetalhesLivroModal
+        isOpen={isDetalhesOpen}
+        onClose={handleFecharDetalhes}
+        livro={livroSelecionado}
+      />
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
@@ -423,7 +451,12 @@ export function LivrosPage() {
                             >
                               EXEMPLARES
                             </button>
-                            <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md">
+                            <button
+                              onClick={() =>
+                                handleAbrirDetalhes(item as LivroAgrupado)
+                              }
+                              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md"
+                            >
                               DETALHES
                             </button>
                           </div>
