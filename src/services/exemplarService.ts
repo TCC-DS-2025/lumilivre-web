@@ -19,3 +19,8 @@ export const cadastrarExemplar = async (payload: ExemplarPayload) => {
   const response = await api.post('/livros/exemplares/cadastrar', payload);
   return response.data;
 };
+
+export const excluirExemplar = async (tombo: string) => {
+  const response = await api.delete(`/livros/exemplares/excluir/${tombo}`);
+  return response.data;
+};

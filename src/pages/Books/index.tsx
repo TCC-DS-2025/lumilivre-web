@@ -18,7 +18,10 @@ import {
   type LivroAgrupado,
   type ListaLivro,
 } from '../../services/livroService';
-import { buscarExemplaresPorIsbn } from '../../services/exemplarService';
+import {
+  buscarExemplaresPorIsbn,
+  excluirExemplar,
+} from '../../services/exemplarService';
 import { buscarEmprestimosAtivosEAtrasados } from '../../services/emprestimoService';
 import type { Page, Emprestimo } from '../../types';
 
@@ -150,6 +153,24 @@ export function LivrosPage() {
     setLivroSelecionado(null);
     if (foiAtualizado) {
       fetchDados();
+    }
+  };
+
+  const handleExcluirExemplar = async (tombo: string) => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja excluir o exemplar de tombo "${tombo}"?`,
+      )
+    ) {
+      try {
+        await excluirExemplar(tombo);
+        alert('Exemplar excluído com sucesso!');
+        fetchDados();
+      } catch (error: any) {
+        alert(
+          `Erro ao excluir exemplar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+        );
+      }
     }
   };
 
@@ -324,10 +345,13 @@ export function LivrosPage() {
                       onClick={() => requestSort('responsavel')}
                       sortConfig={sortConfig}
                       sortKey="responsavel"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[35%]"
+                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[25%]"
                     >
                       Responsável
                     </SortableTh>
+                    <th className="p-4 text-sm font-bold text-white tracking-wider w-[15%] select-none">
+                      Ações
+                    </th>
                   </>
                 ) : (
                   <>
@@ -422,6 +446,18 @@ export function LivrosPage() {
                         </td>
                         <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
                           {(item as ListaLivro).responsavel}
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() =>
+                              handleExcluirExemplar(
+                                (item as ListaLivro).tomboExemplar,
+                              )
+                            }
+                            className="bg-red-600 text-white text-xs font-bold py-1 px-3 rounded hover:bg-red-700 transition-transform duration-200 hover:scale-110 shadow-md"
+                          >
+                            EXCLUIR
+                          </button>
                         </td>
                       </>
                     ) : (
