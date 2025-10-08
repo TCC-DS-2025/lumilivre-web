@@ -14,6 +14,14 @@ export interface ListaLivro {
   responsavel?: string;
 }
 
+export interface LivroAgrupado {
+  isbn: string;
+  nome: string;
+  autor: string;
+  editora: string;
+  quantidade: number;
+}
+
 export interface LivroFilterParams {
   nome?: string;
   isbn?: string;
@@ -41,6 +49,13 @@ export interface LivroPayload {
   autor: string;
 }
 
+export const getContagemLivros = async (): Promise<number> => {
+  const response = await api.get('/livros/home', {
+    params: { page: 0, size: 1 },
+  });
+  return response.data.totalElements || 0;
+};
+
 export const buscarLivrosParaAdmin = async (
   texto?: string,
   page = 0,
@@ -48,6 +63,18 @@ export const buscarLivrosParaAdmin = async (
   sort = 'nome,asc',
 ): Promise<Page<ListaLivro>> => {
   const response = await api.get('/livros/home', {
+    params: { texto, page, size, sort },
+  });
+  return response.data;
+};
+
+export const buscarLivrosAgrupados = async (
+  texto?: string,
+  page = 0,
+  size = 10,
+  sort = 'nome,asc',
+): Promise<Page<LivroAgrupado>> => {
+  const response = await api.get('/livros/home/agrupado', {
     params: { texto, page, size, sort },
   });
   return response.data;
@@ -83,11 +110,4 @@ export const buscarEnum = async (
 ): Promise<{ nome: string; status: string }[]> => {
   const response = await api.get(`/enums/${tipo}`);
   return response.data;
-};
-
-export const getContagemLivros = async (): Promise<number> => {
-  const response = await api.get('/livros/home', {
-    params: { page: 0, size: 1 },
-  });
-  return response.data.totalElements || 0;
 };

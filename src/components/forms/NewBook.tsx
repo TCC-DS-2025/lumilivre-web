@@ -130,7 +130,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         await uploadCapaLivro(formData.isbn, capaFile);
       }
 
-      alert('Livro cadastrado com sucesso!');
       onSuccess();
       onClose();
     } catch (error: any) {

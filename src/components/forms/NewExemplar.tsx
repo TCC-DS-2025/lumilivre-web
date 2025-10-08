@@ -38,14 +38,10 @@ export function NovoExemplar({
 
     try {
       await cadastrarExemplar(payload);
-      alert('Exemplar cadastrado com sucesso!');
       onSuccess(); // Recarrega a lista
       onClose(); // Fecha o modal
     } catch (error: any) {
       console.error('Erro ao cadastrar exemplar:', error);
-      alert(
-        `Falha no cadastro: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-      );
     } finally {
       setIsLoading(false);
     }

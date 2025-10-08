@@ -13,21 +13,13 @@ import searchIconUrl from '../../assets/icons/search.svg';
 import backIconUrl from '../../assets/icons/arrow-left.svg';
 
 import {
-  buscarLivrosParaAdmin,
+  buscarLivrosAgrupados,
+  type LivroAgrupado,
   type ListaLivro,
 } from '../../services/livroService';
 import { buscarExemplaresPorIsbn } from '../../services/exemplarService';
 import { buscarEmprestimosAtivosEAtrasados } from '../../services/emprestimoService';
 import type { Page, Emprestimo } from '../../types';
-
-// tipagem para o livro agrupado
-interface LivroAgrupado
-  extends Omit<
-    ListaLivro,
-    'tomboExemplar' | 'status' | 'localizacao_fisica' | 'responsavel'
-  > {
-  quantidade: number;
-}
 
 const livrosLegend = [
   { label: 'Disponível', color: 'bg-green-500' },
@@ -59,20 +51,6 @@ export function LivrosPage() {
   const [termoBusca, setTermoBusca] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // função para agrupar exemplares em livros (solução de contorno)
-  const agruparExemplares = (exemplares: ListaLivro[]): LivroAgrupado[] => {
-    const mapa = new Map<string, LivroAgrupado>();
-    exemplares.forEach((ex) => {
-      if (mapa.has(ex.isbn)) {
-        mapa.get(ex.isbn)!.quantidade++;
-      } else {
-        const { tomboExemplar, status, ...livroBase } = ex;
-        mapa.set(ex.isbn, { ...livroBase, quantidade: 1 });
-      }
-    });
-    return Array.from(mapa.values());
-  };
-
   const fetchDados = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -90,7 +68,7 @@ export function LivrosPage() {
           }
         });
 
-        const exemplaresComResponsavel = listaExemplares.map((ex) => ({
+        const exemplaresComResponsavel = (listaExemplares || []).map((ex) => ({
           ...ex,
           responsavel: mapaEmprestimos.get(ex.tomboExemplar) || '-',
         }));
@@ -107,22 +85,29 @@ export function LivrosPage() {
           totalPages: Math.ceil(exemplaresComResponsavel.length / itemsPerPage),
         } as Page<any>);
       } else {
-        const paginaDeExemplares = await buscarLivrosParaAdmin(
+        const paginaDeLivros = await buscarLivrosAgrupados(
           termoBusca,
-          0,
-          1000,
+          currentPage - 1,
+          itemsPerPage,
           `${sortConfig.key},${sortConfig.direction}`,
         );
-        const livros = agruparExemplares(paginaDeExemplares.content);
-        setLivrosAgrupados(livros);
-        setPageData({
-          ...paginaDeExemplares,
-          totalElements: livros.length,
-          totalPages: Math.ceil(livros.length / itemsPerPage),
-        });
+        setLivrosAgrupados(paginaDeLivros?.content || []);
+        setPageData(paginaDeLivros || null);
       }
-    } catch (err) {
-      setError('Não foi possível carregar os dados.');
+    } catch (err: any) {
+      if (
+        err.response &&
+        (err.response.status === 404 || err.response.status === 204)
+      ) {
+        if (isExemplarView) {
+          setExemplares([]);
+        } else {
+          setLivrosAgrupados([]);
+        }
+        setError(null);
+      } else {
+        setError('Não foi possível carregar os dados.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,9 +115,9 @@ export function LivrosPage() {
     isExemplarView,
     selectedBook,
     termoBusca,
-    sortConfig.key,
-    sortConfig.direction,
+    currentPage,
     itemsPerPage,
+    sortConfig,
   ]);
 
   useEffect(() => {
@@ -174,13 +159,29 @@ export function LivrosPage() {
     );
   };
 
-  // paginação no cliente para a lista de livros agrupados
+  // paginação para a lista de exemplares
+  const exemplaresFiltrados = useMemo(() => {
+    if (!isExemplarView) return [];
+    if (!termoBusca.trim()) return exemplares;
+
+    return exemplares.filter((ex) =>
+      ex.tomboExemplar.toLowerCase().includes(termoBusca.toLowerCase()),
+    );
+  }, [exemplares, isExemplarView, termoBusca]);
+
+  // paginação para a lista de livros agrupados
   const dadosPaginados = useMemo(() => {
-    const source = isExemplarView ? exemplares : livrosAgrupados;
+    const source = isExemplarView ? exemplaresFiltrados : livrosAgrupados;
     const firstPageIndex = (currentPage - 1) * itemsPerPage;
     const lastPageIndex = firstPageIndex + itemsPerPage;
     return source.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, itemsPerPage, livrosAgrupados, exemplares, isExemplarView]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    livrosAgrupados,
+    exemplaresFiltrados,
+    isExemplarView,
+  ]);
 
   return (
     <div className="flex flex-col h-full">
@@ -212,7 +213,11 @@ export function LivrosPage() {
             </button>
             <input
               type="text"
-              placeholder="Faça sua pesquisa..."
+              placeholder={
+                isExemplarView
+                  ? 'Pesquise por nome/isbn/tombo'
+                  : 'Pesquise por nome/isbn'
+              }
               value={termoBusca}
               onChange={(e) => setTermoBusca(e.target.value)}
               className="pl-5 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
