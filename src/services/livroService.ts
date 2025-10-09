@@ -47,6 +47,7 @@ export interface LivroPayload {
   tipo_capa: string;
   genero: string;
   autor: string;
+  imagem?: string;
 }
 
 export const getContagemLivros = async (): Promise<number> => {
@@ -120,4 +121,8 @@ export const atualizarLivro = async (isbn: string, livroData: LivroPayload) => {
 export const excluirLivroComExemplares = async (isbn: string) => {
   const response = await api.delete(`/livros/${isbn}/com-exemplares`);
   return response.data;
+};
+
+export const buscarLivroPorIsbn = async (isbn: string) => {
+  return api.get<LivroPayload>(`/livros/${isbn}`);
 };
