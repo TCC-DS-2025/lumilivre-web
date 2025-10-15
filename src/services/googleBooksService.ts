@@ -30,7 +30,7 @@ export interface LivroGoogle {
   editora: string;
   data_lancamento: string;
   numero_paginas: number;
-  genero: string;
+  generos: string[];
   sinopse: string;
   imagem: string;
 }
@@ -39,16 +39,16 @@ const API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 const traduzirGenero = (generoEmIngles: string): string => {
   const mapaGeneros: { [key: string]: string } = {
-    'Fiction': 'Ficção',
+    Fiction: 'Ficção',
     'Science Fiction': 'Ficção Científica',
-    'Fantasy': 'Fantasia',
-    'Mystery': 'Mistério',
-    'Thriller': 'Suspense',
-    'Horror': 'Terror',
-    'Romance': 'Romance',
-    'History': 'História',
+    Fantasy: 'Fantasia',
+    Mystery: 'Mistério',
+    Thriller: 'Suspense',
+    Horror: 'Terror',
+    Romance: 'Romance',
+    History: 'História',
     'Biography & Autobiography': 'Biografia',
-    'Computers': 'Informática',
+    Computers: 'Informática',
     'Business & Economics': 'Negócios',
     'Self-Help': 'Autoajuda',
     'Juvenile Fiction': 'Ficção Juvenil',
@@ -72,6 +72,10 @@ export const buscarLivroPorIsbn = async (
 
     const bookData = response.data.items[0].volumeInfo;
 
+    const generosTraduzidos = bookData.categories
+      ? bookData.categories.map(traduzirGenero)
+      : [];
+
     // transforma para 'YYYY' ou 'YYYY-MM-DD'
     let dataFormatada = '';
     if (bookData.publishedDate) {
@@ -88,7 +92,7 @@ export const buscarLivroPorIsbn = async (
       editora: bookData.publisher || '',
       data_lancamento: dataFormatada,
       numero_paginas: bookData.pageCount || 0,
-      genero: bookData.categories ? traduzirGenero(bookData.categories[0]) : '',
+      generos: generosTraduzidos,
       sinopse: bookData.description || '',
       imagem: bookData.imageLinks?.thumbnail || '',
     };

@@ -48,7 +48,7 @@ export interface LivroPayload {
   sinopse?: string;
   tipo_capa: string;
   generos: string[];
-  autor: string;
+  autor: string[];
   imagem?: string;
 }
 

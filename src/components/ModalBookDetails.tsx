@@ -76,7 +76,7 @@ export function DetalhesLivroModal({
           }
         } catch (error) {
           console.error('Erro ao buscar detalhes do livro:', error);
-          const fallbackData = { ...livro, generos: [] };
+          const fallbackData = { ...livro, generos: [], autor: [] };
           setInitialData(fallbackData);
           setFormData(fallbackData);
         } finally {

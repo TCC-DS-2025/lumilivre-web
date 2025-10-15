@@ -8,6 +8,7 @@ import {
 } from '../../services/livroService';
 import { buscarLivroPorIsbn } from '../../services/googleBooksService';
 import { buscarGeneros, type Genero } from '../../services/generoService';
+import { TagInput } from './TagInput';
 
 import uploadIconUrl from '../../assets/icons/upload.svg';
 
@@ -31,7 +32,7 @@ const estadoInicialFormulario: Partial<LivroPayload> = {
   classificacao_etaria: '',
   tipo_capa: '',
   generos: [],
-  autor: '',
+  autor: [],
   sinopse: '',
   edicao: '',
   volume: 0,
@@ -93,6 +94,8 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
           setFormData((prev) => ({
             ...prev,
             ...dadosDoGoogle,
+            autor: dadosDoGoogle.autor ? dadosDoGoogle.autor.split(', ') : [],
+            generos: dadosDoGoogle.generos || [],
           }));
           setImagemPreview(dadosDoGoogle.imagem);
         } else {
@@ -147,7 +150,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         editora: formData.editora!,
         classificacao_etaria: formData.classificacao_etaria!,
         tipo_capa: formData.tipo_capa!,
-        autor: formData.autor!,
+        autor: formData.autor || [],
         generos: formData.generos || [],
       };
 
@@ -174,16 +177,17 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     'w-full p-2 border-2 border-lumi-primary dark:border-lumi-label rounded-md bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200';
 
   return (
-    <div className="flex flex-col h-full max-h-[70vh]">
+    <div className="flex flex-col h-full max-h-[75vh]">
+      {' '}
       <form
         id="form-novo-livro"
         onSubmit={handleSubmit}
-        className="overflow-y-auto p-2 pt-0 flex-grow space-y-6"
+        className="overflow-y-auto p-4 pt-0 flex-grow space-y-6"
       >
-        <div className="flex flex-col md:flex-row gap-5">
-          {/* coluna da esquerda: imagem e etc */}
-          <div className="w-full md:w-1/4 flex flex-col items-center space-y-4">
-            <div className="w-[9.5rem] h-[13.5rem] bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center overflow-hidden shadow-lg">
+        <div className="flex flex-col md:flex-row gap-6 -mt-4">
+          {/* COLUNA DA ESQUERDA: IMAGEM, EDICAO E VOL */}
+          <div className="w-full md:w-1/4 flex flex-col items-center space-y-4 pt-6">
+            <div className="w-[9.5rem] h-[13.5rem] bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg flex items-center justify-center overflow-hidden">
               {isBuscandoIsbn ? (
                 <span className="text-sm text-gray-500">Buscando...</span>
               ) : imagemPreview ? (
@@ -201,7 +205,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
             <div>
               <label
                 htmlFor="capaFile"
-                className="flex cursor-pointer items-center justify-center gap-1 -mb-2.5 -mt-2 text-sm text-lumi-primary transition-opacity hover:opacity-75"
+                className="flex cursor-pointer items-center justify-center gap-1 mt-2 text-sm text-lumi-primary transition-opacity hover:opacity-75"
               >
                 <img
                   src={uploadIconUrl}
@@ -228,7 +232,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 id="edicao"
                 name="edicao"
                 type="text"
-                value={formData.edicao}
+                value={formData.edicao || ''}
                 onChange={handleChange}
                 className={inputStyles}
               />
@@ -241,63 +245,57 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 id="volume"
                 name="volume"
                 type="number"
-                value={formData.volume}
+                value={formData.volume || ''}
                 onChange={handleChange}
                 className={inputStyles}
               />
             </div>
           </div>
 
-          {/* coluna da direita: campos principais */}
-          <div className="w-full md:w-3/4 space-y-4">
-            <div>
-              <label htmlFor="isbn" className={labelStyles}>
-                ISBN*
-              </label>
-              <input
-                id="isbn"
-                name="isbn"
-                type="text"
-                required
-                value={formData.isbn}
-                onChange={handleChange}
-                onBlur={handleIsbnBlur}
-                className={highlightedInputStyles}
-                placeholder="Digite e saia do campo para buscar"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label htmlFor="nome" className={labelStyles}>
-                Nome do Livro*
-              </label>
-              <input
-                id="nome"
-                name="nome"
-                type="text"
-                required
-                value={formData.nome}
-                onChange={handleChange}
-                className={highlightedInputStyles}
-              />
-              {/* Futuramente, a pesquisa aqui será inteligente, sugerindo livros enquanto você digita. */}
+          {/* COLUNA DA DIREITA: CAMPOS PRINCIPAIS */}
+          <div className="w-full md:w-3/4 space-y-4 mt-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="isbn" className={labelStyles}>
+                  ISBN*
+                </label>
+                <input
+                  id="isbn"
+                  name="isbn"
+                  type="text"
+                  required
+                  value={formData.isbn || ''}
+                  onChange={handleChange}
+                  onBlur={handleIsbnBlur}
+                  className={highlightedInputStyles}
+                  placeholder="Digite e saia do campo para buscar"
+                />
+              </div>
+              <div>
+                <label htmlFor="nome" className={labelStyles}>
+                  Nome do Livro*
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  required
+                  value={formData.nome || ''}
+                  onChange={handleChange}
+                  className={highlightedInputStyles}
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="autor" className={labelStyles}>
-                  Autor(es)*
-                </label>
-                <input
-                  id="autor"
-                  name="autor"
-                  type="text"
-                  required
-                  value={formData.autor}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
-              </div>
+              <TagInput
+                label="Autor(es)"
+                tags={formData.autor || []}
+                setTags={(newTags) =>
+                  setFormData((prev) => ({ ...prev, autor: newTags }))
+                }
+                placeholder="Digite o nome e pressione Enter"
+              />
               <div>
                 <label htmlFor="editora" className={labelStyles}>
                   Editora*
@@ -307,69 +305,14 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   name="editora"
                   type="text"
                   required
-                  value={formData.editora}
+                  value={formData.editora || ''}
                   onChange={handleChange}
                   className={inputStyles}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="data_lancamento" className={labelStyles}>
-                  Lançamento*
-                </label>
-                <input
-                  id="data_lancamento"
-                  name="data_lancamento"
-                  type="date"
-                  required
-                  value={formData.data_lancamento}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
-              </div>
-              <div>
-                <label htmlFor="numero_paginas" className={labelStyles}>
-                  Páginas*
-                </label>
-                <input
-                  id="numero_paginas"
-                  name="numero_paginas"
-                  type="number"
-                  required
-                  value={formData.numero_paginas}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
-              </div>
-
-              <div>
-                <label className={labelStyles}>Gêneros*</label>
-                <div className="flex flex-wrap gap-2 p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md min-h-[44px]">
-                  {todosGeneros.map((genero) => {
-                    const isSelected = formData.generos?.includes(genero.nome);
-                    return (
-                      <button
-                        type="button"
-                        key={genero.id}
-                        onClick={() => handleGenreToggle(genero.nome)}
-                        className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
-                          isSelected
-                            ? 'bg-lumi-primary text-white'
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                        }`}
-                      >
-                        {genero.nome}
-                      </button>
-                    );
-                  })}
-                  {/* criar novos gêneros dinamicamente no futuro? */}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="cdd" className={labelStyles}>
                   CDD*
@@ -378,7 +321,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   id="cdd"
                   name="cdd"
                   required
-                  value={formData.cdd}
+                  value={formData.cdd || ''}
                   onChange={handleChange}
                   className={inputStyles}
                 >
@@ -390,6 +333,17 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   ))}
                 </select>
               </div>
+              <TagInput
+                label="Gêneros"
+                tags={formData.generos || []}
+                setTags={(newTags) =>
+                  setFormData((prev) => ({ ...prev, generos: newTags }))
+                }
+                placeholder="Digite o gênero e pressione Enter"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="classificacao_etaria" className={labelStyles}>
                   Classificação*
@@ -398,7 +352,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   id="classificacao_etaria"
                   name="classificacao_etaria"
                   required
-                  value={formData.classificacao_etaria}
+                  value={formData.classificacao_etaria || ''}
                   onChange={handleChange}
                   className={inputStyles}
                 >
@@ -418,7 +372,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   id="tipo_capa"
                   name="tipo_capa"
                   required
-                  value={formData.tipo_capa}
+                  value={formData.tipo_capa || ''}
                   onChange={handleChange}
                   className={inputStyles}
                 >
@@ -431,10 +385,40 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="data_lancamento" className={labelStyles}>
+                  Lançamento*
+                </label>
+                <input
+                  id="data_lancamento"
+                  name="data_lancamento"
+                  type="date"
+                  required
+                  value={formData.data_lancamento || ''}
+                  onChange={handleChange}
+                  className={inputStyles}
+                />
+              </div>
+              <div>
+                <label htmlFor="numero_paginas" className={labelStyles}>
+                  Páginas*
+                </label>
+                <input
+                  id="numero_paginas"
+                  name="numero_paginas"
+                  type="number"
+                  required
+                  value={formData.numero_paginas || ''}
+                  onChange={handleChange}
+                  className={inputStyles}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* campo sinopse */}
         <div>
           <label htmlFor="sinopse" className={labelStyles}>
             Sinopse
@@ -442,10 +426,10 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
           <textarea
             id="sinopse"
             name="sinopse"
-            value={formData.sinopse}
+            value={formData.sinopse || ''}
             onChange={handleChange}
             className={inputStyles}
-            rows={5}
+            rows={4}
           ></textarea>
         </div>
       </form>
