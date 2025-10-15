@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
+
 import {
   buscarEnum,
   atualizarLivro,
@@ -8,6 +9,7 @@ import {
   type LivroAgrupado,
   type LivroPayload,
 } from '../services/livroService';
+import { buscarGeneros, type Genero } from '../services/generoService';
 
 import uploadIconUrl from '../assets/icons/upload.svg';
 
@@ -22,6 +24,10 @@ interface DetalhesLivroModalProps {
   onClose: (foiAtualizado?: boolean) => void;
 }
 
+interface FormDataState extends Omit<Partial<LivroPayload>, 'generos'> {
+  generos?: string[];
+}
+
 export function DetalhesLivroModal({
   livro,
   isOpen,
@@ -32,65 +38,75 @@ export function DetalhesLivroModal({
   const [foiAtualizado, setFoiAtualizado] = useState(false);
 
   // estado para guardar os dados iniciais e os dados do formulario
-  const [initialData, setInitialData] = useState<Partial<LivroPayload>>({});
-  const [formData, setFormData] = useState<Partial<LivroPayload>>({});
+  const [initialData, setInitialData] = useState<FormDataState>({});
+  const [formData, setFormData] = useState<FormDataState>({});
 
   // estados para os selects
+  const [todosGeneros, setTodosGeneros] = useState<Genero[]>([]);
   const [cddOptions, setCddOptions] = useState<EnumOption[]>([]);
   const [classificacaoOptions, setClassificacaoOptions] = useState<
     EnumOption[]
   >([]);
   const [tipoCapaOptions, setTipoCapaOptions] = useState<EnumOption[]>([]);
 
-useEffect(() => {
-  const carregarDetalhesDoLivro = async () => {
-    if (livro && isOpen) {
-      setIsLoading(true); // Ativa o loading
-      setFormData({}); // Limpa dados antigos para evitar mostrar info errada
-      try {
-        const response = await buscarLivroPorIsbn(livro.isbn);
-        if (response.data) {
-          const dadosCompletos = response.data;
-          
-          // GARANTIA DE FORMATO DA DATA: O input type="date" precisa de 'YYYY-MM-DD'
-          if (dadosCompletos.data_lancamento) {
-            dadosCompletos.data_lancamento = dadosCompletos.data_lancamento.split('T')[0];
+  useEffect(() => {
+    const carregarDetalhesDoLivro = async () => {
+      if (livro && isOpen) {
+        setIsLoading(true);
+        setFormData({});
+        try {
+          const response = await buscarLivroPorIsbn(livro.isbn);
+          if (response.data) {
+            const dadosCompletos = response.data;
+
+            if (dadosCompletos.data_lancamento) {
+              dadosCompletos.data_lancamento =
+                dadosCompletos.data_lancamento.split('T')[0];
+            }
+
+            const nomesDosGeneros = dadosCompletos.generos?.map((g) => g.nome) || [];
+
+            const dadosParaForm = {
+              ...dadosCompletos,
+              generos: nomesDosGeneros,
+            };
+
+            setInitialData(dadosParaForm);
+            setFormData(dadosParaForm);
           }
-
-          setInitialData(dadosCompletos);
-          setFormData(dadosCompletos);
+        } catch (error) {
+          console.error('Erro ao buscar detalhes do livro:', error);
+          const fallbackData = { ...livro, generos: [] };
+          setInitialData(fallbackData);
+          setFormData(fallbackData);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Erro ao buscar detalhes do livro:', error);
-        // Fallback para os dados básicos se a busca detalhada falhar
-        setInitialData(livro);
-        setFormData(livro);
-      } finally {
-        setIsLoading(false); // Desativa o loading
       }
-    }
-  };
+    };
 
-  carregarDetalhesDoLivro();
-}, [livro, isOpen]);
+    carregarDetalhesDoLivro();
+  }, [livro, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
-      const carregarEnums = async () => {
+      const carregarDadosIniciais = async () => {
         try {
-          const [cdd, classificacao, tipoCapa] = await Promise.all([
+          const [cdd, classificacao, tipoCapa, generosApi] = await Promise.all([
             buscarEnum('CDD'),
             buscarEnum('CLASSIFICACAO_ETARIA'),
             buscarEnum('TIPO_CAPA'),
+            buscarGeneros(),
           ]);
           setCddOptions(cdd);
           setClassificacaoOptions(classificacao);
           setTipoCapaOptions(tipoCapa);
+          setTodosGeneros(generosApi);
         } catch (error) {
-          console.error('Erro ao carregar enums', error);
+          console.error('Erro ao carregar dados iniciais do modal', error);
         }
       };
-      carregarEnums();
+      carregarDadosIniciais();
     }
   }, [isOpen]);
 
@@ -145,6 +161,21 @@ useEffect(() => {
         setIsLoading(false);
       }
     }
+  };
+
+  const handleGenreToggle = (nomeGenero: string) => {
+    setFormData((prev) => {
+      const generosAtuais = prev.generos || [];
+      const isSelected = generosAtuais.includes(nomeGenero);
+      if (isSelected) {
+        return {
+          ...prev,
+          generos: generosAtuais.filter((g) => g !== nomeGenero),
+        };
+      } else {
+        return { ...prev, generos: [...generosAtuais, nomeGenero] };
+      }
+    });
   };
 
   const handleChange = (
@@ -319,18 +350,37 @@ useEffect(() => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="genero" className={labelStyles}>
-                    Gênero
-                  </label>
-                  <input
-                    id="genero"
-                    name="genero"
-                    type="text"
-                    value={formData.genero || ''}
-                    disabled={!isEditMode}
-                    onChange={handleChange}
-                    className={isEditMode ? editableInputStyles : inputStyles}
-                  />
+                  <label className={labelStyles}>Gêneros</label>
+                  <div className="flex flex-wrap gap-2 p-2 border-2 border-gray-200 dark:border-gray-700 rounded-md min-h-[44px]">
+                    {isEditMode
+                      ? todosGeneros.map((genero) => {
+                          const isSelected = formData.generos?.includes(
+                            genero.nome,
+                          );
+                          return (
+                            <button
+                              type="button"
+                              key={genero.id}
+                              onClick={() => handleGenreToggle(genero.nome)}
+                              className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors ${
+                                isSelected
+                                  ? 'bg-lumi-primary text-white'
+                                  : 'bg-gray-200 dark:bg-gray-700'
+                              }`}
+                            >
+                              {genero.nome}
+                            </button>
+                          );
+                        })
+                      : formData.generos?.map((nomeGenero) => (
+                          <span
+                            key={nomeGenero}
+                            className="px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                          >
+                            {nomeGenero}
+                          </span>
+                        ))}
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,5 +1,7 @@
 import api from './api';
+
 import type { Page } from '../types';
+import type { Genero } from './generoService';
 
 export interface ListaLivro {
   status: string;
@@ -45,9 +47,13 @@ export interface LivroPayload {
   volume?: number;
   sinopse?: string;
   tipo_capa: string;
-  genero: string;
+  generos: string[];
   autor: string;
   imagem?: string;
+}
+
+export interface LivroDetalhado extends Omit<LivroPayload, 'generos'> {
+  generos: Genero[];
 }
 
 export const getContagemLivros = async (): Promise<number> => {
@@ -124,5 +130,5 @@ export const excluirLivroComExemplares = async (isbn: string) => {
 };
 
 export const buscarLivroPorIsbn = async (isbn: string) => {
-  return api.get<LivroPayload>(`/livros/${isbn}`);
+  return api.get<LivroDetalhado>(`/livros/${isbn}`);
 };

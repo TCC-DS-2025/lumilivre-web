@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+
 import {
   cadastrarLivro,
   uploadCapaLivro,
@@ -6,6 +7,7 @@ import {
   type LivroPayload,
 } from '../../services/livroService';
 import { buscarLivroPorIsbn } from '../../services/googleBooksService';
+import { buscarGeneros, type Genero } from '../../services/generoService';
 
 import uploadIconUrl from '../../assets/icons/upload.svg';
 
@@ -19,7 +21,7 @@ interface NewBookProps {
   onSuccess: () => void;
 }
 
-const estadoInicialFormulario: LivroPayload = {
+const estadoInicialFormulario: Partial<LivroPayload> = {
   isbn: '',
   nome: '',
   data_lancamento: '',
@@ -28,7 +30,7 @@ const estadoInicialFormulario: LivroPayload = {
   editora: '',
   classificacao_etaria: '',
   tipo_capa: '',
-  genero: '',
+  generos: [],
   autor: '',
   sinopse: '',
   edicao: '',
@@ -36,7 +38,7 @@ const estadoInicialFormulario: LivroPayload = {
 };
 
 export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
-  const [formData, setFormData] = useState<LivroPayload>(
+  const [formData, setFormData] = useState<Partial<LivroPayload>>(
     estadoInicialFormulario,
   );
   const [capaFile, setCapaFile] = useState<File | null>(null);
@@ -44,6 +46,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isBuscandoIsbn, setIsBuscandoIsbn] = useState(false);
 
+  const [todosGeneros, setTodosGeneros] = useState<Genero[]>([]);
   const [cddOptions, setCddOptions] = useState<EnumOption[]>([]);
   const [classificacaoOptions, setClassificacaoOptions] = useState<
     EnumOption[]
@@ -51,21 +54,23 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [tipoCapaOptions, setTipoCapaOptions] = useState<EnumOption[]>([]);
 
   useEffect(() => {
-    const carregarEnums = async () => {
+    const carregarDadosIniciais = async () => {
       try {
-        const [cdd, classificacao, tipoCapa] = await Promise.all([
+        const [cdd, classificacao, tipoCapa, generosApi] = await Promise.all([
           buscarEnum('CDD'),
           buscarEnum('CLASSIFICACAO_ETARIA'),
           buscarEnum('TIPO_CAPA'),
+          buscarGeneros(),
         ]);
         setCddOptions(cdd);
         setClassificacaoOptions(classificacao);
         setTipoCapaOptions(tipoCapa);
+        setTodosGeneros(generosApi);
       } catch (error) {
         console.error('Erro ao carregar enums', error);
       }
     };
-    carregarEnums();
+    carregarDadosIniciais();
   }, []);
 
   const handleChange = (
@@ -112,22 +117,44 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     }
   };
 
+  const handleGenreToggle = (nomeGenero: string) => {
+    setFormData((prev) => {
+      const generosAtuais = prev.generos || [];
+      const isSelected = generosAtuais.includes(nomeGenero);
+      if (isSelected) {
+        return {
+          ...prev,
+          generos: generosAtuais.filter((g) => g !== nomeGenero),
+        };
+      } else {
+        return { ...prev, generos: [...generosAtuais, nomeGenero] };
+      }
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const payload = {
+      const payload: LivroPayload = {
         ...formData,
+        isbn: formData.isbn!,
+        nome: formData.nome!,
+        data_lancamento: formData.data_lancamento!,
         numero_paginas: Number(formData.numero_paginas) || 0,
-        volume: Number(formData.volume) || undefined,
-        imagem: imagemPreview || '',
+        cdd: formData.cdd!,
+        editora: formData.editora!,
+        classificacao_etaria: formData.classificacao_etaria!,
+        tipo_capa: formData.tipo_capa!,
+        autor: formData.autor!,
+        generos: formData.generos || [],
       };
 
       await cadastrarLivro(payload);
 
       if (capaFile) {
-        await uploadCapaLivro(formData.isbn, capaFile);
+        await uploadCapaLivro(formData.isbn!, capaFile);
       }
 
       onSuccess();
@@ -316,19 +343,29 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   className={inputStyles}
                 />
               </div>
+
               <div>
-                <label htmlFor="genero" className={labelStyles}>
-                  Gênero*
-                </label>
-                <input
-                  id="genero"
-                  name="genero"
-                  type="text"
-                  required
-                  value={formData.genero}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
+                <label className={labelStyles}>Gêneros*</label>
+                <div className="flex flex-wrap gap-2 p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md min-h-[44px]">
+                  {todosGeneros.map((genero) => {
+                    const isSelected = formData.generos?.includes(genero.nome);
+                    return (
+                      <button
+                        type="button"
+                        key={genero.id}
+                        onClick={() => handleGenreToggle(genero.nome)}
+                        className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors duration-200 ${
+                          isSelected
+                            ? 'bg-lumi-primary text-white'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                        }`}
+                      >
+                        {genero.nome}
+                      </button>
+                    );
+                  })}
+                  {/* criar novos gêneros dinamicamente no futuro? */}
+                </div>
               </div>
             </div>
 
