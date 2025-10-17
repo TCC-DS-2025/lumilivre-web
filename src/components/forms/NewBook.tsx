@@ -47,7 +47,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isBuscandoIsbn, setIsBuscandoIsbn] = useState(false);
 
-  const [todosGeneros, setTodosGeneros] = useState<Genero[]>([]);
+  const [, setTodosGeneros] = useState<Genero[]>([]); // todosGeneros
   const [cddOptions, setCddOptions] = useState<EnumOption[]>([]);
   const [classificacaoOptions, setClassificacaoOptions] = useState<
     EnumOption[]
@@ -120,20 +120,20 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     }
   };
 
-  const handleGenreToggle = (nomeGenero: string) => {
-    setFormData((prev) => {
-      const generosAtuais = prev.generos || [];
-      const isSelected = generosAtuais.includes(nomeGenero);
-      if (isSelected) {
-        return {
-          ...prev,
-          generos: generosAtuais.filter((g) => g !== nomeGenero),
-        };
-      } else {
-        return { ...prev, generos: [...generosAtuais, nomeGenero] };
-      }
-    });
-  };
+  // const handleGenreToggle = (nomeGenero: string) => {
+  //   setFormData((prev) => {
+  //     const generosAtuais = prev.generos || [];
+  //     const isSelected = generosAtuais.includes(nomeGenero);
+  //     if (isSelected) {
+  //       return {
+  //         ...prev,
+  //         generos: generosAtuais.filter((g) => g !== nomeGenero),
+  //       };
+  //     } else {
+  //       return { ...prev, generos: [...generosAtuais, nomeGenero] };
+  //     }
+  //   });
+  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
