@@ -138,6 +138,7 @@ export function ConfiguracoesPage() {
     </div>
   );
 
+  // redirecionar para a tela já criada
   const renderPasswordView = () => (
     <div className="p-6">
       <SubPageHeader

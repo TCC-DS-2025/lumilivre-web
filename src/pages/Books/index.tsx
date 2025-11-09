@@ -258,8 +258,8 @@ export function LivrosPage() {
               type="text"
               placeholder={
                 isExemplarView
-                  ? 'Pesquise por nome/isbn/tombo'
-                  : 'Pesquise por nome/isbn'
+                  ? 'Pesquise pelo tombo do exemplar'
+                  : 'Pesquise pelo nome ou ISBN do livro'
               }
               value={termoBusca}
               onChange={(e) => setTermoBusca(e.target.value)}
