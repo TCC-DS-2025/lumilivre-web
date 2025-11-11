@@ -1,10 +1,8 @@
 import { useState, useMemo } from 'react';
+
+import { ActionHeader } from '../../components/ActionHeader';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
-
-import filterIconUrl from '../../assets/icons/filter.svg';
-import addIconUrl from '../../assets/icons/add.svg';
-import searchIconUrl from '../../assets/icons/search.svg';
 
 type StatusEmprestimo = 'ativo' | 'atrasado' | 'vence-hoje' | 'concluido';
 
@@ -237,6 +235,9 @@ export function EmprestimosPage() {
   }>({ key: 'devolucao', direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [termoBusca, setTermoBusca] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const paginatedAndSortedEmprestimos = useMemo(() => {
     let sortableItems = [...emprestimos];
@@ -299,32 +300,20 @@ export function EmprestimosPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center space-x-4">
-          <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
-            <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
-              <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
-            </button>
-            <input
-              type="text"
-              placeholder="Faça sua pesquisa de aluno"
-              className="pl-5 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
-            />
-          </div>
-          <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none">
-            <span>Filtro Avançado</span>
-            <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
-          </button>
-        </div>
-        <button className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none">
-          <img
-            src={addIconUrl}
-            alt="Novo Empréstimo"
-            className="w-6 h-6 mr-2"
-          />
-          <span>NOVO EMPRÉSTIMO</span>
-        </button>
-      </div>
+      <ActionHeader
+        searchTerm={termoBusca}
+        onSearchChange={setTermoBusca}
+        onSearchSubmit={() => {
+          alert('Funcionalidade de busca a ser implementada.');
+        }}
+        searchPlaceholder="Faça sua pesquisa de aluno"
+        onAddNew={() => setIsModalOpen(true)}
+        addNewButtonLabel="NOVO EMPRÉSTIMO"
+        showFilterButton={true}
+        onFilterToggle={() => {
+          alert('Funcionalidade de filtro avançado a ser implementada.');
+        }}
+      />
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
