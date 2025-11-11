@@ -1,9 +1,7 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
-import { useAuth } from '../contexts/AuthContext';
 
 import Logo from '../assets/icons/logo.svg';
-import logoutIconUrl from '../assets/icons/logout.svg';
 
 interface HeaderProps {
   isSidebarExpanded: boolean;
@@ -14,14 +12,6 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
   const location = useLocation();
   const isHomePage =
     location.pathname === '/dashboard' || location.pathname === '/';
-
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  const Logout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const logoContent = (
     <div className="flex items-center">
@@ -79,20 +69,6 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
 
         <div className="flex items-center space-x-2">
           <ThemeToggle />
-
-          <button
-            onClick={Logout}
-            className="flex items-center justify-center space-x-2 p-2 px-3 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
-          >
-            <img
-              src={logoutIconUrl}
-              alt="Sair"
-              className="w-5 pointer-events-none"
-            />
-            <span className="font-bold text-red-400">
-              Sair
-            </span>
-          </button>
         </div>
 
       </div>

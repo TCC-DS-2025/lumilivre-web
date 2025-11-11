@@ -1,11 +1,15 @@
 import { useContext, useEffect, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { ThemeContext } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 import downloadIconUrl from '../../assets/icons/download.svg';
 import lockIconUrl from '../../assets/icons/lock.svg';
 import sunIconUrl from '../../assets/icons/sun.svg';
 import moonIconUrl from '../../assets/icons/moon.svg';
 import backIconUrl from '../../assets/icons/arrow-left.svg';
+import logoutIconUrl from '../../assets/icons/logout.svg';
 
 const SettingItem = ({
   icon,
@@ -78,6 +82,14 @@ export function ConfiguracoesPage() {
       setEffectiveTheme(theme);
     }
   }, [theme]);
+
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const renderImportView = () => (
     <div className="p-6">
@@ -247,13 +259,27 @@ export function ConfiguracoesPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-6 shrink-0 select-none">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
-          Olá, Bibliotecário!
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 transition-all duration-200">
-          Gerencie suas preferências e dados do sistema.
-        </p>
+      <div className="flex items-center justify-between mb-6 shrink-0 select-none">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
+            Olá, Bibliotecário!
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 transition-all duration-200">
+            Gerencie suas preferências do sistema.
+          </p>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-2 py-2 pl-4 pr-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-700 transition-all duration-200 transform hover:scale-105"
+        >
+          <span className="font-bold">Sair da Conta</span>
+          <img
+            src={logoutIconUrl}
+            alt="Sair"
+            className="w-6 pointer-events-none"
+          />
+        </button>
       </div>
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
         {currentView === 'main' && renderMainView()}
