@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { ActionHeader } from '../../components/ActionHeader';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
@@ -8,9 +9,6 @@ import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
 import { DetalhesLivroModal } from '../../components/ModalBookDetails';
 
-import filterIconUrl from '../../assets/icons/filter.svg';
-import addIconUrl from '../../assets/icons/add.svg';
-import searchIconUrl from '../../assets/icons/search.svg';
 import backIconUrl from '../../assets/icons/arrow-left.svg';
 
 import {
@@ -225,62 +223,43 @@ export function LivrosPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center space-x-4">
-          {/* botão voltar + titulo do livro */}
-          {isExemplarView && selectedBook && (
-            <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-200">
-              <button
-                onClick={handleVoltarParaLivros}
-                className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
-              >
-                <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
-              </button>
-              <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4 transition-all duration-200">
-                Exemplares de:{' '}
-                <span className="text-lumi-primary">{selectedBook.nome}</span>
-              </h2>
-              <button
-                onClick={() => handleAbrirDetalhes(selectedBook!)}
-                className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
-              >
-                DETALHES
-              </button>
-            </div>
-          )}
-
-          {/* input de pesquisa, filtro avançado e novo livro */}
-          <div className="relative ml-3 mr-2 transition-all duration-200 select-none">
-            <button className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200">
-              <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
+      <ActionHeader
+        searchTerm={termoBusca}
+        onSearchChange={setTermoBusca}
+        onSearchSubmit={fetchDados}
+        searchPlaceholder={
+          isExemplarView
+            ? 'Pesquise pelo tombo do exemplar'
+            : 'Pesquise pelo nome ou ISBN do livro'
+        }
+        onAddNew={() => setIsModalOpen(true)}
+        addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}
+        showFilterButton={!isExemplarView}
+        onFilterToggle={() => {
+          alert('Funcionalidade de filtro avançado a ser implementada.');
+        }}
+      >
+        {isExemplarView && selectedBook && (
+          <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-200">
+            <button
+              onClick={handleVoltarParaLivros}
+              className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+            >
+              <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
             </button>
-            <input
-              type="text"
-              placeholder={
-                isExemplarView
-                  ? 'Pesquise pelo tombo do exemplar'
-                  : 'Pesquise pelo nome ou ISBN do livro'
-              }
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-              className="pl-5 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
-            />
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4 transition-all duration-200">
+              Exemplares de:{' '}
+              <span className="text-lumi-primary">{selectedBook.nome}</span>
+            </h2>
+            <button
+              onClick={() => handleAbrirDetalhes(selectedBook!)}
+              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
+            >
+              DETALHES
+            </button>
           </div>
-          {!isExemplarView && (
-            <button className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md">
-              <span>Filtro Avançado</span>
-              <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
-            </button>
-          )}
-        </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
-        >
-          <img src={addIconUrl} alt="Adicionar" className="w-6 h-6 mr-2" />
-          <span>{isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}</span>
-        </button>
-      </div>
+        )}
+      </ActionHeader>
 
       <Modal
         isOpen={isModalOpen}
