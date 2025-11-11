@@ -306,7 +306,7 @@ export function EmprestimosPage() {
         onSearchSubmit={() => {
           alert('Funcionalidade de busca a ser implementada.');
         }}
-        searchPlaceholder="Faça sua pesquisa de aluno"
+        searchPlaceholder="Pesquise pelo livro ou aluno sobre o empréstimo"
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO EMPRÉSTIMO"
         showFilterButton={true}

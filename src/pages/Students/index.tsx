@@ -1,15 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { ActionHeader } from '../../components/ActionHeader';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { LoadingIcon } from '../../components/LoadingIcon';
 import { FiltroAvançado } from '../../components/filters/AdvancedFilter';
-
-import filterIconUrl from '../../assets/icons/filter.svg';
-import addIconUrl from '../../assets/icons/add.svg';
-import searchIconUrl from '../../assets/icons/search.svg';
 
 import {
   buscarAlunosAvancado,
@@ -179,9 +176,8 @@ export function AlunosPage() {
       }
       const valA = a[key as keyof typeof a];
       const valB = b[key as keyof typeof b];
-      if (valA === null) return 1; // Nulos no final
+      if (valA === null) return 1;
       if (valB === null) return -1;
-      // Comparação de strings com localeCompare para acentos e caracteres especiais
       return sortConfig.direction === 'asc'
         ? String(valA).localeCompare(String(valB))
         : String(valB).localeCompare(String(valA));
@@ -233,55 +229,30 @@ export function AlunosPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center space-x-4">
-          <div className="relative ml-3 mr-2 transition-all duration-200 transform hover:scale-105 select-none">
-            <button
-              onClick={handleBusca}
-              className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
-            >
-              <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
-            </button>
-            <input
-              type="text"
-              placeholder="Faça sua pesquisa de aluno"
-              className="pl-5 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleBusca();
-              }}
-            />
-          </div>
-          <div className="relative">
-            <button
-              onClick={() => setIsFilterOpen((prev) => !prev)}
-              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none"
-            >
-              <span>Filtro Avançado</span>
-              <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
-            </button>
+      <ActionHeader
+        searchTerm={termoBusca}
+        onSearchChange={setTermoBusca}
+        onSearchSubmit={handleBusca}
+        searchPlaceholder="Pesquise pelo nome do aluno ou curso"
+        onAddNew={() => setIsModalOpen(true)}
+        addNewButtonLabel="NOVO ALUNO"
+        showFilterButton={true}
+        onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+      />
 
-            {isFilterOpen && (
-              <FiltroAvançado
-                filters={filterParams}
-                onFilterChange={(field, value) =>
-                  setFilterParams((prev) => ({ ...prev, [field]: value }))
-                }
-                onApply={handleApplyFilters}
-                onClear={handleClearFilters}
-              />
-            )}
-          </div>
+      {isFilterOpen && (
+        <div className="relative">
+          {' '}
+          <FiltroAvançado
+            filters={filterParams}
+            onFilterChange={(field, value) =>
+              setFilterParams((prev) => ({ ...prev, [field]: value }))
+            }
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}
+          />
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none"
-        >
-          <img src={addIconUrl} alt="Novo Aluno" className="w-6 h-6 mr-2" />
-          <span>NOVO ALUNO</span>
-        </button>
-      </div>
+      )}
 
       <Modal
         isOpen={isModalOpen}
