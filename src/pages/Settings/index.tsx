@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState, type ReactNode } from 'react';
 import { ThemeContext } from '../../contexts/ThemeContext';
 
-import uploadIconUrl from '../../assets/icons/upload.svg';
 import downloadIconUrl from '../../assets/icons/download.svg';
 import lockIconUrl from '../../assets/icons/lock.svg';
 import sunIconUrl from '../../assets/icons/sun.svg';
@@ -109,35 +108,6 @@ export function ConfiguracoesPage() {
     </div>
   );
 
-  const renderExportView = () => (
-    <div className="p-6">
-      <SubPageHeader
-        title="Exportar Dados"
-        onBack={() => setCurrentView('main')}
-      />
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700">
-        <SettingItem
-          icon={uploadIconUrl}
-          title="Exportar Empréstimos"
-          description="Gere um arquivo com todos os empréstimos cadastrados."
-        >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-            Baixar Arquivo
-          </button>
-        </SettingItem>
-        <SettingItem
-          icon={uploadIconUrl}
-          title="Exportar Alunos"
-          description="Gere um arquivo com todos os alunos cadastrados."
-        >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-            Baixar Arquivo
-          </button>
-        </SettingItem>
-      </div>
-    </div>
-  );
-
   // redirecionar para a tela já criada
   const renderPasswordView = () => (
     <div className="p-6">
@@ -204,18 +174,6 @@ export function ConfiguracoesPage() {
           >
             <button
               onClick={() => setCurrentView('import')}
-              className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none"
-            >
-              Mais Opções
-            </button>
-          </SettingItem>
-          <SettingItem
-            icon={uploadIconUrl}
-            title="Exportar Dados"
-            description="Exporte relatórios completos em formato CSV ou PDF."
-          >
-            <button
-              onClick={() => setCurrentView('export')}
               className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none"
             >
               Mais Opções
@@ -291,7 +249,6 @@ export function ConfiguracoesPage() {
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
         {currentView === 'main' && renderMainView()}
         {currentView === 'import' && renderImportView()}
-        {currentView === 'export' && renderExportView()}
         {currentView === 'password' && renderPasswordView()}
       </div>
     </div>
