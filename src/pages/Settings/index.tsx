@@ -89,19 +89,28 @@ export function ConfiguracoesPage() {
         <SettingItem
           icon={downloadIconUrl}
           title="Importar Alunos"
-          description="Envie um arquivo CSV com a lista de novos alunos."
+          description="Adicione um arquivo CSV ou XLSX com a relação de alunos"
         >
           <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-            Selecionar Arquivo
+            Selecionar
           </button>
         </SettingItem>
         <SettingItem
           icon={downloadIconUrl}
           title="Importar Livros"
-          description="Envie um arquivo CSV com a lista de novos livros."
+          description="Adicione um arquivo CSV ou XLSX com a relação de livros"
         >
           <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
-            Selecionar Arquivo
+            Selecionar
+          </button>
+        </SettingItem>
+        <SettingItem
+          icon={downloadIconUrl}
+          title="Importar Exemplares"
+          description="Adicione um arquivo CSV ou XLSX com a relação de exemplares dos livros"
+        >
+          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none">
+            Selecionar
           </button>
         </SettingItem>
       </div>
