@@ -11,6 +11,8 @@ import { DashboardPage } from './pages/Start';
 import { EmprestimosPage } from './pages/Loans';
 import { LivrosPage } from './pages/Books';
 import { AlunosPage } from './pages/Students';
+import { ClassificacaoPage } from './pages/Ranking';
+import { RelatoriosPage } from './pages/Reports';
 import { ConfiguracoesPage } from './pages/Settings';
 
 function App() {
@@ -61,6 +63,28 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <AlunosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/classificacao"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ClassificacaoPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/relatorios"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <RelatoriosPage />
             </MainLayout>
           </ProtectedRoute>
         }

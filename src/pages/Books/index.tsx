@@ -406,7 +406,7 @@ export function LivrosPage() {
                     key={
                       isExemplarView
                         ? (item as ListaLivro).tomboExemplar
-                        : (item as LivroAgrupado).isbn
+                        : (item as LivroAgrupado).id
                     }
                     className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
                   >
