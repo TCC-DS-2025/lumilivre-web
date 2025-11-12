@@ -4,14 +4,14 @@ import type { ListaLivro } from './livroService';
 export interface ExemplarPayload {
   tombo: string;
   livro_isbn: string;
-  status_livro: 'DISPONIVEL'; // sempre será disponível ao criar
+  status_livro: 'DISPONIVEL';
   localizacao_fisica: string;
 }
 
-export const buscarExemplaresPorIsbn = async (
-  isbn: string,
+export const buscarExemplaresPorLivroId = async (
+  livroId: number,
 ): Promise<ListaLivro[]> => {
-  const response = await api.get(`/livros/exemplares/buscar/${isbn}`);
+  const response = await api.get(`/livros/exemplares/livro/${livroId}`);
   return response.data;
 };
 

@@ -17,7 +17,7 @@ import {
   type ListaLivro,
 } from '../../services/livroService';
 import {
-  buscarExemplaresPorIsbn,
+  buscarExemplaresPorLivroId,
   excluirExemplar,
 } from '../../services/exemplarService';
 import { buscarEmprestimosAtivosEAtrasados } from '../../services/emprestimoService';
@@ -64,7 +64,7 @@ export function LivrosPage() {
     try {
       if (isExemplarView && selectedBook) {
         const [listaExemplares, emprestimosAtivos] = await Promise.all([
-          buscarExemplaresPorIsbn(selectedBook.isbn),
+          buscarExemplaresPorLivroId(selectedBook.id),
           buscarEmprestimosAtivosEAtrasados(),
         ]);
 

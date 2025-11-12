@@ -17,6 +17,7 @@ export interface ListaLivro {
 }
 
 export interface LivroAgrupado {
+  id: number;
   isbn: string;
   nome: string;
   autor: string;
