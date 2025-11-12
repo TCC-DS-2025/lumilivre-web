@@ -6,12 +6,24 @@ import Logo from '../assets/icons/logo.svg';
 interface HeaderProps {
   isSidebarExpanded: boolean;
   setSidebarExpanded: (isExpanded: boolean) => void;
+
+  isSidebarPinned: boolean;
 }
 
-export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
+export function Header({
+  isSidebarExpanded,
+  setSidebarExpanded,
+  isSidebarPinned,
+}: HeaderProps) {
   const location = useLocation();
   const isHomePage =
     location.pathname === '/dashboard' || location.pathname === '/';
+
+  const headerSpacingClass = isSidebarPinned
+    ? isSidebarExpanded
+      ? 'pl-52'
+      : 'pl-28'
+    : 'pl-28';
 
   const logoContent = (
     <div className="flex items-center">
@@ -28,7 +40,7 @@ export function Header({ isSidebarExpanded, setSidebarExpanded }: HeaderProps) {
 
   return (
     <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md transition-colors duration-200">
-      <div className="flex items-center justify-between h-16 px-4 sm:px-6 select-none pl-28">
+      <div className={`flex items-center justify-between h-16 px-4 sm:px-6 select-none transition-all duration-300 ease-in-out ${headerSpacingClass}`}>
         <div className="flex items-center">
           <button
             className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300"

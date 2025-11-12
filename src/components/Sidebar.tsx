@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
 
 import homeIconUrl from '../assets/icons/home.svg';
 import homeActiveIconUrl from '../assets/icons/home-active.svg';
@@ -60,11 +59,17 @@ const navLinks = [
 interface SidebarProps {
   isExpanded: boolean;
   setExpanded: (isExpanded: boolean) => void;
+
+  isPinned: boolean;
+  setPinned: (isPinned: boolean) => void;
 }
 
-export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
-  const [isPinned, setIsPinned] = useState(false);
-
+export function Sidebar({
+  isExpanded,
+  setExpanded,
+  isPinned,
+  setPinned,
+}: SidebarProps) {
   const handleMouseEnter = () => {
     if (!isPinned) {
       setExpanded(true);
@@ -77,16 +82,17 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
     }
   };
 
-  // Inverte o estado de 'fixado'
   const handlePinToggle = () => {
     const newPinState = !isPinned;
-    setIsPinned(newPinState);
+    setPinned(newPinState);
     setExpanded(newPinState);
   };
 
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg select-none z-40 ${isExpanded ? 'w-48' : 'w-24'}`} // << z-index e shadow alterados
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
+        isExpanded ? 'w-48' : 'w-24'
+      }`} 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

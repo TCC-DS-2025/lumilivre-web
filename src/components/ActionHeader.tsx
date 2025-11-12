@@ -61,7 +61,7 @@ export function ActionHeader({
               className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none"
             >
               <span>Filtro Avançado</span>
-              <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
+              <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2 -mr-1" />
             </button>
           </div>
         )}
@@ -69,7 +69,7 @@ export function ActionHeader({
 
       <button
         onClick={onAddNew}
-        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
+        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 pl-3 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
       >
         <img src={addIconUrl} alt="Adicionar" className="w-6 h-6 mr-2" />
         <span>{addNewButtonLabel}</span>
