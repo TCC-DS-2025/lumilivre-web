@@ -1,10 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
+import { LoadingIcon } from '../../components/LoadingIcon';
+import {
+  buscarEmprestimosPaginado,
+  type ListaEmprestimo,
+} from '../../services/emprestimoService';
+import type { Page } from '../../types';
 
-type StatusEmprestimo = 'ativo' | 'atrasado' | 'vence-hoje' | 'concluido';
+type StatusEmprestimoDisplay =
+  | 'ativo'
+  | 'atrasado'
+  | 'vence-hoje'
+  | 'concluido';
 
 const emprestimosLegend = [
   { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
@@ -13,9 +23,9 @@ const emprestimosLegend = [
   { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
 ];
 
-interface Emprestimo {
+interface EmprestimoDisplay {
   id: number;
-  status: StatusEmprestimo;
+  status: StatusEmprestimoDisplay;
   livro: string;
   tombo: string;
   aluno: string;
@@ -24,252 +34,105 @@ interface Emprestimo {
   devolucao: Date;
 }
 
-const mockEmprestimos: Emprestimo[] = [
-  {
-    id: 1,
-    status: 'ativo',
-    livro: 'Dom Casmurro',
-    tombo: '978000000001',
-    aluno: 'Ana Beatriz Souza',
-    curso: 'Desenvolvimento de Sistemas',
-    emprestimo: new Date('2025-03-10'),
-    devolucao: new Date('2025-10-20'),
-  },
-  {
-    id: 2,
-    status: 'atrasado',
-    livro: 'O Pequeno Príncipe',
-    tombo: '978000000002',
-    aluno: 'João Pedro Martins',
-    curso: 'Enfermagem',
-    emprestimo: new Date('2025-02-15'),
-    devolucao: new Date('2025-03-01'),
-  },
-  {
-    id: 3,
-    status: 'vence-hoje',
-    livro: 'Capitães da Areia',
-    tombo: '978000000003',
-    aluno: 'Maria Clara Fernandes',
-    curso: 'Administração',
-    emprestimo: new Date('2025-09-20'),
-    devolucao: new Date(),
-  },
-  {
-    id: 4,
-    status: 'concluido',
-    livro: '1984',
-    tombo: '978000000004',
-    aluno: 'Carlos Henrique Lima',
-    curso: 'Logística',
-    emprestimo: new Date('2025-01-05'),
-    devolucao: new Date('2025-02-05'),
-  },
-  {
-    id: 5,
-    status: 'ativo',
-    livro: 'Memórias Póstumas de Brás Cubas',
-    tombo: '978000000005',
-    aluno: 'Larissa Costa',
-    curso: 'Contabilidade',
-    emprestimo: new Date('2025-06-12'),
-    devolucao: new Date('2025-11-15'),
-  },
-  {
-    id: 6,
-    status: 'atrasado',
-    livro: 'O Hobbit',
-    tombo: '978000000006',
-    aluno: 'Pedro Augusto Nunes',
-    curso: 'Desenvolvimento de Sistemas',
-    emprestimo: new Date('2025-04-10'),
-    devolucao: new Date('2025-05-01'),
-  },
-  {
-    id: 7,
-    status: 'vence-hoje',
-    livro: 'A Revolução dos Bichos',
-    tombo: '978000000007',
-    aluno: 'Fernanda Oliveira',
-    curso: 'Enfermagem',
-    emprestimo: new Date('2025-09-15'),
-    devolucao: new Date(),
-  },
-  {
-    id: 8,
-    status: 'concluido',
-    livro: 'A Hora da Estrela',
-    tombo: '978000000008',
-    aluno: 'Lucas Almeida',
-    curso: 'Administração',
-    emprestimo: new Date('2025-02-20'),
-    devolucao: new Date('2025-03-10'),
-  },
-  {
-    id: 9,
-    status: 'ativo',
-    livro: 'O Cortiço',
-    tombo: '978000000009',
-    aluno: 'Juliana Mendes',
-    curso: 'Logística',
-    emprestimo: new Date('2025-08-01'),
-    devolucao: new Date('2025-11-01'),
-  },
-  {
-    id: 10,
-    status: 'atrasado',
-    livro: 'Harry Potter e a Pedra Filosofal',
-    tombo: '978000000010',
-    aluno: 'Gustavo Ribeiro',
-    curso: 'Contabilidade',
-    emprestimo: new Date('2025-03-01'),
-    devolucao: new Date('2025-04-01'),
-  },
-  {
-    id: 11,
-    status: 'vence-hoje',
-    livro: 'Orgulho e Preconceito',
-    tombo: '978000000011',
-    aluno: 'Camila Duarte',
-    curso: 'Desenvolvimento de Sistemas',
-    emprestimo: new Date('2025-09-18'),
-    devolucao: new Date(),
-  },
-  {
-    id: 12,
-    status: 'concluido',
-    livro: 'It - A Coisa',
-    tombo: '978000000012',
-    aluno: 'Thiago Santos',
-    curso: 'Enfermagem',
-    emprestimo: new Date('2025-01-10'),
-    devolucao: new Date('2025-02-12'),
-  },
-  {
-    id: 13,
-    status: 'ativo',
-    livro: 'A Menina que Roubava Livros',
-    tombo: '978000000013',
-    aluno: 'Isabela Rocha',
-    curso: 'Administração',
-    emprestimo: new Date('2025-07-15'),
-    devolucao: new Date('2025-10-15'),
-  },
-  {
-    id: 14,
-    status: 'atrasado',
-    livro: 'O Código Da Vinci',
-    tombo: '978000000014',
-    aluno: 'Rafael Souza',
-    curso: 'Logística',
-    emprestimo: new Date('2025-04-05'),
-    devolucao: new Date('2025-05-01'),
-  },
-  {
-    id: 15,
-    status: 'vence-hoje',
-    livro: 'Moby Dick',
-    tombo: '978000000015',
-    aluno: 'Gabriela Lima',
-    curso: 'Contabilidade',
-    emprestimo: new Date('2025-09-21'),
-    devolucao: new Date(),
-  },
-  {
-    id: 16,
-    status: 'concluido',
-    livro: 'Grande Sertão: Veredas',
-    tombo: '978000000016',
-    aluno: 'Leonardo Pires',
-    curso: 'Administração',
-    emprestimo: new Date('2025-01-15'),
-    devolucao: new Date('2025-02-15'),
-  },
-  {
-    id: 17,
-    status: 'ativo',
-    livro: 'Senhora',
-    tombo: '978000000017',
-    aluno: 'Patrícia Almeida',
-    curso: 'Enfermagem',
-    emprestimo: new Date('2025-08-20'),
-    devolucao: new Date('2025-11-30'),
-  },
-  {
-    id: 18,
-    status: 'atrasado',
-    livro: 'O Alienista',
-    tombo: '978000000018',
-    aluno: 'Rodrigo Santos',
-    curso: 'Logística',
-    emprestimo: new Date('2025-03-05'),
-    devolucao: new Date('2025-04-01'),
-  },
-  {
-    id: 19,
-    status: 'vence-hoje',
-    livro: 'Frankenstein',
-    tombo: '978000000019',
-    aluno: 'Beatriz Moraes',
-    curso: 'Desenvolvimento de Sistemas',
-    emprestimo: new Date('2025-09-22'),
-    devolucao: new Date(),
-  },
-  {
-    id: 20,
-    status: 'concluido',
-    livro: 'O Alquimista',
-    tombo: '978000000020',
-    aluno: 'André Lopes',
-    curso: 'Contabilidade',
-    emprestimo: new Date('2025-02-01'),
-    devolucao: new Date('2025-03-01'),
-  },
-];
-
 export function EmprestimosPage() {
-  const [emprestimos] = useState<Emprestimo[]>(mockEmprestimos);
+  const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
+  const [pageData, setPageData] = useState<Page<ListaEmprestimo> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Emprestimo;
+    key: string;
     direction: 'asc' | 'desc';
-  }>({ key: 'devolucao', direction: 'asc' });
+  }>({
+    key: 'dataDevolucao',
+    direction: 'asc',
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const paginatedAndSortedEmprestimos = useMemo(() => {
-    let sortableItems = [...emprestimos];
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-    sortableItems.sort((a, b) => {
-      const key = sortConfig.key;
-      if (key === 'emprestimo' || key === 'devolucao') {
-        return sortConfig.direction === 'asc'
-          ? a[key].getTime() - b[key].getTime()
-          : b[key].getTime() - a[key].getTime();
+  const fetchEmprestimos = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const sortParam = `${sortConfig.key},${sortConfig.direction}`;
+      const data = await buscarEmprestimosPaginado(
+        termoBusca,
+        currentPage - 1,
+        itemsPerPage,
+        sortParam,
+      );
+
+      if (data && data.content) {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const emprestimosMapeados: EmprestimoDisplay[] = data.content.map(
+          (item) => {
+            const dataDevolucao = new Date(item.dataDevolucao);
+            dataDevolucao.setHours(0, 0, 0, 0);
+
+            let status: StatusEmprestimoDisplay;
+
+            if (item.statusEmprestimo === 'CONCLUIDO') {
+              status = 'concluido';
+            } else if (item.statusEmprestimo === 'ATRASADO') {
+              status = 'atrasado';
+            } else if (dataDevolucao.getTime() === hoje.getTime()) {
+              status = 'vence-hoje';
+            } else {
+              status = 'ativo';
+            }
+
+            return {
+              id: item.id,
+              status: status,
+              livro: item.exemplar.livro.nome,
+              tombo: item.exemplar.tombo,
+              aluno: item.aluno.nomeCompleto,
+              curso: item.aluno.curso.nome,
+              emprestimo: new Date(item.dataEmprestimo),
+              devolucao: new Date(item.dataDevolucao),
+            };
+          },
+        );
+
+        setEmprestimos(emprestimosMapeados);
+        setPageData(data);
+      } else {
+        setEmprestimos([]);
+        setPageData(null);
       }
-      if (a[key] < b[key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+    } catch (err: any) {
+      setError('Não foi possível carregar os empréstimos.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, itemsPerPage, sortConfig, termoBusca]);
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return sortableItems.slice(indexOfFirstItem, indexOfLastItem);
-  }, [emprestimos, sortConfig, currentPage, itemsPerPage]);
+  useEffect(() => {
+    fetchEmprestimos();
+  }, [fetchEmprestimos]);
 
-  const totalPages = Math.ceil(emprestimos.length / itemsPerPage);
-
-  const requestSort = (key: keyof Emprestimo) => {
+  const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
+    setCurrentPage(1);
   };
 
-  const StatusIndicator = ({ status }: { status: StatusEmprestimo }) => {
+  // const handleSearch = () => {
+  //   setCurrentPage(1);
+  //   fetchEmprestimos();
+  // };
+
+  const StatusIndicator = ({ status }: { status: StatusEmprestimoDisplay }) => {
     const colorMap = {
       ativo: 'bg-green-500',
       atrasado: 'bg-red-500',
@@ -284,15 +147,13 @@ export function EmprestimosPage() {
     );
   };
 
-  const getRowClass = (status: StatusEmprestimo) => {
+  const getRowClass = (status: StatusEmprestimoDisplay) => {
     const baseHover = 'transition-colors duration-200 hover:duration-0';
     switch (status) {
       case 'atrasado':
         return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/60 dark:hover:bg-red-500/60 ${baseHover}`;
       case 'vence-hoje':
         return `bg-yellow-300/25 dark:bg-yellow-300/25 hover:bg-yellow-300/55 dark:hover:bg-yellow-300/50 ${baseHover}`;
-      case 'ativo':
-      case 'concluido':
       default:
         return `hover:bg-gray-300 dark:hover:bg-gray-600 ${baseHover}`;
     }
@@ -306,8 +167,10 @@ export function EmprestimosPage() {
         onSearchSubmit={() => {
           alert('Funcionalidade de busca a ser implementada.');
         }}
-        searchPlaceholder="Pesquise pelo livro ou aluno sobre o empréstimo"
-        onAddNew={() => setIsModalOpen(true)}
+        searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
+        onAddNew={() => {
+          alert('Funcionalidade de cadastro a ser implementada.');
+        }}
         addNewButtonLabel="NOVO EMPRÉSTIMO"
         showFilterButton={true}
         onFilterToggle={() => {
@@ -318,16 +181,6 @@ export function EmprestimosPage() {
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
         <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
           <table className="min-w-full table-auto">
-            <colgroup>
-              <col style={{ width: '8%' }} /> {/* Status */}
-              <col style={{ width: '20%' }} /> {/* Livro */}
-              <col style={{ width: '11%' }} /> {/* Tombo */}
-              <col style={{ width: '20%' }} /> {/* Aluno */}
-              <col style={{ width: '15%' }} /> {/* Curso */}
-              <col style={{ width: '11%' }} /> {/* Empréstimo */}
-              <col style={{ width: '10%' }} /> {/* Devolução */}
-              <col style={{ width: '5%' }} /> {/* Ações */}
-            </colgroup>
             <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
               <tr className="select-none">
                 <SortableTh
@@ -392,36 +245,56 @@ export function EmprestimosPage() {
               </tr>
             </thead>
             <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
-              {paginatedAndSortedEmprestimos.map((item) => (
-                <tr key={item.id} className={getRowClass(item.status)}>
-                  <td className="p-4 whitespace-nowrap">
-                    <StatusIndicator status={item.status} />
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                    {item.livro}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {item.tombo}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {item.aluno}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {item.curso}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                    {item.emprestimo.toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                    {item.devolucao.toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="p-4 whitespace-nowrap">
-                    <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
-                      DETALHES
-                    </button>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={8}>
+                    <LoadingIcon />
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-red-500">
+                    {error}
+                  </td>
+                </tr>
+              ) : emprestimos.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-gray-500">
+                    Nenhum empréstimo encontrado.
+                  </td>
+                </tr>
+              ) : (
+                emprestimos.map((item) => (
+                  <tr key={item.id} className={getRowClass(item.status)}>
+                    <td className="p-4 whitespace-nowrap">
+                      <StatusIndicator status={item.status} />
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
+                      {item.livro}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                      {item.tombo}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.aluno}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {item.curso}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
+                      {item.emprestimo.toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
+                      {item.devolucao.toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                        DETALHES
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -433,9 +306,9 @@ export function EmprestimosPage() {
           }))}
           pagination={{
             currentPage,
-            totalPages,
+            totalPages: pageData?.totalPages ?? 1,
             itemsPerPage,
-            totalItems: emprestimos.length,
+            totalItems: pageData?.totalElements ?? 0,
           }}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={(size) => {
