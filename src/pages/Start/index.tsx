@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+
 import { StatCard } from '../../components/StatCard';
 import { SortableTh } from '../../components/SortableTh';
 import type { Emprestimo } from '../../types';
@@ -16,6 +17,7 @@ import {
   getContagemEmprestimosTotais,
   buscarEmprestimosAtivosEAtrasados,
 } from '../../services/emprestimoService';
+import { buscarSolicitacoesPendentes } from '../../services/solicitacaoEmprestimoService';
 
 interface Stats {
   livros: number;
@@ -34,116 +36,22 @@ interface EmprestimoVencer {
   statusVencimento: 'atrasado' | 'vence-hoje' | 'ativo';
 }
 
-interface Solicitacao {
-  // mock
+interface SolicitacaoDisplay {
   id: number;
   aluno: string;
   livro: string;
   solicitacao: Date;
 }
 
-const mockSolicitacoes: Solicitacao[] = [
-  {
-    id: 1,
-    aluno: 'Neemias Cormino',
-    livro: 'Dom Casmurro',
-    solicitacao: new Date('2025-09-28'),
-  },
-  {
-    id: 2,
-    aluno: 'João Pedro Martins',
-    livro: 'O Pequeno Príncipe',
-    solicitacao: new Date('2025-09-26'),
-  },
-  {
-    id: 3,
-    aluno: 'Maria Clara Fernandes',
-    livro: 'Capitães da Areia',
-    solicitacao: new Date('2025-09-24'),
-  },
-  {
-    id: 4,
-    aluno: 'Carlos Henrique Lima',
-    livro: '1984',
-    solicitacao: new Date('2025-09-22'),
-  },
-  {
-    id: 5,
-    aluno: 'Larissa Costa',
-    livro: 'Memórias Póstumas de Brás Cubas',
-    solicitacao: new Date('2025-09-20'),
-  },
-  {
-    id: 6,
-    aluno: 'Pedro Augusto Nunes',
-    livro: 'O Hobbit',
-    solicitacao: new Date('2025-09-18'),
-  },
-  {
-    id: 7,
-    aluno: 'Fernanda Oliveira',
-    livro: 'A Revolução dos Bichos',
-    solicitacao: new Date('2025-09-16'),
-  },
-  {
-    id: 8,
-    aluno: 'Lucas Almeida',
-    livro: 'A Hora da Estrela',
-    solicitacao: new Date('2025-09-14'),
-  },
-  {
-    id: 9,
-    aluno: 'Juliana Mendes',
-    livro: 'O Cortiço',
-    solicitacao: new Date('2025-09-12'),
-  },
-  {
-    id: 10,
-    aluno: 'Gustavo Ribeiro',
-    livro: 'Harry Potter e a Pedra Filosofal',
-    solicitacao: new Date('2025-09-10'),
-  },
-  {
-    id: 11,
-    aluno: 'Camila Duarte',
-    livro: 'Orgulho e Preconceito',
-    solicitacao: new Date('2025-09-08'),
-  },
-  {
-    id: 12,
-    aluno: 'Thiago Santos',
-    livro: 'It - A Coisa',
-    solicitacao: new Date('2025-09-06'),
-  },
-  {
-    id: 13,
-    aluno: 'Isabela Rocha',
-    livro: 'A Menina que Roubava Livros',
-    solicitacao: new Date('2025-09-04'),
-  },
-  {
-    id: 14,
-    aluno: 'Rafael Souza',
-    livro: 'O Código Da Vinci',
-    solicitacao: new Date('2025-09-02'),
-  },
-  {
-    id: 15,
-    aluno: 'Gabriela Lima',
-    livro: 'Moby Dick',
-    solicitacao: new Date('2025-08-31'),
-  },
-];
-
 export function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [solicitacoes] = useState<Solicitacao[]>(mockSolicitacoes);
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoDisplay[]>([]);
   const [emprestimos, setEmprestimos] = useState<EmprestimoVencer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [solicitacaoSort, setSolicitacaoSort] = useState<{
-    key: keyof Solicitacao;
+    key: keyof SolicitacaoDisplay;
     direction: 'asc' | 'desc';
   }>({ key: 'solicitacao', direction: 'asc' });
   const [emprestimoSort, setEmprestimoSort] = useState<{
@@ -156,12 +64,10 @@ export function DashboardPage() {
     sortableItems.sort((a, b) => {
       const key = solicitacaoSort.key;
       if (key === 'solicitacao') {
-        // por data (asc = mais antigo primeiro)
         return solicitacaoSort.direction === 'asc'
           ? a.solicitacao.getTime() - b.solicitacao.getTime()
           : b.solicitacao.getTime() - a.solicitacao.getTime();
       } else {
-        // alfabética
         if (a[key] < b[key])
           return solicitacaoSort.direction === 'asc' ? -1 : 1;
         if (a[key] > b[key])
@@ -172,7 +78,7 @@ export function DashboardPage() {
     return sortableItems;
   }, [solicitacoes, solicitacaoSort]);
 
-  const requestSolicitacaoSort = (key: keyof Solicitacao) => {
+  const requestSolicitacaoSort = (key: keyof SolicitacaoDisplay) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (solicitacaoSort.key === key && solicitacaoSort.direction === 'asc') {
       direction = 'desc';
@@ -219,12 +125,14 @@ export function DashboardPage() {
           contagemEmprestimos,
           contagemAtrasados,
           listaEmprestimos,
+          listaSolicitacoes,
         ] = await Promise.all([
           getContagemLivros(),
           getContagemAlunos(),
           getContagemEmprestimosTotais(),
           getContagemAtrasados(),
           buscarEmprestimosAtivosEAtrasados(),
+          buscarSolicitacoesPendentes(),
         ]);
 
         setStats({
@@ -234,9 +142,16 @@ export function DashboardPage() {
           atrasados: contagemAtrasados,
         });
 
+        const solicitacoesProcessadas = listaSolicitacoes.map((s) => ({
+          id: s.id,
+          aluno: s.alunoNome,
+          livro: s.livroNome,
+          solicitacao: new Date(s.dataSolicitacao),
+        }));
+        setSolicitacoes(solicitacoesProcessadas);
+
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-
         const dadosTabela = listaEmprestimos.map((e: Emprestimo) => {
           const dataDevolucao = new Date(e.dataDevolucao);
           dataDevolucao.setHours(0, 0, 0, 0);
@@ -250,7 +165,7 @@ export function DashboardPage() {
             id: e.id,
             livro: e.exemplar?.livro?.nome || 'Livro não encontrado',
             isbn: e.exemplar?.livro?.isbn || 'N/A',
-            aluno: e.aluno?.nomeCompleto || "Aluno não encontrado",
+            aluno: e.aluno?.nomeCompleto || 'Aluno não encontrado',
             retirada: new Date(e.dataEmprestimo).toLocaleDateString('pt-BR'),
             devolucao: new Date(e.dataDevolucao).toLocaleDateString('pt-BR'),
             statusVencimento,
@@ -361,27 +276,35 @@ export function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y bg-white dark:bg-dark-card transition-colors duration-200">
-                {sortedSolicitacoes.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
-                  >
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.aluno}
-                    </td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.livro}
-                    </td>
-                    <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">
-                      {item.solicitacao.toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="py-3 px-2">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
-                        Detalhes
-                      </button>
+                {sortedSolicitacoes.length > 0 ? (
+                  sortedSolicitacoes.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
+                    >
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                        {item.aluno}
+                      </td>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
+                        {item.livro}
+                      </td>
+                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">
+                        {item.solicitacao.toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="py-3 px-2">
+                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                          Detalhes
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-500">
+                      Nenhuma solicitação pendente.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
