@@ -35,7 +35,7 @@ export function ActionHeader({
       <div className="flex items-center space-x-4">
         {children}
 
-        <div className="relative ml-3 mr-2 transition-all duration-200 select-none">
+        <div className="relative mr-2 transition-all duration-200 select-none">
           <button
             onClick={onSearchSubmit}
             className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
@@ -58,7 +58,7 @@ export function ActionHeader({
           <div className="relative">
             <button
               onClick={onFilterToggle}
-              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 shadow-md select-none"
+              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none"
             >
               <span>Filtro Avançado</span>
               <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2" />
@@ -69,7 +69,7 @@ export function ActionHeader({
 
       <button
         onClick={onAddNew}
-        className="flex items-center mr-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
+        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
       >
         <img src={addIconUrl} alt="Adicionar" className="w-6 h-6 mr-2" />
         <span>{addNewButtonLabel}</span>

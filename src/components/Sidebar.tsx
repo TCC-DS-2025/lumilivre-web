@@ -86,7 +86,7 @@ export function Sidebar({ isExpanded, setExpanded }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-md select-none z-20 ${isExpanded ? 'w-48' : 'w-24'}`}
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg select-none z-40 ${isExpanded ? 'w-48' : 'w-24'}`} // << z-index e shadow alterados
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
