@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
-import { SortableTh } from '../../components/SortableTh';
+import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
-import { LoadingIcon } from '../../components/LoadingIcon';
+
 import {
   buscarEmprestimosPaginado,
   type ListaEmprestimo,
@@ -159,6 +159,66 @@ export function EmprestimosPage() {
     }
   };
 
+  // colunas para a tabela
+  const columns: ColumnDef<EmprestimoDisplay>[] = [
+    {
+      key: 'status',
+      header: 'Status',
+      render: (item) => <StatusIndicator status={item.status} />,
+    },
+    {
+      key: 'livro',
+      header: 'Livro',
+      render: (item) => (
+        <span className="font-bold text-gray-700 dark:text-gray-300 truncate">
+          {item.livro}
+        </span>
+      ),
+    },
+    {
+      key: 'tombo',
+      header: 'Tombo',
+      render: (item) => item.tombo,
+    },
+    {
+      key: 'aluno',
+      header: 'Aluno',
+      render: (item) => <span className="truncate">{item.aluno}</span>,
+    },
+    {
+      key: 'curso',
+      header: 'Curso',
+      render: (item) => <span className="truncate">{item.curso}</span>,
+    },
+    {
+      key: 'emprestimo',
+      header: 'Empréstimo',
+      render: (item) => (
+        <span className="font-bold">
+          {item.emprestimo.toLocaleDateString('pt-BR')}
+        </span>
+      ),
+    },
+    {
+      key: 'devolucao',
+      header: 'Devolução',
+      render: (item) => (
+        <span className="font-bold">
+          {item.devolucao.toLocaleDateString('pt-BR')}
+        </span>
+      ),
+    },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      render: () => (
+        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
+          DETALHES
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col h-full">
       <ActionHeader
@@ -179,125 +239,16 @@ export function EmprestimosPage() {
       />
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
-          <table className="min-w-full table-auto">
-            <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
-              <tr className="select-none">
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('status')}
-                  sortConfig={sortConfig}
-                  sortKey="status"
-                >
-                  Status
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('livro')}
-                  sortConfig={sortConfig}
-                  sortKey="livro"
-                >
-                  Livro
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('tombo')}
-                  sortConfig={sortConfig}
-                  sortKey="tombo"
-                >
-                  Tombo
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('aluno')}
-                  sortConfig={sortConfig}
-                  sortKey="aluno"
-                >
-                  Aluno
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('curso')}
-                  sortConfig={sortConfig}
-                  sortKey="curso"
-                >
-                  Curso
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('emprestimo')}
-                  sortConfig={sortConfig}
-                  sortKey="emprestimo"
-                >
-                  Empréstimo
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('devolucao')}
-                  sortConfig={sortConfig}
-                  sortKey="devolucao"
-                >
-                  Devolução
-                </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={8}>
-                    <LoadingIcon />
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-red-500">
-                    {error}
-                  </td>
-                </tr>
-              ) : emprestimos.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-gray-500">
-                    Nenhum empréstimo encontrado.
-                  </td>
-                </tr>
-              ) : (
-                emprestimos.map((item) => (
-                  <tr key={item.id} className={getRowClass(item.status)}>
-                    <td className="p-4 whitespace-nowrap">
-                      <StatusIndicator status={item.status} />
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                      {item.livro}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.tombo}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.aluno}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.curso}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                      {item.emprestimo.toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                      {item.devolucao.toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
-                        DETALHES
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={emprestimos}
+          columns={columns}
+          isLoading={isLoading}
+          error={error}
+          sortConfig={sortConfig}
+          onSort={requestSort}
+          getRowKey={(item) => item.id}
+          getRowClass={(item) => getRowClass(item.status)}
+        />
 
         <TableFooter
           legendItems={emprestimosLegend.map((l) => ({

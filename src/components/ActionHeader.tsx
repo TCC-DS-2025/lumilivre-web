@@ -32,13 +32,13 @@ export function ActionHeader({
 }: ActionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6 shrink-0">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
         {children}
 
         <div className="relative mr-2 transition-all duration-200 select-none">
           <button
             onClick={onSearchSubmit}
-            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
+            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 transition-all duration-200"
           >
             <img src={searchIconUrl} alt="Pesquisar" className="w-5 h-5" />
           </button>
@@ -58,7 +58,7 @@ export function ActionHeader({
           <div className="relative">
             <button
               onClick={onFilterToggle}
-              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 shadow-md select-none"
+              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 transition-all duration-200 shadow-md select-none"
             >
               <span>Filtro Avançado</span>
               <img src={filterIconUrl} alt="Filtros" className="w-5 h-5 ml-2 -mr-1" />
@@ -69,7 +69,7 @@ export function ActionHeader({
 
       <button
         onClick={onAddNew}
-        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 pl-3 rounded-lg hover:bg-green-600 transition-all duration-200 transform hover:scale-105 shadow-md"
+        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 pl-3 rounded-lg hover:bg-green-600 active:bg-green-700 transition-all duration-200 shadow-md"
       >
         <img src={addIconUrl} alt="Adicionar" className="w-6 h-6 mr-2" />
         <span>{addNewButtonLabel}</span>

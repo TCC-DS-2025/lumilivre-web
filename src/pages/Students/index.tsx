@@ -2,11 +2,10 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
-import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
+
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
-import { LoadingIcon } from '../../components/LoadingIcon';
 import { FiltroAvançado } from '../../components/filters/AdvancedFilter';
 
 import {
@@ -285,7 +284,7 @@ export function AlunosPage() {
       header: 'Ações',
       width: '5%',
       render: () => (
-        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
           DETALHES
         </button>
       ),
