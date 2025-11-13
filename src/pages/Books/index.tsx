@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
-import { SortableTh } from '../../components/SortableTh';
+import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
+
 import { Modal } from '../../components/Modal';
-import { LoadingIcon } from '../../components/LoadingIcon';
 import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
 import { DetalhesLivroModal } from '../../components/ModalBookDetails';
@@ -126,25 +126,24 @@ export function LivrosPage() {
     itemsPerPage,
     sortConfig,
   ]);
-
   useEffect(() => {
     fetchDados();
   }, [fetchDados]);
 
-  const handleVerExemplares = (livro: LivroAgrupado) => {
+  const handleVerExemplares = useCallback((livro: LivroAgrupado) => {
     setSelectedBook(livro);
     setIsExemplarView(true);
-  };
+  }, []);
 
   const handleVoltarParaLivros = () => {
     setIsExemplarView(false);
     setSelectedBook(null);
   };
 
-  const handleAbrirDetalhes = (livro: LivroAgrupado) => {
+  const handleAbrirDetalhes = useCallback((livro: LivroAgrupado) => {
     setLivroSelecionado(livro);
     setIsDetalhesOpen(true);
-  };
+  }, []);
 
   const handleFecharDetalhes = (foiAtualizado?: boolean) => {
     setIsDetalhesOpen(false);
@@ -154,23 +153,26 @@ export function LivrosPage() {
     }
   };
 
-  const handleExcluirExemplar = async (tombo: string) => {
-    if (
-      window.confirm(
-        `Tem certeza que deseja excluir o exemplar de tombo "${tombo}"?`,
-      )
-    ) {
-      try {
-        await excluirExemplar(tombo);
-        alert('Exemplar excluído com sucesso!');
-        fetchDados();
-      } catch (error: any) {
-        alert(
-          `Erro ao excluir exemplar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-        );
+  const handleExcluirExemplar = useCallback(
+    async (tombo: string) => {
+      if (
+        window.confirm(
+          `Tem certeza que deseja excluir o exemplar de tombo "${tombo}"?`,
+        )
+      ) {
+        try {
+          await excluirExemplar(tombo);
+          alert('Exemplar excluído com sucesso!');
+          fetchDados();
+        } catch (error: any) {
+          alert(
+            `Erro ao excluir exemplar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+          );
+        }
       }
-    }
-  };
+    },
+    [fetchDados],
+  );
 
   const StatusIndicator = ({ status }: { status: string }) => {
     const statusInfo = {
@@ -220,6 +222,122 @@ export function LivrosPage() {
     exemplaresFiltrados,
     isExemplarView,
   ]);
+
+  // colunas para tabela (LIVROS AGRUPADOS)
+  const livrosColumns = useMemo(
+    (): ColumnDef<LivroAgrupado>[] => [
+      {
+        key: 'isbn',
+        header: 'ISBN',
+        width: '15%',
+        render: (item) => (
+          <span className="font-bold text-black dark:text-white">
+            {item.isbn}
+          </span>
+        ),
+      },
+      {
+        key: 'nome',
+        header: 'Livro',
+        width: '30%',
+        render: (item) => (
+          <span className="font-bold text-black dark:text-white truncate">
+            {item.nome}
+          </span>
+        ),
+      },
+      {
+        key: 'autor',
+        header: 'Autor',
+        width: '20%',
+        render: (item) => <span className="truncate">{item.autor}</span>,
+      },
+      {
+        key: 'editora',
+        header: 'Editora',
+        width: '15%',
+        render: (item) => <span className="truncate">{item.editora}</span>,
+      },
+      {
+        key: 'quantidade',
+        header: 'Qtd.',
+        width: '10%',
+        render: (item) => (
+          <span className="font-bold text-black dark:text-white">
+            {item.quantidade}
+          </span>
+        ),
+      },
+      {
+        key: 'acoes',
+        header: 'Ações',
+        width: '10%',
+        render: (item) => (
+          <div className="flex justify-center items-center gap-x-2">
+            <button
+              onClick={() => handleVerExemplares(item)}
+              className="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-blue-600 transition-transform duration-200 hover:scale-105 shadow-md"
+            >
+              EXEMPLARES
+            </button>
+            <button
+              onClick={() => handleAbrirDetalhes(item)}
+              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
+            >
+              DETALHES
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [handleVerExemplares, handleAbrirDetalhes],
+  );
+
+  // colunas para tabela (EXEMPLARES)
+  const exemplaresColumns = useMemo(
+    (): ColumnDef<ListaLivro>[] => [
+      {
+        key: 'status',
+        header: 'Status',
+        width: '15%',
+        render: (item) => <StatusIndicator status={item.status} />,
+      },
+      {
+        key: 'tomboExemplar',
+        header: 'Tombo',
+        width: '20%',
+        render: (item) => (
+          <span className="font-bold">{item.tomboExemplar}</span>
+        ),
+      },
+      {
+        key: 'localizacao_fisica',
+        header: 'Localização',
+        width: '30%',
+        render: (item) => item.localizacao_fisica,
+      },
+      {
+        key: 'responsavel',
+        header: 'Responsável',
+        width: '25%',
+        render: (item) => item.responsavel,
+      },
+      {
+        key: 'acoes',
+        header: 'Ações',
+        width: '15%',
+        render: (item) => (
+          <button
+            onClick={() => handleExcluirExemplar(item.tomboExemplar)}
+            className="bg-red-600 text-white text-xs font-bold py-1 px-3 rounded hover:bg-red-700 transition-transform duration-200 hover:scale-105 shadow-md"
+          >
+            EXCLUIR
+          </button>
+        ),
+      },
+    ],
+    [handleExcluirExemplar],
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -290,200 +408,28 @@ export function LivrosPage() {
       />
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
-          <table className="min-w-full table-auto">
-            <thead className="sticky top-0 bg-lumi-primary shadow-md z-10 text-white">
-              <tr>
-                {isExemplarView ? (
-                  <>
-                    <SortableTh
-                      onClick={() => requestSort('status')}
-                      sortConfig={sortConfig}
-                      sortKey="status"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
-                    >
-                      Status
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('tomboExemplar')}
-                      sortConfig={sortConfig}
-                      sortKey="tomboExemplar"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[20%]"
-                    >
-                      Tombo
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('localizacao_fisica')}
-                      sortConfig={sortConfig}
-                      sortKey="localizacao_fisica"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[30%]"
-                    >
-                      Localização
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('responsavel')}
-                      sortConfig={sortConfig}
-                      sortKey="responsavel"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[25%]"
-                    >
-                      Responsável
-                    </SortableTh>
-                    <th className="p-4 text-sm font-bold text-white tracking-wider w-[15%] select-none">
-                      Ações
-                    </th>
-                  </>
-                ) : (
-                  <>
-                    <SortableTh
-                      onClick={() => requestSort('isbn')}
-                      sortConfig={sortConfig}
-                      sortKey="isbn"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
-                    >
-                      ISBN
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('nome')}
-                      sortConfig={sortConfig}
-                      sortKey="nome"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[30%]"
-                    >
-                      Livro
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('autor')}
-                      sortConfig={sortConfig}
-                      sortKey="autor"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[20%]"
-                    >
-                      Autor
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('editora')}
-                      sortConfig={sortConfig}
-                      sortKey="editora"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[15%]"
-                    >
-                      Editora
-                    </SortableTh>
-                    <SortableTh
-                      onClick={() => requestSort('quantidade')}
-                      sortConfig={sortConfig}
-                      sortKey="quantidade"
-                      className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30 w-[10%]"
-                    >
-                      Qtd.
-                    </SortableTh>
-                    <th className="p-4 text-sm font-bold tracking-wider text-center w-[10%]">
-                      Ações
-                    </th>
-                  </>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={8}>
-                    <LoadingIcon />
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-red-500">
-                    {error}
-                  </td>
-                </tr>
-              ) : dadosPaginados.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="p-8 text-gray-500">
-                    Nenhum item encontrado.
-                  </td>
-                </tr>
-              ) : (
-                dadosPaginados.map((item) => (
-                  <tr
-                    key={
-                      isExemplarView
-                        ? (item as ListaLivro).tomboExemplar
-                        : (item as LivroAgrupado).id
-                    }
-                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
-                  >
-                    {isExemplarView ? (
-                      <>
-                        <td className="p-4">
-                          <StatusIndicator
-                            status={(item as ListaLivro).status}
-                          />
-                        </td>
-                        <td className="p-4 text-sm font-bold text-gray-700 dark:text-gray-300">
-                          {(item as ListaLivro).tomboExemplar}
-                        </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
-                          {(item as ListaLivro).localizacao_fisica}
-                        </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
-                          {(item as ListaLivro).responsavel}
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={() =>
-                              handleExcluirExemplar(
-                                (item as ListaLivro).tomboExemplar,
-                              )
-                            }
-                            className="bg-red-600 text-white text-xs font-bold py-1 px-3 rounded hover:bg-red-700 transition-transform duration-200 hover:scale-110 shadow-md"
-                          >
-                            EXCLUIR
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="p-4 text-sm font-bold text-black dark:text-white">
-                          {item.isbn}
-                        </td>
-                        <td className="p-4 text-sm font-bold text-black dark:text-white text-center truncate">
-                          {item.nome}
-                        </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-center truncate">
-                          {item.autor}
-                        </td>
-                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300 text-center truncate">
-                          {item.editora}
-                        </td>
-                        <td className="p-4 text-sm font-bold text-black dark:text-white">
-                          {(item as LivroAgrupado).quantidade}
-                        </td>
-                        <td className="p-4 whitespace-nowrap">
-                          <div className="flex justify-center items-center gap-x-2">
-                            <button
-                              onClick={() =>
-                                handleVerExemplares(item as LivroAgrupado)
-                              }
-                              className="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-blue-600 transition-transform duration-200 hover:scale-110 shadow-md"
-                            >
-                              EXEMPLARES
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleAbrirDetalhes(item as LivroAgrupado)
-                              }
-                              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md"
-                            >
-                              DETALHES
-                            </button>
-                          </div>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {isExemplarView ? (
+          <DataTable<ListaLivro>
+            data={dadosPaginados as ListaLivro[]}
+            columns={exemplaresColumns}
+            isLoading={isLoading}
+            error={error}
+            sortConfig={sortConfig}
+            onSort={requestSort}
+            getRowKey={(item) => item.tomboExemplar}
+          />
+        ) : (
+          <DataTable<LivroAgrupado>
+            data={dadosPaginados as LivroAgrupado[]}
+            columns={livrosColumns}
+            isLoading={isLoading}
+            error={error}
+            sortConfig={sortConfig}
+            onSort={requestSort}
+            getRowKey={(item) => item.id}
+          />
+        )}
+
         <TableFooter
           viewMode={isExemplarView ? 'normal' : 'exception'}
           legendItems={isExemplarView ? livrosLegend : undefined}
