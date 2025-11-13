@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
+import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { SortableTh } from '../../components/SortableTh';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
@@ -227,6 +228,70 @@ export function AlunosPage() {
   // modal do popup de cadastro
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // colunas para a tabela
+  const columns: ColumnDef<AlunoDisplay>[] = [
+    {
+      key: 'penalidadeStatus',
+      header: 'Penalidade',
+      width: '10%',
+      render: (item) => <PenalidadeIndicator status={item.penalidadeStatus} />,
+    },
+    {
+      key: 'matricula',
+      header: 'Matrícula',
+      width: '10%',
+      render: (item) => (
+        <span className="font-bold text-gray-700 dark:text-gray-300">
+          {item.matricula}
+        </span>
+      ),
+    },
+    {
+      key: 'cursoNome',
+      header: 'Curso',
+      width: '15%',
+      render: (item) => <span className="truncate">{item.cursoNome}</span>,
+    },
+    {
+      key: 'nomeCompleto',
+      header: 'Aluno',
+      width: '20%',
+      render: (item) => (
+        <span className="font-bold text-gray-700 dark:text-gray-300 truncate">
+          {item.nomeCompleto}
+        </span>
+      ),
+    },
+    {
+      key: 'nascimentoDate',
+      header: 'Nascimento',
+      width: '10%',
+      render: (item) => item.nascimentoDate.toLocaleDateString('pt-BR'),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      width: '20%',
+      render: (item) => <span className="truncate">{item.email}</span>,
+    },
+    {
+      key: 'celular',
+      header: 'Contato',
+      width: '10%',
+      render: (item) => item.celular,
+    },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      width: '5%',
+      render: () => (
+        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+          DETALHES
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col h-full">
       <ActionHeader
@@ -266,139 +331,15 @@ export function AlunosPage() {
       </Modal>
 
       <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
-        <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-colors duration-200 rounded-t-lg">
-          <table className="min-w-full table-auto">
-            <colgroup>
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '5%' }} />
-            </colgroup>
-            <thead className="sticky top-0 bg-lumi-primary shadow-md z-10">
-              <tr className="select-none">
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('penalidadeStatus')}
-                  sortConfig={sortConfig}
-                  sortKey="penalidadeStatus"
-                >
-                  Penalidade
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('matricula')}
-                  sortConfig={sortConfig}
-                  sortKey="matricula"
-                >
-                  Matrícula
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('cursoNome')}
-                  sortConfig={sortConfig}
-                  sortKey="cursoNome"
-                >
-                  Curso
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('nomeCompleto')}
-                  sortConfig={sortConfig}
-                  sortKey="nome"
-                >
-                  Aluno
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('nascimentoDate')}
-                  sortConfig={sortConfig}
-                  sortKey="nascimentoDate"
-                >
-                  Nascimento
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('email')}
-                  sortConfig={sortConfig}
-                  sortKey="email"
-                >
-                  Email
-                </SortableTh>
-                <SortableTh
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                  onClick={() => requestSort('celular')} // contato
-                  sortConfig={sortConfig}
-                  sortKey="celular"
-                >
-                  Contato
-                </SortableTh>
-                <th className="p-4 text-sm font-bold text-white tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-colors duration-200">
-              {/* logica de carregamento dos dados da api */}
-              {isLoading ? (
-                <tr>
-                  <td colSpan={9} className="p-8">
-                    <LoadingIcon />
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={9} className="p-8 text-center text-red-500">
-                    {error}
-                  </td>
-                </tr>
-              ) : sortedAlunos.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="p-8 text-center text-gray-500">
-                    Nenhum aluno encontrado.
-                  </td>
-                </tr>
-              ) : (
-                alunos.map((item) => (
-                  <tr
-                    key={item.matricula}
-                    className="transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
-                  >
-                    <td className="p-4 whitespace-nowrap">
-                      <PenalidadeIndicator status={item.penalidadeStatus} />
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300">
-                      {item.matricula}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.cursoNome}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm font-bold text-gray-700 dark:text-gray-300 truncate">
-                      {item.nomeCompleto}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.nascimentoDate.toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 truncate">
-                      {item.email}
-                    </td>
-                    <td className="p-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {item.celular}
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
-                        DETALHES
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={sortedAlunos}
+          columns={columns}
+          isLoading={isLoading}
+          error={error}
+          sortConfig={sortConfig}
+          onSort={(key) => requestSort(key as keyof AlunoDisplay)}
+          getRowKey={(item) => item.matricula}
+        />
 
         <TableFooter
           legendItems={alunosLegend.map((l) => ({
