@@ -238,7 +238,7 @@ export function AlunosPage() {
     {
       key: 'matricula',
       header: 'Matrícula',
-      width: '10%',
+      width: '15%',
       render: (item) => (
         <span className="font-bold text-gray-700 dark:text-gray-300">
           {item.matricula}
@@ -246,20 +246,20 @@ export function AlunosPage() {
       ),
     },
     {
-      key: 'cursoNome',
-      header: 'Curso',
-      width: '15%',
-      render: (item) => <span className="truncate">{item.cursoNome}</span>,
-    },
-    {
       key: 'nomeCompleto',
       header: 'Aluno',
-      width: '20%',
+      width: '35%',
       render: (item) => (
         <span className="font-bold text-gray-700 dark:text-gray-300 truncate">
           {item.nomeCompleto}
         </span>
       ),
+    },
+    {
+      key: 'cursoNome',
+      header: 'Curso',
+      width: '20%',
+      render: (item) => <span className="truncate">{item.cursoNome}</span>,
     },
     {
       key: 'nascimentoDate',
@@ -268,21 +268,9 @@ export function AlunosPage() {
       render: (item) => item.nascimentoDate.toLocaleDateString('pt-BR'),
     },
     {
-      key: 'email',
-      header: 'Email',
-      width: '20%',
-      render: (item) => <span className="truncate">{item.email}</span>,
-    },
-    {
-      key: 'celular',
-      header: 'Contato',
-      width: '10%',
-      render: (item) => item.celular,
-    },
-    {
       key: 'acoes',
       header: 'Ações',
-      width: '5%',
+      width: '10%',
       render: () => (
         <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
           DETALHES

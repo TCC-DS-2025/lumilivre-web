@@ -185,12 +185,7 @@ export function EmprestimosPage() {
       header: 'Aluno',
       render: (item) => <span className="truncate">{item.aluno}</span>,
     },
-    {
-      key: 'curso',
-      header: 'Curso',
-      render: (item) => <span className="truncate">{item.curso}</span>,
-    },
-    {
+    { // data que ele pegou o livro?
       key: 'emprestimo',
       header: 'Empréstimo',
       render: (item) => (
