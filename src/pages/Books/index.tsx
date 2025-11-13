@@ -231,9 +231,7 @@ export function LivrosPage() {
         header: 'ISBN',
         width: '15%',
         render: (item) => (
-          <span className="font-bold text-black dark:text-white">
-            {item.isbn}
-          </span>
+          <span className="font-bold dark:text-white">{item.isbn}</span>
         ),
       },
       {
@@ -241,7 +239,7 @@ export function LivrosPage() {
         header: 'Livro',
         width: '30%',
         render: (item) => (
-          <span className="font-bold text-black dark:text-white truncate">
+          <span className="font-bold dark:text-white truncate">
             {item.nome}
           </span>
         ),
@@ -250,28 +248,31 @@ export function LivrosPage() {
         key: 'autor',
         header: 'Autor',
         width: '20%',
-        render: (item) => <span className="truncate">{item.autor}</span>,
+        render: (item) => (
+          <span className="dark:text-gray-300 truncate">{item.autor}</span>
+        ),
       },
       {
         key: 'editora',
         header: 'Editora',
         width: '15%',
-        render: (item) => <span className="truncate">{item.editora}</span>,
+        render: (item) => (
+          <span className="dark:text-gray-300 truncate">{item.editora}</span>
+        ),
       },
       {
         key: 'quantidade',
         header: 'Qtd.',
         width: '10%',
         render: (item) => (
-          <span className="font-bold text-black dark:text-white">
-            {item.quantidade}
-          </span>
+          <span className="font-bold dark:text-white">{item.quantidade}</span>
         ),
       },
       {
         key: 'acoes',
         header: 'Ações',
         width: '10%',
+        isSortable: false,
         render: (item) => (
           <div className="flex justify-center items-center gap-x-2">
             <button
@@ -307,25 +308,32 @@ export function LivrosPage() {
         header: 'Tombo',
         width: '20%',
         render: (item) => (
-          <span className="font-bold">{item.tomboExemplar}</span>
+          <span className="font-bold dark:text-white">
+            {item.tomboExemplar}
+          </span>
         ),
       },
       {
         key: 'localizacao_fisica',
         header: 'Localização',
         width: '30%',
-        render: (item) => item.localizacao_fisica,
+        render: (item) => (
+          <span className="dark:text-gray-300">{item.localizacao_fisica}</span>
+        ),
       },
       {
         key: 'responsavel',
         header: 'Responsável',
         width: '25%',
-        render: (item) => item.responsavel,
+        render: (item) => (
+          <span className="dark:text-gray-300">{item.responsavel}</span>
+        ),
       },
       {
         key: 'acoes',
         header: 'Ações',
         width: '15%',
+        isSortable: false,
         render: (item) => (
           <button
             onClick={() => handleExcluirExemplar(item.tomboExemplar)}
@@ -367,7 +375,8 @@ export function LivrosPage() {
             </button>
             <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4 transition-all duration-200">
               Exemplares de:{' '}
-              <span className="text-lumi-primary">{selectedBook.nome}</span>
+              {/* truncate para não aparecer em duas linhas */}
+              <span className="text-lumi-primary truncate">{selectedBook.nome}</span> 
             </h2>
             <button
               onClick={() => handleAbrirDetalhes(selectedBook!)}

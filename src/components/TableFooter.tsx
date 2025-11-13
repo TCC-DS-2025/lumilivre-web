@@ -50,7 +50,7 @@ export function TableFooter({
 
   if (viewMode === 'exception') {
     return (
-      <div className="flex items-center justify-between p-1 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
+      <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
         <div className="flex items-center space-x-2">
           <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 transition-all duration-200 select-none">
             Itens por página:
@@ -93,7 +93,7 @@ export function TableFooter({
   }
 
   return (
-    <div className="flex items-center justify-between p-1 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
+    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
       <div className="flex-1">
         {legendItems && legendItems.length > 0 && (
           <StatusLegend items={legendItems} />

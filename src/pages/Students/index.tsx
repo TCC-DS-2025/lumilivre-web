@@ -240,9 +240,7 @@ export function AlunosPage() {
       header: 'Matrícula',
       width: '15%',
       render: (item) => (
-        <span className="font-bold text-gray-700 dark:text-gray-300">
-          {item.matricula}
-        </span>
+        <span className="font-bold dark:text-gray-300">{item.matricula}</span>
       ),
     },
     {
@@ -250,7 +248,7 @@ export function AlunosPage() {
       header: 'Aluno',
       width: '35%',
       render: (item) => (
-        <span className="font-bold text-gray-700 dark:text-gray-300 truncate">
+        <span className="font-bold dark:text-gray-300 truncate">
           {item.nomeCompleto}
         </span>
       ),
@@ -259,18 +257,25 @@ export function AlunosPage() {
       key: 'cursoNome',
       header: 'Curso',
       width: '20%',
-      render: (item) => <span className="truncate">{item.cursoNome}</span>,
+      render: (item) => (
+        <span className="dark:text-gray-300 truncate">{item.cursoNome}</span>
+      ),
     },
     {
       key: 'nascimentoDate',
       header: 'Nascimento',
       width: '10%',
-      render: (item) => item.nascimentoDate.toLocaleDateString('pt-BR'),
+      render: (item) => (
+        <span className="dark:text-gray-300">
+          {item.nascimentoDate.toLocaleDateString('pt-BR')}
+        </span>
+      ),
     },
     {
       key: 'acoes',
       header: 'Ações',
       width: '10%',
+      isSortable: false,
       render: () => (
         <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
           DETALHES

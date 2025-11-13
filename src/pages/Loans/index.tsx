@@ -167,29 +167,30 @@ export function EmprestimosPage() {
       render: (item) => <StatusIndicator status={item.status} />,
     },
     {
-      key: 'livro',
-      header: 'Livro',
+      key: 'tombo',
+      header: 'Tombo',
       render: (item) => (
-        <span className="font-bold text-gray-700 dark:text-gray-300 truncate">
-          {item.livro}
-        </span>
+        <span className="font-bold dark:text-white">{item.tombo}</span>
       ),
     },
     {
-      key: 'tombo',
-      header: 'Tombo',
-      render: (item) => item.tombo,
+      key: 'livro',
+      header: 'Livro',
+      render: (item) => (
+        <span className="dark:text-gray-300 truncate">{item.livro}</span>
+      ),
     },
     {
       key: 'aluno',
       header: 'Aluno',
-      render: (item) => <span className="truncate">{item.aluno}</span>,
+      render: (item) => <span className="font-bold dark:text-white truncate">{item.aluno}</span>,
     },
-    { // data que ele pegou o livro?
+    {
+      // data de retirada do livro?
       key: 'emprestimo',
       header: 'Empréstimo',
       render: (item) => (
-        <span className="font-bold">
+        <span className="dark:text-gray-300">
           {item.emprestimo.toLocaleDateString('pt-BR')}
         </span>
       ),
@@ -198,7 +199,7 @@ export function EmprestimosPage() {
       key: 'devolucao',
       header: 'Devolução',
       render: (item) => (
-        <span className="font-bold">
+        <span className="font-bold dark:text-white">
           {item.devolucao.toLocaleDateString('pt-BR')}
         </span>
       ),
@@ -206,6 +207,7 @@ export function EmprestimosPage() {
     {
       key: 'acoes',
       header: 'Ações',
+      isSortable: false,
       render: () => (
         <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
           DETALHES

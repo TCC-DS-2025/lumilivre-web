@@ -7,6 +7,7 @@ export interface ColumnDef<T> {
   key: string;
   header: string;
   width?: string;
+  isSortable?: boolean;
   render: (item: T) => React.ReactNode;
 }
 
@@ -38,18 +39,28 @@ export function DataTable<T>({
       <table className="min-w-full table-auto">
         <thead className="sticky top-0 bg-lumi-primary shadow-md z-10 text-white">
           <tr>
-            {columns.map((col) => (
-              <SortableTh
-                key={col.key}
-                onClick={() => onSort(col.key)}
-                sortConfig={sortConfig}
-                sortKey={col.key}
-                className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
-                style={{ width: col.width }}
-              >
-                {col.header}
-              </SortableTh>
-            ))}
+            {columns.map((col) =>
+              col.isSortable === false ? (
+                <th
+                  key={col.key}
+                  className="p-3 text-sm font-bold text-white tracking-wider"
+                  style={{ width: col.width }}
+                >
+                  {col.header}
+                </th>
+              ) : (
+                <SortableTh
+                  key={col.key}
+                  onClick={() => onSort(col.key)}
+                  sortConfig={sortConfig}
+                  sortKey={col.key}
+                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
+                  style={{ width: col.width }}
+                >
+                  {col.header}
+                </SortableTh>
+              ),
+            )}
           </tr>
         </thead>
         <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
