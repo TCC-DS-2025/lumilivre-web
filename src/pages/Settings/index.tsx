@@ -10,22 +10,20 @@ import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
-// Importando SVGs como componentes React
 import DownloadIcon from '../../assets/icons/download.svg?react';
 import LockIcon from '../../assets/icons/lock.svg?react';
 import SunIcon from '../../assets/icons/sun.svg?react';
 import MoonIcon from '../../assets/icons/moon.svg?react';
-import AutoIcon from '../../assets/icons/auto.svg?react'; // Certifique-se de criar este arquivo
+import AutoIcon from '../../assets/icons/auto.svg?react';
 import BackIcon from '../../assets/icons/arrow-left.svg?react';
 import LogoutIcon from '../../assets/icons/logout.svg?react';
 
-// Interface para as props do Item de Configuração
 interface SettingItemProps {
   Icon: React.FunctionComponent<SVGProps<SVGSVGElement>>;
   title: string;
   description: string;
   children: ReactNode;
-  iconClassName?: string; // Para ajustes finos de tamanho (ex: lua)
+  iconClassName?: string;
 }
 
 const SettingItem = ({
@@ -142,7 +140,7 @@ export function ConfiguracoesPage() {
 
   const renderMainView = () => (
     <>
-      {/* Seção visível apenas para ADMIN */}
+      {/* apenas para ADMIN */}
       {isAdmin && (
         <div className="p-6">
           <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
@@ -215,6 +213,7 @@ export function ConfiguracoesPage() {
         </div>
       </div>
 
+      {/* TODO: criar lógica esclusiva para a página de mudar senha de quem já está logado */}
       <div className="p-6 border-t border-gray-200 dark:border-gray-700 transition-all duration-200">
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Conta
@@ -254,7 +253,6 @@ export function ConfiguracoesPage() {
           className="flex items-center space-x-2 py-2 pl-4 pr-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-700 transition-all duration-200 transform hover:scale-105"
         >
           <span className="font-bold">Sair da Conta</span>
-          {/* LogoutIcon permanece branco (text-white herdado do botão) */}
           <LogoutIcon className="w-6 h-6 text-white" />
         </button>
       </div>

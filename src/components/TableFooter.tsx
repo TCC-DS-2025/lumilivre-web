@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-import arrowIconLeft from '../assets/icons/arrow-left.svg';
-import arrowIconRight from '../assets/icons/arrow-right.svg';
+import ArrowLeftIcon from '../assets/icons/arrow-left.svg?react';
+import ArrowRightIcon from '../assets/icons/arrow-right.svg?react';
 
 interface LegendItem {
   color: string;
@@ -36,6 +36,88 @@ const StatusLegend: React.FC<{ items: LegendItem[] }> = ({ items }) => (
   </div>
 );
 
+interface PageSizeSelectorProps {
+  value: number;
+  onChange: (value: number) => void;
+  options: number[];
+}
+
+const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
+  value,
+  onChange,
+  options,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center justify-between w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary transition-all duration-200
+          ${
+            isOpen
+              ? 'bg-gray-200 dark:bg-gray-600'
+              : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+          }
+        `}
+      >
+        <span>{value}</span>
+        <span
+          className={`text-[10px] ml-1 opacity-70 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          }`}
+        >
+          ▼
+        </span>
+      </button>
+
+      <div
+        className={`absolute bottom-full left-0 mb-1 w-full bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 overflow-hidden origin-bottom transition-all duration-200 ease-out
+          ${
+            isOpen
+              ? 'opacity-100 scale-y-100 translate-y-0'
+              : 'opacity-0 scale-y-0 translate-y-2 pointer-events-none'
+          }
+        `}
+      >
+        {options.map((option) => (
+          <button
+            key={option}
+            onClick={() => {
+              onChange(option);
+              setIsOpen(false);
+            }}
+            className={`
+              w-full text-left px-3 py-2 text-sm transition-colors duration-150
+              ${
+                value === option
+                  ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'
+              }
+            `}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export function TableFooter({
   legendItems,
   pagination,
@@ -48,103 +130,99 @@ export function TableFooter({
   const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
+  const navButtonClass =
+    'p-1.5 rounded-md transition-colors duration-200 ' +
+    'hover:bg-gray-200 dark:hover:bg-gray-700 ' +
+    'active:bg-gray-300 dark:active:bg-gray-600 ' +
+    'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:bg-transparent';
+
+  const iconClass = 'w-4 h-4 text-lumi-primary dark:text-lumi-label';
+
+  // --- MODO EXCEPTION
   if (viewMode === 'exception') {
     return (
-      <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
-        <div className="flex items-center space-x-2">
-          <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 transition-all duration-200 select-none">
+      <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
+        <div className="flex items-center space-x-2 pl-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400 transition-all duration-200">
             Itens por página:
           </span>
-          <select
+          <PageSizeSelector
             value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
+            onChange={onItemsPerPageChange}
+            options={[10, 25, 50]}
+          />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400 mr-4">
+        <div className="flex items-center space-x-4 pr-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             {startItem}-{endItem} de {totalItems}
           </span>
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <img src={arrowIconLeft} className="w-4 h-4" alt="Anterior" />
-          </button>
-          <span className="text-sm font-semibold dark:text-white">
-            {currentPage}
-          </span>
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <img src={arrowIconRight} className="w-4 h-4" alt="Próximo" />
-          </button>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={navButtonClass}
+            >
+              <ArrowLeftIcon className={iconClass} />
+            </button>
+            <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[1.5rem] text-center">
+              {currentPage}
+            </span>
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={navButtonClass}
+            >
+              <ArrowRightIcon className={iconClass} />
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
+  // MODO PADRÃO
   return (
-    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none">
+    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
       <div className="flex-1">
         {legendItems && legendItems.length > 0 && (
           <StatusLegend items={legendItems} />
         )}
       </div>
 
-      <div className="flex items-center space-x-6">
+      <div className="flex items-center space-x-6 pr-2">
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400">
             Itens por página:
           </span>
-          <select
+          <PageSizeSelector
             value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="p-1 rounded-md bg-white dark:bg-gray-700 text-sm dark:text-white border dark:border-gray-600 hover:bg-gray-200 dark:hover:opacity-75 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200 select-none"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
+            onChange={onItemsPerPageChange}
+            options={[10, 25, 50]}
+          />
         </div>
 
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
           {startItem}-{endItem} de {totalItems}
         </span>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-110 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className={navButtonClass}
           >
-            <img
-              src={arrowIconLeft}
-              className="w-4 h-4"
-              alt="Seta para a Esquerda"
-            />
+            <ArrowLeftIcon className={iconClass} />
           </button>
-          <span className="text-sm font-semibold dark:text-white">
+          <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[1.5rem] text-center">
             {currentPage}
           </span>
           <button
             onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-110 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            disabled={currentPage === totalPages || totalPages === 0}
+            className={navButtonClass}
           >
-            <img
-              src={arrowIconRight}
-              className="w-4 h-4"
-              alt="Seta para a Direita"
-            />
+            <ArrowRightIcon className={iconClass} />
           </button>
         </div>
       </div>
