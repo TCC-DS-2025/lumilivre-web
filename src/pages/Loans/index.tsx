@@ -183,7 +183,9 @@ export function EmprestimosPage() {
     {
       key: 'aluno',
       header: 'Aluno',
-      render: (item) => <span className="font-bold dark:text-white truncate">{item.aluno}</span>,
+      render: (item) => (
+        <span className="font-bold dark:text-white truncate">{item.aluno}</span>
+      ),
     },
     {
       // data de retirada do livro?
@@ -209,7 +211,7 @@ export function EmprestimosPage() {
       header: 'Ações',
       isSortable: false,
       render: () => (
-        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-105 shadow-md select-none">
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
           DETALHES
         </button>
       ),

@@ -133,7 +133,7 @@ export function DashboardPage() {
         : 'asc';
     setEmprestimoSort({ key, direction });
   };
-  
+
   useEffect(() => {
     const carregarDados = async () => {
       // Carregar Estatísticas (Cards)
@@ -443,7 +443,7 @@ export function DashboardPage() {
                         {item.devolucao}
                       </td>
                       <td className="py-3 px-2">
-                        <button className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 rounded hover:bg-lumi-primary-hover transition-transform duration-200 hover:scale-110 shadow-md select-none">
+                        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
                           Detalhes
                         </button>
                       </td>

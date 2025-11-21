@@ -277,13 +277,13 @@ export function LivrosPage() {
           <div className="flex justify-center items-center gap-x-2">
             <button
               onClick={() => handleVerExemplares(item)}
-              className="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-blue-600 transition-transform duration-200 hover:scale-105 shadow-md"
+              className="bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md"
             >
               EXEMPLARES
             </button>
             <button
               onClick={() => handleAbrirDetalhes(item)}
-              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
+              className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none"
             >
               DETALHES
             </button>
@@ -374,9 +374,10 @@ export function LivrosPage() {
               <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
             </button>
             <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4 transition-all duration-200">
-              Exemplares de:{' '}
-              {/* truncate para não aparecer em duas linhas */}
-              <span className="text-lumi-primary truncate">{selectedBook.nome}</span> 
+              Exemplares de: {/* truncate para não aparecer em duas linhas */}
+              <span className="text-lumi-primary truncate">
+                {selectedBook.nome}
+              </span>
             </h2>
             <button
               onClick={() => handleAbrirDetalhes(selectedBook!)}
