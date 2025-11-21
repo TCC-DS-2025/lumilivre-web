@@ -1,33 +1,44 @@
-import { useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+  type SVGProps,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
-import downloadIconUrl from '../../assets/icons/download.svg';
-import lockIconUrl from '../../assets/icons/lock.svg';
-import sunIconUrl from '../../assets/icons/sun.svg';
-import moonIconUrl from '../../assets/icons/moon.svg';
-import backIconUrl from '../../assets/icons/arrow-left.svg';
-import logoutIconUrl from '../../assets/icons/logout.svg';
+// Importando SVGs como componentes React
+import DownloadIcon from '../../assets/icons/download.svg?react';
+import LockIcon from '../../assets/icons/lock.svg?react';
+import SunIcon from '../../assets/icons/sun.svg?react';
+import MoonIcon from '../../assets/icons/moon.svg?react';
+import AutoIcon from '../../assets/icons/auto.svg?react'; // Certifique-se de criar este arquivo
+import BackIcon from '../../assets/icons/arrow-left.svg?react';
+import LogoutIcon from '../../assets/icons/logout.svg?react';
 
-const SettingItem = ({
-  icon,
-  title,
-  description,
-  children,
-}: {
-  icon: string;
+// Interface para as props do Item de Configuração
+interface SettingItemProps {
+  Icon: React.FunctionComponent<SVGProps<SVGSVGElement>>;
   title: string;
   description: string;
   children: ReactNode;
-}) => (
+  iconClassName?: string; // Para ajustes finos de tamanho (ex: lua)
+}
+
+const SettingItem = ({
+  Icon,
+  title,
+  description,
+  children,
+  iconClassName = 'w-6 h-6',
+}: SettingItemProps) => (
   <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 transition-all duration-200">
     <div className="flex items-center">
-      <img
-        src={icon}
-        alt={title}
-        className="w-6 h-6 mr-4 text-lumi-primary transition-all duration-200 select-none"
+      <Icon
+        className={`${iconClassName} mr-4 text-lumi-primary dark:text-lumi-label transition-all duration-200 select-none`}
       />
       <div>
         <h3 className="font-semibold text-gray-800 dark:text-white transition-all duration-200">
@@ -52,9 +63,9 @@ const SubPageHeader = ({
   <div className="flex items-center mb-4 select-none">
     <button
       onClick={onBack}
-      className="p-2 mr-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-110"
+      className="p-2 mr-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 hover:scale-110 group"
     >
-      <img src={backIconUrl} alt="Voltar" className="w-5 h-5" />
+      <BackIcon className="w-5 h-5 text-lumi-primary dark:text-lumi-label" />
     </button>
     <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label select-none">
       {title}
@@ -64,12 +75,15 @@ const SubPageHeader = ({
 
 export function ConfiguracoesPage() {
   const { theme, setTheme } = useContext(ThemeContext);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const [currentView, setCurrentView] = useState<
-    'main' | 'import' | 'export' | 'password'
-  >('main');
+  const isAdmin = user?.role === 'ADMIN';
+
+  const [currentView, setCurrentView] = useState<'main' | 'import'>('main');
 
   const [effectiveTheme, setEffectiveTheme] = useState(theme);
+
   useEffect(() => {
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -82,9 +96,6 @@ export function ConfiguracoesPage() {
       setEffectiveTheme(theme);
     }
   }, [theme]);
-
-  const { logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
@@ -99,7 +110,7 @@ export function ConfiguracoesPage() {
       />
       <div className="rounded-lg border border-gray-200 dark:border-gray-700">
         <SettingItem
-          icon={downloadIconUrl}
+          Icon={DownloadIcon}
           title="Importar Alunos"
           description="Adicione um arquivo CSV ou XLSX com a relação de alunos"
         >
@@ -108,7 +119,7 @@ export function ConfiguracoesPage() {
           </button>
         </SettingItem>
         <SettingItem
-          icon={downloadIconUrl}
+          Icon={DownloadIcon}
           title="Importar Livros"
           description="Adicione um arquivo CSV ou XLSX com a relação de livros"
         >
@@ -117,7 +128,7 @@ export function ConfiguracoesPage() {
           </button>
         </SettingItem>
         <SettingItem
-          icon={downloadIconUrl}
+          Icon={DownloadIcon}
           title="Importar Exemplares"
           description="Adicione um arquivo CSV ou XLSX com a relação de exemplares dos livros"
         >
@@ -129,105 +140,73 @@ export function ConfiguracoesPage() {
     </div>
   );
 
-  // redirecionar para a tela já criada
-  const renderPasswordView = () => (
-    <div className="p-6">
-      <SubPageHeader
-        title="Mudar Senha"
-        onBack={() => setCurrentView('main')}
-      />
-      <div className="max-w-md mx-auto">
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-lumi-label mb-1 pl-3">
-              Senha Atual
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full p-3 bg-white dark:bg-transparent rounded-md shadow-lg border text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lumi-label mb-1 pl-3">
-              Nova Senha
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full p-3 bg-white dark:bg-transparent rounded-md shadow-lg border text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lumi-label mb-1 pl-3">
-              Confirmar Nova Senha
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full p-3 bg-white dark:bg-transparent rounded-md shadow-lg border text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300"
-            />
-          </div>
-          <div className="flex justify-center pt-2">
-            <button
-              type="submit"
-              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
-            >
-              Confirmar Troca de Senha
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
   const renderMainView = () => (
     <>
-      <div className="p-6">
-        <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
-          Gerenciamento de Dados
-        </h2>
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
-          <SettingItem
-            icon={downloadIconUrl}
-            title="Importar Dados"
-            description="Importe dados de alunos ou livros a partir de um arquivo."
-          >
-            <button
-              onClick={() => setCurrentView('import')}
-              className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none"
+      {/* Seção visível apenas para ADMIN */}
+      {isAdmin && (
+        <div className="p-6">
+          <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
+            Gerenciamento de Dados
+          </h2>
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
+            <SettingItem
+              Icon={DownloadIcon}
+              title="Importar Dados"
+              description="Importe dados de alunos ou livros a partir de um arquivo."
             >
-              Mais Opções
-            </button>
-          </SettingItem>
+              <button
+                onClick={() => setCurrentView('import')}
+                className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none"
+              >
+                Mais Opções
+              </button>
+            </SettingItem>
+          </div>
         </div>
-      </div>
-      <div className="p-6 border-t border-gray-200 dark:border-gray-700 transition-all duration-200">
+      )}
+
+      <div
+        className={`p-6 ${isAdmin ? 'border-t' : ''} border-gray-200 dark:border-gray-700 transition-all duration-200`}
+      >
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Aparência
         </h2>
         <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
           <SettingItem
-            icon={effectiveTheme === 'light' ? moonIconUrl : sunIconUrl}
+            Icon={
+              theme === 'system'
+                ? AutoIcon
+                : effectiveTheme === 'light'
+                  ? SunIcon
+                  : MoonIcon
+            }
+            iconClassName={
+              effectiveTheme === 'dark' && theme !== 'system'
+                ? 'w-6 h-5'
+                : 'w-6 h-6'
+            }
             title="Tema"
-            description="Escolha entre o tema claro, escuro ou o padrão do sistema."
+            description="Escolha entre o tema claro, escuro ou o padrão seu sistema."
           >
             <div className="flex items-center space-x-2 p-1 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 transition-all duration-200 select-none">
               <button
                 onClick={() => setTheme('light')}
-                className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'light' ? 'bg-white shadow' : 'hover:bg-gray-600'}`}
+                className={`p-2 rounded-md transition-all duration-200 ${theme === 'light' ? 'bg-white shadow text-lumi-primary' : 'hover:bg-gray-600 text-gray-500 dark:text-gray-400'}`}
+                title="Claro"
               >
                 Claro
               </button>
               <button
                 onClick={() => setTheme('dark')}
-                className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'dark' ? 'bg-gray-800 text-white shadow' : 'hover:bg-gray-600'}`}
+                className={`p-2 rounded-md transition-all duration-200 ${theme === 'dark' ? 'bg-gray-800 shadow text-lumi-label' : 'hover:bg-gray-600 text-gray-500 dark:text-gray-400'}`}
+                title="Escuro"
               >
                 Escuro
               </button>
               <button
                 onClick={() => setTheme('system')}
-                className={`px-3 py-1 rounded-md text-sm font-semibold transition-colors duration-200 ${theme === 'system' ? 'bg-lumi-primary text-white shadow' : 'hover:bg-gray-600'}`}
+                className={`p-2 rounded-md transition-all duration-200 ${theme === 'system' ? 'bg-lumi-primary shadow text-white' : 'hover:bg-gray-600 text-gray-500 dark:text-gray-400'}`}
+                title="Automático"
               >
                 Automático
               </button>
@@ -235,18 +214,19 @@ export function ConfiguracoesPage() {
           </SettingItem>
         </div>
       </div>
+
       <div className="p-6 border-t border-gray-200 dark:border-gray-700 transition-all duration-200">
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Conta
         </h2>
         <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
           <SettingItem
-            icon={lockIconUrl}
+            Icon={LockIcon}
             title="Mudar Senha"
             description="Altere sua senha de acesso ao sistema."
           >
             <button
-              onClick={() => setCurrentView('password')}
+              onClick={() => navigate('/mudar-senha')}
               className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 select-none"
             >
               Alterar
@@ -262,7 +242,7 @@ export function ConfiguracoesPage() {
       <div className="flex items-center justify-between mb-6 shrink-0 select-none">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
-            Olá, Bibliotecário!
+            {isAdmin ? 'Olá, Administrador!' : 'Olá, Bibliotecário!'}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 transition-all duration-200">
             Gerencie suas preferências do sistema.
@@ -274,17 +254,13 @@ export function ConfiguracoesPage() {
           className="flex items-center space-x-2 py-2 pl-4 pr-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-700 transition-all duration-200 transform hover:scale-105"
         >
           <span className="font-bold">Sair da Conta</span>
-          <img
-            src={logoutIconUrl}
-            alt="Sair"
-            className="w-6 pointer-events-none"
-          />
+          {/* LogoutIcon permanece branco (text-white herdado do botão) */}
+          <LogoutIcon className="w-6 h-6 text-white" />
         </button>
       </div>
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
         {currentView === 'main' && renderMainView()}
         {currentView === 'import' && renderImportView()}
-        {currentView === 'password' && renderPasswordView()}
       </div>
     </div>
   );
