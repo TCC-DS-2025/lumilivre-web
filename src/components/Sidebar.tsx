@@ -91,8 +91,8 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
-        isExpanded ? 'w-48' : 'w-24'
+      className={`fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
+        isExpanded ? 'w-48' : 'w-20'
       }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -115,7 +115,7 @@ export function Sidebar({
             key={link.path}
             to={link.path}
             className={({ isActive }) =>
-              `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${
+              `flex items-center p-3 justify-center rounded-lg transition-all duration-200 hover:bg-white/20 ${
                 isActive ? 'bg-white/20' : ''
               }`
             }
@@ -126,7 +126,7 @@ export function Sidebar({
               return (
                 <>
                   <IconComponent
-                    className={`w-6 h-6 shrink-0 pointer-events-none transition-colors duration-200 ${
+                    className={`w-6 h-6 shrink-0 pointer-events-none transition-all duration-200 ${
                       isActive ? 'text-white' : 'text-gray-300'
                     }`}
                   />
@@ -154,7 +154,7 @@ export function Sidebar({
         <NavLink
           to="/configuracoes"
           className={({ isActive }) =>
-            `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${
+            `flex items-center p-3 justify-center rounded-lg transition-all duration-200 hover:bg-white/20 ${
               isActive ? 'bg-white/20' : ''
             }`
           }
@@ -167,7 +167,7 @@ export function Sidebar({
             return (
               <>
                 <SettingsComponent
-                  className={`w-6 h-6 shrink-0 pointer-events-none transition-colors duration-200 ${
+                  className={`w-6 h-6 shrink-0 pointer-events-none transition-all duration-200 ${
                     isActive ? 'text-white' : 'text-gray-300'
                   }`}
                 />

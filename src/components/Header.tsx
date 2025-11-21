@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 
-import Logo from '../assets/icons/logo.svg';
+// 1. Importando o SVG como componente (vite-plugin-svgr)
+import LogoIcon from '../assets/icons/logo.svg?react';
 
 interface HeaderProps {
   isSidebarExpanded: boolean;
   setSidebarExpanded: (isExpanded: boolean) => void;
-
   isSidebarPinned: boolean;
 }
 
@@ -16,22 +16,18 @@ export function Header({
   isSidebarPinned,
 }: HeaderProps) {
   const location = useLocation();
-  const isHomePage =
-    location.pathname === '/dashboard' || location.pathname === '/';
+  const isHomePage = ['/dashboard', '/'].includes(location.pathname);
 
+  // Lógica de espaçamento mantida, mas simplificada na leitura
   const headerSpacingClass = isSidebarPinned
     ? isSidebarExpanded
       ? 'pl-52'
       : 'pl-28'
     : 'pl-28';
 
-  const logoContent = (
-    <div className="flex items-center">
-      <img
-        src={Logo}
-        alt="LumiLivre Logo"
-        className="h-12 w-12 mr-3 pointer-events-none"
-      />
+  const LogoContent = (
+    <div className="flex items-center gap-3">
+      <LogoIcon className="h-10 w-10 shrink-0" />
       <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white transition-all duration-200">
         LumiLivre
       </span>
@@ -39,11 +35,15 @@ export function Header({
   );
 
   return (
-    <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md transition-colors duration-200">
-      <div className={`flex items-center justify-between h-16 px-4 sm:px-6 select-none transition-all duration-300 ease-in-out ${headerSpacingClass}`}>
+    <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md transition-all duration-200">
+      <div
+        className={`flex items-center justify-between h-14 px-4 sm:px-6 select-none transition-all duration-300 ease-in-out ${headerSpacingClass}`}
+      >
         <div className="flex items-center">
           <button
-            className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300"
+            type="button"
+            aria-label="Abrir menu lateral"
+            className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
             onClick={() => setSidebarExpanded(!isSidebarExpanded)}
           >
             <svg
@@ -63,23 +63,25 @@ export function Header({
           </button>
 
           {isHomePage ? (
-            <div className="flex items-center cursor-default p-2 -ml-2">
-              {logoContent}
+            <div className="flex items-center cursor-default p-1.5 -ml-2">
+              {LogoContent}
             </div>
           ) : (
             <Link
               to="/dashboard"
-              className="flex items-center rounded-lg p-2 -ml-2 group"
+              className="flex items-center rounded-lg p-1.5 -ml-2 group transition-all"
             >
-              <div className="transition-all duration-200 group-hover:opacity-75">
-                {logoContent}
+              <div className="transition-opacity duration-200 group-hover:opacity-75">
+                {LogoContent}
               </div>
             </Link>
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
-          <ThemeToggle />
+        <div className="flex items-center -mr-1">
+          <div className="transform scale-90">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

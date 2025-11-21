@@ -11,7 +11,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
     ? isSidebarExpanded
       ? 'md:ml-48'
       : 'md:ml-24'
-    : 'pl-24';
+    : 'pl-20';
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden transition-colors duration-200">
