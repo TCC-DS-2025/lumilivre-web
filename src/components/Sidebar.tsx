@@ -1,65 +1,64 @@
 import { NavLink } from 'react-router-dom';
 
-import homeIconUrl from '../assets/icons/home.svg';
-import homeActiveIconUrl from '../assets/icons/home-active.svg';
-import bookIconUrl from '../assets/icons/books.svg';
-import bookActiveIconUrl from '../assets/icons/books-active.svg';
-import usersIconUrl from '../assets/icons/users.svg';
-import usersActiveIconUrl from '../assets/icons/users-active.svg';
-import loansIconUrl from '../assets/icons/loans.svg';
-import loansActiveIconUrl from '../assets/icons/loans-active.svg';
-import settingsIconUrl from '../assets/icons/settings.svg';
-import settingsActiveIconUrl from '../assets/icons/settings-active.svg';
-import reportIconUrl from '../assets/icons/report.svg';
-import reportActiveIconUrl from '../assets/icons/report-active.svg';
-import rankingIconUrl from '../assets/icons/ranking.svg';
-import rankingActiveIconUrl from '../assets/icons/ranking-active.svg';
-import pinIconUrl from '../assets/icons/pin.svg';
-import pinActiveIconUrl from '../assets/icons/pin-active.svg';
+import HomeIcon from '../assets/icons/home.svg?react';
+import HomeActiveIcon from '../assets/icons/home-active.svg?react';
+import BookIcon from '../assets/icons/books.svg?react';
+import BookActiveIcon from '../assets/icons/books-active.svg?react';
+import UsersIcon from '../assets/icons/users.svg?react';
+import UsersActiveIcon from '../assets/icons/users-active.svg?react';
+import LoansIcon from '../assets/icons/loans.svg?react';
+import LoansActiveIcon from '../assets/icons/loans-active.svg?react';
+import SettingsIcon from '../assets/icons/settings.svg?react';
+import SettingsActiveIcon from '../assets/icons/settings-active.svg?react';
+import ReportIcon from '../assets/icons/report.svg?react';
+import ReportActiveIcon from '../assets/icons/report-active.svg?react';
+import RankingIcon from '../assets/icons/ranking.svg?react';
+import RankingActiveIcon from '../assets/icons/ranking-active.svg?react';
+import PinIcon from '../assets/icons/pin.svg?react';
+import PinActiveIcon from '../assets/icons/pin-active.svg?react';
 
 const navLinks = [
   {
     path: '/dashboard',
     label: 'Início',
-    icon: homeIconUrl,
-    activeIcon: homeActiveIconUrl,
+    Icon: HomeIcon,
+    ActiveIcon: HomeActiveIcon,
   },
   {
     path: '/emprestimos',
     label: 'Empréstimos',
-    icon: loansIconUrl,
-    activeIcon: loansActiveIconUrl,
+    Icon: LoansIcon,
+    ActiveIcon: LoansActiveIcon,
   },
   {
     path: '/livros',
     label: 'Livros',
-    icon: bookIconUrl,
-    activeIcon: bookActiveIconUrl,
+    Icon: BookIcon,
+    ActiveIcon: BookActiveIcon,
   },
   {
     path: '/alunos',
     label: 'Alunos',
-    icon: usersIconUrl,
-    activeIcon: usersActiveIconUrl,
+    Icon: UsersIcon,
+    ActiveIcon: UsersActiveIcon,
   },
   {
     path: '/classificacao',
     label: 'Classificação',
-    icon: rankingIconUrl,
-    activeIcon: rankingActiveIconUrl,
+    Icon: RankingIcon,
+    ActiveIcon: RankingActiveIcon,
   },
   {
     path: '/relatorios',
     label: 'Relatórios',
-    icon: reportIconUrl,
-    activeIcon: reportActiveIconUrl,
+    Icon: ReportIcon,
+    ActiveIcon: ReportActiveIcon,
   },
 ];
 
 interface SidebarProps {
   isExpanded: boolean;
   setExpanded: (isExpanded: boolean) => void;
-
   isPinned: boolean;
   setPinned: (isPinned: boolean) => void;
 }
@@ -88,25 +87,25 @@ export function Sidebar({
     setExpanded(newPinState);
   };
 
+  const PinComponent = isPinned ? PinActiveIcon : PinIcon;
+
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
         isExpanded ? 'w-48' : 'w-24'
-      }`} 
+      }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative top-1 flex items-center justify-end">
         <button
           onClick={handlePinToggle}
-          className={`transition-all duration-200 hover:opacity-75 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`transition-all duration-200 hover:opacity-75 p-2 ${
+            isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
           title={isPinned ? 'Desafixar menu' : 'Fixar menu'}
         >
-          <img
-            src={isPinned ? pinActiveIconUrl : pinIconUrl}
-            alt="Fixar menu"
-            className="w-6 h-6"
-          />
+          <PinComponent className="w-6 h-6 text-white" />
         </button>
       </div>
 
@@ -116,27 +115,37 @@ export function Sidebar({
             key={link.path}
             to={link.path}
             className={({ isActive }) =>
-              `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`
+              `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${
+                isActive ? 'bg-white/20' : ''
+              }`
             }
           >
-            {({ isActive }) => (
-              <>
-                <img
-                  src={isActive ? link.activeIcon : link.icon}
-                  alt={link.label}
-                  className="w-6 h-6 shrink-0 pointer-events-none"
-                />
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}
-                >
-                  <span
-                    className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}
+            {({ isActive }) => {
+              const IconComponent = isActive ? link.ActiveIcon : link.Icon;
+
+              return (
+                <>
+                  <IconComponent
+                    className={`w-6 h-6 shrink-0 pointer-events-none transition-colors duration-200 ${
+                      isActive ? 'text-white' : 'text-gray-300'
+                    }`}
+                  />
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ${
+                      isExpanded ? 'w-40 ml-4' : 'w-0'
+                    }`}
                   >
-                    {link.label}
-                  </span>
-                </div>
-              </>
-            )}
+                    <span
+                      className={`whitespace-nowrap ${
+                        isActive ? 'font-bold text-white' : 'text-gray-300'
+                      }`}
+                    >
+                      {link.label}
+                    </span>
+                  </div>
+                </>
+              );
+            }}
           </NavLink>
         ))}
       </nav>
@@ -145,27 +154,39 @@ export function Sidebar({
         <NavLink
           to="/configuracoes"
           className={({ isActive }) =>
-            `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${isActive ? 'bg-white/20' : ''}`
+            `flex items-center p-3 justify-center rounded-lg transition-colors duration-200 hover:bg-white/20 ${
+              isActive ? 'bg-white/20' : ''
+            }`
           }
         >
-          {({ isActive }) => (
-            <>
-              <img
-                src={isActive ? settingsActiveIconUrl : settingsIconUrl}
-                alt="Configurações"
-                className="w-6 h-6 shrink-0 pointer-events-none"
-              />
-              <div
-                className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 ml-4' : 'w-0'}`}
-              >
-                <span
-                  className={`whitespace-nowrap ${isActive ? 'font-bold text-white' : 'text-gray-300'}`}
+          {({ isActive }) => {
+            const SettingsComponent = isActive
+              ? SettingsActiveIcon
+              : SettingsIcon;
+
+            return (
+              <>
+                <SettingsComponent
+                  className={`w-6 h-6 shrink-0 pointer-events-none transition-colors duration-200 ${
+                    isActive ? 'text-white' : 'text-gray-300'
+                  }`}
+                />
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isExpanded ? 'w-40 ml-4' : 'w-0'
+                  }`}
                 >
-                  Configurações
-                </span>
-              </div>
-            </>
-          )}
+                  <span
+                    className={`whitespace-nowrap ${
+                      isActive ? 'font-bold text-white' : 'text-gray-300'
+                    }`}
+                  >
+                    Configurações
+                  </span>
+                </div>
+              </>
+            );
+          }}
         </NavLink>
       </div>
     </aside>
