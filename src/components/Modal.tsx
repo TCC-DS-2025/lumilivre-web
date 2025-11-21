@@ -32,7 +32,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
           </h2>
           <button
             onClick={onClose}
-            className="transition-all duration-200 transform hover:scale-110 hover:opacity-75"
+            className="transition-all duration-200 transform hover:scale-105 hover:opacity-75"
           >
             <img
               src={closeIcon}

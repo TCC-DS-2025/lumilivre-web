@@ -146,7 +146,7 @@ export function ConfiguracoesPage() {
           <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
             Gerenciamento de Dados
           </h2>
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200">
             <SettingItem
               Icon={DownloadIcon}
               title="Importar Dados"
@@ -169,7 +169,7 @@ export function ConfiguracoesPage() {
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Aparência
         </h2>
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200">
           <SettingItem
             Icon={
               theme === 'system'
@@ -218,7 +218,7 @@ export function ConfiguracoesPage() {
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Conta
         </h2>
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200">
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200">
           <SettingItem
             Icon={LockIcon}
             title="Mudar Senha"
