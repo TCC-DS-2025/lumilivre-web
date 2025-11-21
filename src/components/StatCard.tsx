@@ -37,18 +37,14 @@ export function StatCard({
       <div className="p-4 flex flex-col justify-center transition-all duration-200 select-none">
         <p
           className={`text-base font-semibold transition-all duration-200 ${
-            isDanger
-              ? 'text-red-400'
-              : 'text-gray-600 dark:text-gray-300'
+            isDanger ? 'text-red-400' : 'text-gray-600 dark:text-gray-300'
           }`}
         >
           {title}
         </p>
         <p
           className={`text-4xl font-bold transition-all duration-200 ${
-            isDanger
-              ? 'text-red-500'
-              : 'text-gray-800 dark:text-white'
+            isDanger ? 'text-red-500' : 'text-gray-800 dark:text-white'
           }`}
         >
           {displayValue}
