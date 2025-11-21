@@ -1,6 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import closeIcon from '../assets/icons/close.svg';
+import CloseIcon from '../assets/icons/close.svg?react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,35 +10,60 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const [shouldRender, setShouldRender] = useState(isOpen);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    if (isOpen) {
+      setShouldRender(true);
+      setIsAnimatingOut(false);
+      document.body.style.overflow = 'hidden';
+    } else {
+      setIsAnimatingOut(true);
+      document.body.style.overflow = 'auto';
+
+      const timer = setTimeout(() => {
+        setShouldRender(false);
+      }, 200);
+
+      return () => clearTimeout(timer);
+    }
   }, [isOpen]);
 
-  if (!isOpen) {
+  if (!shouldRender) {
     return null;
   }
 
   return (
-    <div // fundo com blur
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm select-none"
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center select-none
+        ${isAnimatingOut ? 'animate-fade-out' : 'animate-fade-in'}
+      `}
     >
+
       <div
-        className={`bg-white dark:bg-dark-card rounded-lg shadow-2xl w-full max-w-3xl m-4 transition-all duration-200`}
-        onClick={(e) => e.stopPropagation()} // Impede que o clique fora do modal o feche
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      <div
+        className={`
+          relative bg-white dark:bg-dark-card rounded-lg shadow-2xl w-full max-w-3xl m-4 
+          ${isAnimatingOut ? 'animate-shrink-out' : 'animate-grow-in'}
+        `}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="ml-2 text-xl font-bold text-gray-800 dark:text-white">
             {title}
           </h2>
+
           <button
             onClick={onClose}
-            className="transition-all duration-200 transform hover:scale-105 hover:opacity-75"
+            className="rounded-md transition-all duration-200"
+            aria-label="Fechar modal"
           >
-            <img
-              src={closeIcon}
-              className="w-8 h-8"
-              alt="Ícone 'X' de fechar"
-            />
+            <CloseIcon className="w-8 h-8 text-lumi-primary dark:text-lumi-label transition-all duration-200 hover:text-opacity-75" />
           </button>
         </div>
 
