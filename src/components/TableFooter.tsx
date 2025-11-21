@@ -138,93 +138,69 @@ export function TableFooter({
 
   const iconClass = 'w-4 h-4 text-lumi-primary dark:text-lumi-label';
 
-  // --- MODO EXCEPTION
-  if (viewMode === 'exception') {
-    return (
-      <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
-        <div className="flex items-center space-x-2 pl-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400 transition-all duration-200">
-            Itens por página:
-          </span>
-          <PageSizeSelector
-            value={itemsPerPage}
-            onChange={onItemsPerPageChange}
-            options={[10, 25, 50]}
-          />
-        </div>
+  const PageSizeControl = (
+    <div className="flex items-center space-x-2">
+      <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400 transition-all duration-200">
+        Itens por página:
+      </span>
+      <PageSizeSelector
+        value={itemsPerPage}
+        onChange={onItemsPerPageChange}
+        options={[10, 25, 50]}
+      />
+    </div>
+  );
 
-        <div className="flex items-center space-x-4 pr-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            {startItem}-{endItem} de {totalItems}
-          </span>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={navButtonClass}
-            >
-              <ArrowLeftIcon className={iconClass} />
-            </button>
-            <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[1.5rem] text-center">
-              {currentPage}
-            </span>
-            <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className={navButtonClass}
-            >
-              <ArrowRightIcon className={iconClass} />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const ItemCounter = (
+    <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+      {startItem}-{endItem} de {totalItems}
+    </span>
+  );
 
-  // MODO PADRÃO
+  const NavigationControls = (
+    <div className="flex items-center space-x-1">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={navButtonClass}
+        title="Página Anterior"
+      >
+        <ArrowLeftIcon className={iconClass} />
+      </button>
+      <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[1.5rem] text-center">
+        {currentPage}
+      </span>
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages || totalPages === 0}
+        className={navButtonClass}
+        title="Próxima Página"
+      >
+        <ArrowRightIcon className={iconClass} />
+      </button>
+    </div>
+  );
+
+  const isException = viewMode === 'exception';
+
   return (
     <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
-      <div className="flex-1">
-        {legendItems && legendItems.length > 0 && (
-          <StatusLegend items={legendItems} />
-        )}
+      <div className={isException ? 'pl-2' : 'flex-1'}>
+        {isException
+          ?
+            PageSizeControl
+          :
+            legendItems &&
+            legendItems.length > 0 && <StatusLegend items={legendItems} />}
       </div>
 
-      <div className="flex items-center space-x-6 pr-2">
-        <div className="flex items-center space-x-2">
-          <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400">
-            Itens por página:
-          </span>
-          <PageSizeSelector
-            value={itemsPerPage}
-            onChange={onItemsPerPageChange}
-            options={[10, 25, 50]}
-          />
-        </div>
+      <div
+        className={`flex items-center pr-2 ${isException ? 'space-x-4' : 'space-x-6'}`}
+      >
+        {!isException && PageSizeControl}
 
-        <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-          {startItem}-{endItem} de {totalItems}
-        </span>
-
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={navButtonClass}
-          >
-            <ArrowLeftIcon className={iconClass} />
-          </button>
-          <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[1.5rem] text-center">
-            {currentPage}
-          </span>
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className={navButtonClass}
-          >
-            <ArrowRightIcon className={iconClass} />
-          </button>
-        </div>
+        {ItemCounter}
+        {NavigationControls}
       </div>
     </div>
   );
