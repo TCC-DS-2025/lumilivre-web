@@ -1,43 +1,57 @@
 import { Link } from 'react-router-dom';
+import type { FunctionComponent, SVGProps } from 'react';
 
 interface StatCardProps {
-  iconUrl: string;
+  Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   title: string;
   value: number | string;
   variant?: 'default' | 'danger';
   to: string;
+  isLoading?: boolean;
+  hasError?: boolean;
 }
 
 export function StatCard({
-  iconUrl,
+  Icon,
   title,
   value,
   variant = 'default',
   to,
+  isLoading = false,
+  hasError = false,
 }: StatCardProps) {
   const isDanger = variant === 'danger';
+
+  let displayValue: string | number = value;
+  if (isLoading) displayValue = '...';
+  if (hasError) displayValue = '-';
+
   return (
     <Link
       to={to}
-      className="flex items-center bg-white dark:bg-dark-card hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:scale-105"
+      className="flex items-center bg-white dark:bg-dark-card hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:scale-105 group"
     >
       <div className={`p-7 ${isDanger ? 'bg-red-500' : 'bg-lumi-primary'}`}>
-        <img
-          src={iconUrl}
-          alt={title}
-          className="w-10 h-10 select-none pointer-events-none"
-        />
+        <Icon className="w-10 h-10 text-white select-none pointer-events-none" />
       </div>
       <div className="p-4 flex flex-col justify-center transition-all duration-200 select-none">
         <p
-          className={`text-base font-semibold ${isDanger ? 'text-red-400 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`}
+          className={`text-base font-semibold transition-all duration-200 ${
+            isDanger
+              ? 'text-red-400'
+              : 'text-gray-600 dark:text-gray-300'
+          }`}
         >
           {title}
         </p>
         <p
-          className={`text-4xl font-bold ${isDanger ? 'text-red-500 dark:text-white' : 'text-gray-800 dark:text-white'}`}
+          className={`text-4xl font-bold transition-all duration-200 ${
+            isDanger
+              ? 'text-red-500'
+              : 'text-gray-800 dark:text-white'
+          }`}
         >
-          {value}
+          {displayValue}
         </p>
       </div>
     </Link>
