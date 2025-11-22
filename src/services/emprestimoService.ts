@@ -20,6 +20,12 @@ export interface ListaEmprestimo {
   dataDevolucao: string;
 }
 
+export interface AlunoRanking {
+  matricula: string;
+  nome: string;
+  emprestimosCount: number;
+}
+
 export const buscarEmprestimosPaginado = async (
   texto: string,
   page: number,
@@ -53,5 +59,22 @@ export const buscarEmprestimosAtivosEAtrasados = async (): Promise<
   const response = await api.get<Emprestimo[]>(
     '/emprestimos/buscar/ativos-e-atrasados',
   );
+  return response.data || [];
+};
+
+export const buscarRanking = async (
+  top: number = 10,
+  cursoId?: number,
+  moduloId?: number,
+  turnoId?: number,
+): Promise<AlunoRanking[]> => {
+  const params: any = { top };
+  if (cursoId) params.cursoId = cursoId;
+  if (moduloId) params.moduloId = moduloId;
+  if (turnoId) params.turnoId = turnoId;
+
+  const response = await api.get<AlunoRanking[]>('/emprestimos/ranking', {
+    params,
+  });
   return response.data || [];
 };
