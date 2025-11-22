@@ -28,8 +28,8 @@ const ReportItem = ({
         <AddIcon className="w-6 h-6 text-lumi-primary dark:text-lumi-label" />
       </div>
       <div>
-        <h3 className="font-semibold text-gray-800 dark:text-white">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="font-semibold text-gray-800 dark:text-white transition-all duration-200">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 transition-all duration-200">
           {description}
         </p>
       </div>
@@ -446,20 +446,21 @@ export function RelatoriosPage() {
     setModalOpen(true);
   };
 
+  // TODO: Destacar ao passar o mouse no modo escuro
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
           Central de Relatórios
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-gray-500 dark:text-gray-400 transition-all duration-200">
           Selecione um tipo de relatório, aplique filtros e baixe o PDF.
         </p>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
         <div className="p-6">
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-200">
             <ReportItem
               title="Relatório de Alunos"
               description="Lista de alunos com filtros por curso, módulo, turno, penalidade e data de inclusão."

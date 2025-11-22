@@ -138,6 +138,7 @@ export function ConfiguracoesPage() {
     </div>
   );
 
+  // TODO: Destacar ao passar o mouse no modo escuro
   const renderMainView = () => (
     <>
       {/* apenas para ADMIN */}

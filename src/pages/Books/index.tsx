@@ -381,7 +381,7 @@ export function LivrosPage() {
             </h2>
             <button
               onClick={() => handleAbrirDetalhes(selectedBook!)}
-              className="bg-lumi-primary text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-lumi-primary-hover transition-all duration-200 hover:scale-105 shadow-md"
+              className="bg-lumi-label text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md"
             >
               DETALHES
             </button>

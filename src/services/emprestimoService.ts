@@ -32,6 +32,18 @@ export const buscarEmprestimosPaginado = async (
   size: number,
   sort: string,
 ): Promise<Page<ListaEmprestimo>> => {
+  
+  if (!texto || texto.trim() === '') {
+    const response = await api.get('/emprestimos/home', {
+      params: {
+        page,
+        size,
+        sort,
+      },
+    });
+    return response.data;
+  }
+
   const response = await api.get('/emprestimos/buscar', {
     params: {
       texto,

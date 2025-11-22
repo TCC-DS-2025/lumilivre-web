@@ -108,6 +108,7 @@ export function ClassificacaoPage() {
     '#82ca9d',
   ];
 
+  // TODO: Cor dos icones de medalhas da mesma coisa que a barra vertical
   const PodiumItem = ({
     aluno,
     position,
@@ -124,21 +125,20 @@ export function ClassificacaoPage() {
     let scaleHover = 'hover:scale-105';
 
     if (position === 1) {
-      heightClass = 'h-48';
+      heightClass = 'h-40';
       colorClass = 'bg-gradient-to-t from-yellow-400 to-yellow-300';
       Medal = Medal1Icon;
       orderClass = 'order-2 -mt-12 z-10';
-      scaleHover = 'hover:scale-110';
     } else if (position === 2) {
-      heightClass = 'h-36';
+      heightClass = 'h-28';
       colorClass = 'bg-gradient-to-t from-gray-300 to-gray-200';
       Medal = Medal2Icon;
-      orderClass = 'order-1';
+      orderClass = 'order-3';
     } else {
-      heightClass = 'h-28';
+      heightClass = 'h-20';
       colorClass = 'bg-gradient-to-t from-orange-300 to-orange-200';
       Medal = Medal3Icon;
-      orderClass = 'order-3';
+      orderClass = 'order-1';
     }
 
     return (
@@ -175,27 +175,27 @@ export function ClassificacaoPage() {
   return (
     <div className="flex flex-col h-full space-y-6">
       <div className="flex items-center gap-3 mb-2 select-none">
-        <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-          <CrownIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+        <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full transition-all duration-200">
+          <CrownIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400 transition-all duration-200" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
             Top Leitores da Instituição
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400 transition-all duration-200">
             Acompanhe o desempenho de leitura dos alunos e cursos.
           </p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 flex-grow flex flex-col gap-8">
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 flex-grow flex flex-col gap-8 transition-all duration-200">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[350px]">
           <div className="flex flex-col">
-            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2">
-              <span className="w-1 h-6 bg-lumi-primary rounded-full"></span>
+            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2 transition-all duration-200">
+              <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
               Os 3 Maiores Leitores
             </h3>
-            <div className="flex-grow flex items-end justify-center pb-4 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+            <div className="flex-grow flex items-end justify-center pb-4 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700 transition-all duration-200">
               <div className="flex items-end justify-center w-full max-w-lg gap-2 sm:gap-4">
                 <PodiumItem aluno={top3[1]} position={2} />
                 <PodiumItem aluno={top3[0]} position={1} />
@@ -207,8 +207,8 @@ export function ClassificacaoPage() {
           {/* Gráfico de Pizza */}
           <div className="flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                <span className="w-1 h-6 bg-green-500 rounded-full"></span>
+              <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2 transition-all duration-200">
+                <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
                 Empréstimos por Categoria
               </h3>
 
@@ -226,7 +226,7 @@ export function ClassificacaoPage() {
               </div>
             </div>
 
-            <div className="flex-grow bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700 relative">
+            <div className="flex-grow bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700 relative transition-all duration-200">
               <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                 <PieChart>
                   <Pie
@@ -282,11 +282,11 @@ export function ClassificacaoPage() {
         <div className="flex flex-col min-h-[400px]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-              <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
+              <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
               Os 15 Alunos com Mais Empréstimos
             </h3>
 
-            <div className="flex flex-wrap gap-3 items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+            <div className="flex flex-wrap gap-3 items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg transition-all duration-200">
               <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wide mr-1">
                 <FilterIcon className="w-4 h-4" />
                 Filtrar:
@@ -332,7 +332,7 @@ export function ClassificacaoPage() {
             </div>
           </div>
 
-          <div className="flex-grow w-full h-full">
+          <div className="flex-grow w-full h-full transition-all duration-200">
             <ResponsiveContainer width="100%" height="100%" minHeight={350}>
               <BarChart
                 data={barChartData}
