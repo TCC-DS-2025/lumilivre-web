@@ -8,24 +8,37 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  PieChart,
+  Pie,
+  Legend,
 } from 'recharts';
 
 import {
   buscarRanking,
   type AlunoRanking,
 } from '../../services/emprestimoService';
-import { buscarCursos, type Curso } from '../../services/cursoService';
+import {
+  buscarCursos,
+  buscarEstatisticasCursos,
+  type Curso,
+  type CursoEstatistica,
+} from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
 import { LoadingIcon } from '../../components/LoadingIcon';
 
+// Ícones
+import CrownIcon from '../../assets/icons/crown.svg?react';
+import Medal1Icon from '../../assets/icons/medal1.svg?react';
+import Medal2Icon from '../../assets/icons/medal2.svg?react';
+import Medal3Icon from '../../assets/icons/medal3.svg?react';
 import FilterIcon from '../../assets/icons/filter.svg?react';
-import TrophyIcon from '../../assets/icons/ranking-active.svg?react'; // Usando ícone existente como troféu
 
 export function ClassificacaoPage() {
-  const [rankingData, setRankingData] = useState<AlunoRanking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filtros
+  const [rankingData, setRankingData] = useState<AlunoRanking[]>([]);
+  const [pieData, setPieData] = useState<CursoEstatistica[]>([]);
+
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [modulos, setModulos] = useState<string[]>([]);
 
@@ -33,38 +46,39 @@ export function ClassificacaoPage() {
   const [filtroModulo, setFiltroModulo] = useState<string>('');
   const [filtroTurno, setFiltroTurno] = useState<string>('');
 
-  // Carregar opções de filtro
-  useEffect(() => {
-    Promise.all([buscarCursos(), buscarModulos()])
-      .then(([cursosRes, modulosRes]) => {
-        setCursos(cursosRes.content);
-        setModulos(modulosRes);
-      })
-      .catch(console.error);
-  }, []);
+  const [filtroPieTipo, setFiltroPieTipo] = useState<
+    'curso' | 'modulo' | 'turno'
+  >('curso');
 
-  // Buscar dados do ranking
   useEffect(() => {
-    const fetchRanking = async () => {
+    const carregarTudo = async () => {
       setIsLoading(true);
       try {
-        // Converter filtros para IDs/Valores esperados
-        // Nota: O backend espera IDs para curso e turno se possível,
-        // mas aqui simplifiquei assumindo que você ajustou o service ou o backend aceita nomes ou IDs.
-        // Se o backend pede ID do curso, precisamos achar o ID baseado no nome selecionado ou mudar o select para value={id}.
+        const [cursosRes, modulosRes, statsCursos] = await Promise.all([
+          buscarCursos(),
+          buscarModulos(),
+          buscarEstatisticasCursos(),
+        ]);
+        setCursos(cursosRes.content);
+        setModulos(modulosRes);
+        setPieData(statsCursos);
+      } catch (error) {
+        console.error('Erro ao carregar dados iniciais', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    carregarTudo();
+  }, []);
 
-        // Ajuste: Vamos usar o ID do curso no select abaixo para facilitar
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
         const cursoId = filtroCurso ? Number(filtroCurso) : undefined;
-
-        // Modulo no backend espera ID (1, 2, 3) mas o service retorna string ("1º Módulo").
-        // Vamos fazer um parse simples ou enviar o index + 1 se a lista estiver ordenada.
-        // Para simplificar, vou assumir que o backend foi ajustado ou vamos passar null por enquanto se for complexo.
-        // Vamos tentar passar o index + 1 baseado na lista de string
         const moduloId = filtroModulo
           ? modulos.indexOf(filtroModulo) + 1
           : undefined;
 
-        // Turno ID: 1-Manha, 2-Tarde, 3-Noite (Exemplo, ajuste conforme seu Enum/Banco)
         let turnoId: number | undefined;
         if (filtroTurno === 'MANHA') turnoId = 1;
         if (filtroTurno === 'TARDE') turnoId = 2;
@@ -75,20 +89,24 @@ export function ClassificacaoPage() {
         setRankingData(data);
       } catch (error) {
         console.error('Erro ao buscar ranking', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchRanking();
   }, [filtroCurso, filtroModulo, filtroTurno, modulos]);
 
-  // Separar Top 3 e o Resto
   const top3 = useMemo(() => rankingData.slice(0, 3), [rankingData]);
-  const chartData = useMemo(() => rankingData, [rankingData]);
+  const barChartData = useMemo(() => rankingData, [rankingData]);
 
-  // Cores para o gráfico (Lumi Primary e variações)
   const barColors = ['#762075', '#9b2c9a', '#bf3abf', '#d65ad6', '#e085e0'];
+  const pieColors = [
+    '#0088FE',
+    '#00C49F',
+    '#FFBB28',
+    '#FF8042',
+    '#8884d8',
+    '#82ca9d',
+  ];
 
   const PodiumItem = ({
     aluno,
@@ -100,202 +118,283 @@ export function ClassificacaoPage() {
     if (!aluno) return <div className="w-1/3"></div>;
 
     let heightClass = 'h-32';
-    let colorClass = 'bg-gray-300';
-    let iconColor = 'text-gray-500';
-    let orderClass = 'order-2'; // Padrão (2º e 3º lugar)
+    let colorClass = 'bg-gray-200 dark:bg-gray-700';
+    let Medal = Medal3Icon;
+    let orderClass = 'order-2';
+    let scaleHover = 'hover:scale-105';
 
     if (position === 1) {
       heightClass = 'h-48';
-      colorClass = 'bg-yellow-400'; // Ouro
-      iconColor = 'text-yellow-600';
-      orderClass = 'order-2 -mt-12 z-10'; // 1º lugar no meio e mais alto
+      colorClass = 'bg-gradient-to-t from-yellow-400 to-yellow-300';
+      Medal = Medal1Icon;
+      orderClass = 'order-2 -mt-12 z-10';
+      scaleHover = 'hover:scale-110';
     } else if (position === 2) {
       heightClass = 'h-36';
-      colorClass = 'bg-gray-300'; // Prata
-      iconColor = 'text-gray-500';
-      orderClass = 'order-1'; // Esquerda
+      colorClass = 'bg-gradient-to-t from-gray-300 to-gray-200';
+      Medal = Medal2Icon;
+      orderClass = 'order-1';
     } else {
       heightClass = 'h-28';
-      colorClass = 'bg-orange-300'; // Bronze
-      iconColor = 'text-orange-600';
-      orderClass = 'order-3'; // Direita
+      colorClass = 'bg-gradient-to-t from-orange-300 to-orange-200';
+      Medal = Medal3Icon;
+      orderClass = 'order-3';
     }
 
     return (
       <div
-        className={`flex flex-col items-center justify-end w-1/3 ${orderClass} transition-all duration-500 ease-out transform hover:scale-105`}
+        className={`flex flex-col items-center justify-end w-1/3 ${orderClass} transition-all duration-500 ease-out transform ${scaleHover}`}
       >
-        <div className="flex flex-col items-center mb-2">
-          <TrophyIcon className={`w-8 h-8 mb-1 ${iconColor}`} />
-          <span className="font-bold text-gray-800 dark:text-white text-center line-clamp-1 px-1">
+        <div className="flex flex-col items-center mb-3">
+          <Medal className="w-12 h-12 mb-2 drop-shadow-md" />
+          <span className="font-bold text-gray-800 dark:text-white text-center line-clamp-1 px-1 text-sm sm:text-base">
             {aluno.nome.split(' ')[0]} {aluno.nome.split(' ').pop()}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
-            {aluno.emprestimosCount} empréstimos
+          <span className="text-xs font-bold text-lumi-primary dark:text-lumi-label bg-white dark:bg-gray-800 px-2 py-0.5 rounded-full shadow-sm mt-1">
+            {aluno.emprestimosCount} livros
           </span>
         </div>
         <div
-          className={`w-full ${heightClass} ${colorClass} rounded-t-lg shadow-lg flex items-start justify-center pt-2 relative overflow-hidden`}
+          className={`w-full ${heightClass} ${colorClass} rounded-t-xl shadow-lg flex items-start justify-center pt-2 relative overflow-hidden border-t border-white/20`}
         >
-          <span className={`text-4xl font-black text-white opacity-50`}>
+          <span
+            className={`text-5xl font-black text-white/40 mix-blend-overlay`}
+          >
             {position}
           </span>
-          <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent"></div>
         </div>
       </div>
     );
   };
 
+  const selectStyles =
+    'p-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-lumi-primary outline-none transition-all shadow-sm';
+
+  if (isLoading) return <LoadingIcon />;
+
   return (
     <div className="flex flex-col h-full space-y-6">
-      {/* Cabeçalho e Filtros */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-dark-card p-4 rounded-lg shadow-md">
+      <div className="flex items-center gap-3 mb-2 select-none">
+        <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+          <CrownIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+        </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <TrophyIcon className="w-8 h-8 text-lumi-primary" />
-            Ranking de Leitores
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Top Leitores da Instituição
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Os alunos que mais leem na instituição.
+            Acompanhe o desempenho de leitura dos alunos e cursos.
           </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm font-semibold mr-2">
-            <FilterIcon className="w-4 h-4" />
-            <span>Filtrar por:</span>
-          </div>
-
-          <select
-            value={filtroCurso}
-            onChange={(e) => setFiltroCurso(e.target.value)}
-            className="p-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-lumi-primary outline-none"
-          >
-            <option value="">Todos os Cursos</option>
-            {cursos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filtroModulo}
-            onChange={(e) => setFiltroModulo(e.target.value)}
-            className="p-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-lumi-primary outline-none"
-          >
-            <option value="">Todos os Módulos</option>
-            {modulos.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filtroTurno}
-            onChange={(e) => setFiltroTurno(e.target.value)}
-            className="p-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-lumi-primary outline-none"
-          >
-            <option value="">Todos os Turnos</option>
-            <option value="MANHA">Manhã</option>
-            <option value="TARDE">Tarde</option>
-            <option value="NOITE">Noite</option>
-            <option value="INTEGRAL">Integral</option>
-          </select>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex-grow flex items-center justify-center bg-white dark:bg-dark-card rounded-lg shadow-md">
-          <LoadingIcon />
-        </div>
-      ) : rankingData.length === 0 ? (
-        <div className="flex-grow flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-lg shadow-md p-8">
-          <TrophyIcon className="w-16 h-16 text-gray-300 mb-4" />
-          <p className="text-xl text-gray-500">
-            Nenhum dado encontrado para os filtros selecionados.
-          </p>
-        </div>
-      ) : (
-        <div className="flex-grow flex flex-col gap-6">
-          {/* Pódio */}
-          <div className="bg-white dark:bg-dark-card rounded-lg shadow-md p-6 flex justify-center items-end min-h-[300px]">
-            <div className="flex items-end justify-center w-full max-w-2xl gap-2 sm:gap-4">
-              <PodiumItem aluno={top3[1]} position={2} />
-              <PodiumItem aluno={top3[0]} position={1} />
-              <PodiumItem aluno={top3[2]} position={3} />
+      <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 flex-grow flex flex-col gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[350px]">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-6 flex items-center gap-2">
+              <span className="w-1 h-6 bg-lumi-primary rounded-full"></span>
+              Os 3 Maiores Leitores
+            </h3>
+            <div className="flex-grow flex items-end justify-center pb-4 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+              <div className="flex items-end justify-center w-full max-w-lg gap-2 sm:gap-4">
+                <PodiumItem aluno={top3[1]} position={2} />
+                <PodiumItem aluno={top3[0]} position={1} />
+                <PodiumItem aluno={top3[2]} position={3} />
+              </div>
             </div>
           </div>
 
-          {/* Gráfico */}
-          <div className="bg-white dark:bg-dark-card rounded-lg shadow-md p-6 flex-grow flex flex-col min-h-[400px]">
-            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4">
-              Top 15 Alunos com Mais Empréstimos
-            </h3>
-            <div className="flex-grow w-full h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+          {/* Gráfico de Pizza */}
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <span className="w-1 h-6 bg-green-500 rounded-full"></span>
+                Empréstimos por Categoria
+              </h3>
+
+              <div className="flex items-center gap-2">
+                <FilterIcon className="w-4 h-4 text-gray-400" />
+                <select
+                  value={filtroPieTipo}
+                  onChange={(e) => setFiltroPieTipo(e.target.value as any)}
+                  className={selectStyles}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="#e5e7eb"
-                  />
-                  <XAxis
-                    dataKey="nome"
-                    angle={-45}
-                    textAnchor="end"
-                    interval={0}
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
-                    height={80}
-                    tickFormatter={(value) => {
-                      const names = value.split(' ');
-                      return names.length > 1
-                        ? `${names[0]} ${names[names.length - 1]}`
-                        : value;
-                    }}
-                  />
-                  <YAxis tick={{ fill: '#6b7280' }} allowDecimals={false} />
+                  <option value="curso">Por Curso</option>
+                  <option value="modulo">Por Módulo</option>
+                  <option value="turno">Por Turno</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex-grow bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700 relative">
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData as any[]}
+                    dataKey="totalEmprestimos"
+                    nameKey="nomeCurso"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    innerRadius={60}
+                    paddingAngle={5}
+                    label={({ percent }: { percent?: number }) =>
+                      `${((percent || 0) * 100).toFixed(0)}%`
+                    }
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={pieColors[index % pieColors.length]}
+                        stroke="none"
+                      />
+                    ))}
+                  </Pie>
                   <Tooltip
-                    cursor={{ fill: 'transparent' }}
                     contentStyle={{
                       backgroundColor: '#fff',
                       borderRadius: '8px',
                       border: 'none',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     }}
                     itemStyle={{ color: '#374151', fontWeight: 'bold' }}
-                    formatter={(value: number) => [
-                      `${value} Livros`,
-                      'Empréstimos',
-                    ]}
                   />
-                  <Bar
-                    dataKey="emprestimosCount"
-                    radius={[4, 4, 0, 0]}
-                    animationDuration={1500}
-                  >
-                    {chartData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          index < 3
-                            ? '#fbbf24'
-                            : barColors[index % barColors.length]
-                        }
-                        className="hover:opacity-80 transition-opacity cursor-pointer"
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    iconType="circle"
+                  />
+                </PieChart>
               </ResponsiveContainer>
+
+              {pieData.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                  Sem dados estatísticos
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+
+        <hr className="border-gray-200 dark:border-gray-700" />
+
+        {/* Gráfico de Barras */}
+        <div className="flex flex-col min-h-[400px]">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+              <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
+              Os 15 Alunos com Mais Empréstimos
+            </h3>
+
+            <div className="flex flex-wrap gap-3 items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wide mr-1">
+                <FilterIcon className="w-4 h-4" />
+                Filtrar:
+              </div>
+
+              <select
+                value={filtroCurso}
+                onChange={(e) => setFiltroCurso(e.target.value)}
+                className={selectStyles}
+              >
+                <option value="">Todos os Cursos</option>
+                {cursos.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={filtroModulo}
+                onChange={(e) => setFiltroModulo(e.target.value)}
+                className={selectStyles}
+              >
+                <option value="">Todos os Módulos</option>
+                {modulos.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={filtroTurno}
+                onChange={(e) => setFiltroTurno(e.target.value)}
+                className={selectStyles}
+              >
+                <option value="">Todos os Turnos</option>
+                <option value="MANHA">Manhã</option>
+                <option value="TARDE">Tarde</option>
+                <option value="NOITE">Noite</option>
+                <option value="INTEGRAL">Integral</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex-grow w-full h-full">
+            <ResponsiveContainer width="100%" height="100%" minHeight={350}>
+              <BarChart
+                data={barChartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#e5e7eb"
+                />
+                <XAxis
+                  dataKey="nome"
+                  angle={-45}
+                  textAnchor="end"
+                  interval={0}
+                  tick={{ fill: '#6b7280', fontSize: 12 }}
+                  height={80}
+                  tickFormatter={(value) => {
+                    const names = value.split(' ');
+                    return names.length > 1
+                      ? `${names[0]} ${names[names.length - 1]}`
+                      : value;
+                  }}
+                />
+                <YAxis tick={{ fill: '#6b7280' }} allowDecimals={false} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    border: 'none',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  }}
+                  itemStyle={{ color: '#374151', fontWeight: 'bold' }}
+                  formatter={(value: number) => [
+                    `${value} Livros`,
+                    'Total Empréstimos',
+                  ]}
+                />
+                <Bar
+                  dataKey="emprestimosCount"
+                  radius={[6, 6, 0, 0]}
+                  animationDuration={1500}
+                  barSize={40}
+                >
+                  {barChartData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        index < 3
+                          ? '#fbbf24'
+                          : barColors[index % barColors.length]
+                      }
+                      className="hover:opacity-80 transition-opacity cursor-pointer"
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

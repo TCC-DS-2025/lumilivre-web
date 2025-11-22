@@ -12,6 +12,13 @@ export interface CursoPayload {
   modulo: string;
 }
 
+export interface CursoEstatistica {
+  nomeCurso: string;
+  quantidadeAlunos: number;
+  totalEmprestimos: number;
+  mediaEmprestimosPorAluno: number;
+}
+
 export const buscarCursos = async (): Promise<Page<Curso>> => {
   try {
     const response = await api.get('/cursos/buscar');
@@ -24,5 +31,12 @@ export const buscarCursos = async (): Promise<Page<Curso>> => {
 
 export const cadastrarCurso = async (payload: CursoPayload): Promise<Curso> => {
   const response = await api.post('/cursos/cadastrar', payload);
+  return response.data;
+};
+
+export const buscarEstatisticasCursos = async (): Promise<
+  CursoEstatistica[]
+> => {
+  const response = await api.get<CursoEstatistica[]>('/cursos/estatisticas');
   return response.data;
 };
