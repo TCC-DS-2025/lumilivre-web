@@ -19,6 +19,11 @@ export interface CursoEstatistica {
   mediaEmprestimosPorAluno: number;
 }
 
+export interface EstatisticaGrafico {
+  nome: string;
+  total: number;
+}
+
 export const buscarCursos = async (): Promise<Page<Curso>> => {
   try {
     const response = await api.get('/cursos/buscar');
@@ -38,5 +43,20 @@ export const buscarEstatisticasCursos = async (): Promise<
   CursoEstatistica[]
 > => {
   const response = await api.get<CursoEstatistica[]>('/cursos/estatisticas');
+  return response.data;
+};
+
+export const buscarEstatisticasGrafico = async (
+  tipo: 'curso' | 'modulo' | 'turno',
+): Promise<EstatisticaGrafico[]> => {
+  const endpointMap = {
+    curso: '/cursos',
+    modulo: '/modulos',
+    turno: '/turnos',
+  };
+
+  const response = await api.get<EstatisticaGrafico[]>(
+    `${endpointMap[tipo]}/estatisticas-grafico`,
+  );
   return response.data;
 };

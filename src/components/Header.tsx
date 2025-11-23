@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 
-// 1. Importando o SVG como componente (vite-plugin-svgr)
 import LogoIcon from '../assets/icons/logo.svg?react';
+import MenuIcon from '../assets/icons/menu.svg?react';
 
 interface HeaderProps {
   isSidebarExpanded: boolean;
@@ -18,12 +18,10 @@ export function Header({
   const location = useLocation();
   const isHomePage = ['/dashboard', '/'].includes(location.pathname);
 
-  // Lógica de espaçamento mantida, mas simplificada na leitura
-  const headerSpacingClass = isSidebarPinned
-    ? isSidebarExpanded
-      ? 'pl-52'
-      : 'pl-28'
-    : 'pl-28';
+  const getHeaderSpacingClass = () => {
+    if (!isSidebarPinned) return 'pl-28';
+    return isSidebarExpanded ? 'pl-52' : 'pl-28';
+  };
 
   const LogoContent = (
     <div className="flex items-center gap-3">
@@ -37,29 +35,20 @@ export function Header({
   return (
     <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md transition-all duration-200">
       <div
-        className={`flex items-center justify-between h-14 px-4 sm:px-6 select-none transition-all duration-300 ease-in-out ${headerSpacingClass}`}
+        className={`
+          flex items-center justify-between h-14 px-4 sm:px-6 select-none 
+          transition-all duration-300 ease-in-out 
+          ${getHeaderSpacingClass()}
+        `}
       >
         <div className="flex items-center">
           <button
             type="button"
-            aria-label="Abrir menu lateral"
+            aria-label="Alternar menu lateral"
             className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
             onClick={() => setSidebarExpanded(!isSidebarExpanded)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 12h16"
-              />
-            </svg>
+            <MenuIcon className="h-6 w-6 fill-current" />
           </button>
 
           {isHomePage ? (
@@ -69,7 +58,7 @@ export function Header({
           ) : (
             <Link
               to="/dashboard"
-              className="flex items-center rounded-lg p-1.5 -ml-2 group transition-all"
+              className="flex items-center rounded-lg p-1.5 -ml-2 group transition-all duration-200"
             >
               <div className="transition-opacity duration-200 group-hover:opacity-75">
                 {LogoContent}
