@@ -237,7 +237,7 @@ export function LivrosPage() {
       {
         key: 'nome',
         header: 'Livro',
-        width: '30%',
+        width: '25%',
         render: (item) => (
           <span className="font-bold dark:text-white truncate">
             {item.nome}
@@ -263,7 +263,7 @@ export function LivrosPage() {
       {
         key: 'quantidade',
         header: 'Qtd.',
-        width: '10%',
+        width: '5%',
         render: (item) => (
           <span className="font-bold dark:text-white">{item.quantidade}</span>
         ),
@@ -271,7 +271,7 @@ export function LivrosPage() {
       {
         key: 'acoes',
         header: 'Ações',
-        width: '10%',
+        width: '20%',
         isSortable: false,
         render: (item) => (
           <div className="flex justify-center items-center gap-x-2">

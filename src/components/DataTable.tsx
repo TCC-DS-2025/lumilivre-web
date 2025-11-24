@@ -35,16 +35,13 @@ export function DataTable<T>({
   emptyStateMessage = 'Nenhum item encontrado.',
 }: DataTableProps<T>) {
   return (
-    // Container Principal: Flex Column, ocupa altura total, sem scroll externo
     <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-dark-card rounded-t-lg">
-      
-      {/* CABEÇALHO: Fixo, não rola */}
-      <div className="flex items-center shrink-0 bg-lumi-primary shadow-md z-10 text-white pr-2">
+      <div className="h-12 flex items-stretch shrink-0 bg-lumi-primary shadow-md z-10 text-white pr-2">
         {columns.map((col) =>
           col.isSortable === false ? (
             <div
               key={col.key}
-              className="p-3 text-sm font-bold text-white tracking-wider text-center flex items-center justify-center"
+              className="h-full px-3 text-sm font-bold text-white tracking-wider text-center flex items-center justify-center"
               style={{ width: col.width }}
             >
               {col.header}
@@ -55,7 +52,7 @@ export function DataTable<T>({
               onClick={() => onSort(col.key)}
               sortConfig={sortConfig}
               sortKey={col.key}
-              className="p-4 text-sm font-bold text-white tracking-wider hover:bg-white/30"
+              className="text-sm font-bold text-white tracking-wider hover:bg-white/20"
               style={{ width: col.width }}
             >
               {col.header}
@@ -64,7 +61,6 @@ export function DataTable<T>({
         )}
       </div>
 
-      {/* CORPO: Ocupa o resto do espaço (flex-1) e tem scroll (overflow-y-auto) */}
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
@@ -73,7 +69,9 @@ export function DataTable<T>({
         ) : error ? (
           <div className="p-8 text-red-500 text-center">{error}</div>
         ) : data.length === 0 ? (
-          <div className="p-8 text-gray-500 text-center">{emptyStateMessage}</div>
+          <div className="p-8 text-gray-500 text-center">
+            {emptyStateMessage}
+          </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {data.map((item) => (

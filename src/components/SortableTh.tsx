@@ -20,26 +20,25 @@ export function SortableTh({
   style,
 }: SortableThProps) {
   const isSorted = sortConfig?.key === sortKey;
-  const directionIcon = sortConfig?.direction === 'asc' ? '▲' : '▼';
+  const isAsc = sortConfig?.direction === 'asc';
 
   return (
     <div
-      className={`py-2 px-2 cursor-pointer select-none flex items-center justify-center ${className}`}
+      className={`relative h-full px-2 cursor-pointer select-none flex items-center justify-center transition-colors duration-200 ${className}`}
       onClick={onClick}
       style={style}
     >
-      <div className="flex items-center justify-center">
-        <span>{children}</span>
-        <span
-          className={`ml-2 text-xs ${
-            isSorted
-              ? 'relative opacity-100 duration-200'
-              : 'absolute opacity-0 duration-0'
-          }`}
-        >
-          {directionIcon}
-        </span>
-      </div>
+      <span className="z-10">{children}</span>
+
+      <span
+        className={`
+          absolute right-3 text-[10px] transition-transform duration-200
+          ${isSorted ? 'opacity-100' : 'opacity-0'} 
+          ${isAsc ? 'rotate-180' : 'rotate-0'}
+        `}
+      >
+        ▼
+      </span>
     </div>
   );
 }
