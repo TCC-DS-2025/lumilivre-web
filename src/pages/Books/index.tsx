@@ -20,8 +20,11 @@ import {
   buscarExemplaresPorLivroId,
   excluirExemplar,
 } from '../../services/exemplarService';
-import { buscarEmprestimosAtivosEAtrasados } from '../../services/emprestimoService';
-import type { Page, Emprestimo } from '../../types';
+import {
+  buscarEmprestimosAtivosEAtrasados,
+  type EmprestimoAtivoDTO,
+} from '../../services/emprestimoService';
+import type { Page } from '../../types';
 
 const livrosLegend = [
   { label: 'Disponível', color: 'bg-green-500' },
@@ -69,9 +72,10 @@ export function LivrosPage() {
         ]);
 
         const mapaEmprestimos = new Map<string, string>();
-        emprestimosAtivos.forEach((emp: Emprestimo) => {
-          if (emp.exemplar.tombo) {
-            mapaEmprestimos.set(emp.exemplar.tombo, emp.aluno.nomeCompleto);
+
+        emprestimosAtivos.forEach((emp: EmprestimoAtivoDTO) => {
+          if (emp.tombo) {
+            mapaEmprestimos.set(emp.tombo, emp.alunoNome);
           }
         });
 
@@ -374,7 +378,7 @@ export function LivrosPage() {
               <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
             </button>
             <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4">
-              Exemplares de: {/* truncate para não aparecer em duas linhas */}
+              Exemplares de: {/* ajustar o truncate para não aparecer em duas linhas */}
               <span className="text-lumi-primary truncate">
                 {selectedBook.nome}
               </span>

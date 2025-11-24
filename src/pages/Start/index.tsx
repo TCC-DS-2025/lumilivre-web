@@ -3,7 +3,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
-import type { Emprestimo } from '../../types';
 import { formatarNome } from '../../utils/formatters';
 
 import { getContagemLivros } from '../../services/livroService';
@@ -19,7 +18,6 @@ import BookIcon from '../../assets/icons/books-active.svg?react';
 import UsersIcon from '../../assets/icons/users-active.svg?react';
 import AlertIcon from '../../assets/icons/alert.svg?react';
 import LoansIcon from '../../assets/icons/loans-active.svg?react';
-
 
 interface DataState<T> {
   data: T;
@@ -132,11 +130,6 @@ export function DashboardPage() {
     return items;
   }, [emprestimosState.data, emprestimoSort]);
 
-  const paginatedEmprestimos = useMemo(() => {
-    const start = (emprestimoPage - 1) * emprestimoPerPage;
-    return sortedEmprestimos.slice(start, start + emprestimoPerPage);
-  }, [sortedEmprestimos, emprestimoPage, emprestimoPerPage]);
-
   const requestSolicitacaoSort = (key: string) => {
     const direction =
       solicitacaoSort.key === key && solicitacaoSort.direction === 'asc'
@@ -202,33 +195,41 @@ export function DashboardPage() {
           const hoje = new Date();
           hoje.setHours(0, 0, 0, 0);
 
-          const processados = lista.map((e: Emprestimo) => {
-            const dataDevolucao = new Date(e.dataDevolucao);
-            dataDevolucao.setHours(0, 0, 0, 0);
+          const processados = lista.map((e) => {
+            // O backend envia 'yyyy-MM-dd'
+            const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
 
             let statusVencimento: EmprestimoVencer['statusVencimento'] =
               'ativo';
-            if (dataDevolucao < hoje) statusVencimento = 'atrasado';
-            else if (dataDevolucao.getTime() === hoje.getTime())
+
+            // Lógica de status visual
+            if (e.statusEmprestimo === 'ATRASADO') {
+              statusVencimento = 'atrasado';
+            } else if (dataDevolucao < hoje) {
+              statusVencimento = 'atrasado';
+            } else if (dataDevolucao.getTime() === hoje.getTime()) {
               statusVencimento = 'vence-hoje';
+            }
 
             return {
               id: e.id,
-              livro: e.exemplar?.livro?.nome || 'Livro não encontrado',
-              isbn: e.exemplar?.livro?.isbn || 'N/A',
-              aluno: e.aluno?.nomeCompleto || 'Aluno não encontrado',
-              retirada: new Date(e.dataEmprestimo).toLocaleDateString('pt-BR'),
-              devolucao: new Date(e.dataDevolucao).toLocaleDateString('pt-BR'),
+              livro: e.livroNome,
+              isbn: '-', // Endpoint não retorna ISBN
+              aluno: e.alunoNome,
+              retirada: '-', // Endpoint não retorna data de retirada
+              devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
               statusVencimento,
             };
           });
+
           setEmprestimosState({
             data: processados,
             isLoading: false,
             error: null,
           });
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error(err);
           setEmprestimosState({
             data: [],
             isLoading: false,
@@ -253,8 +254,13 @@ export function DashboardPage() {
     }
   };
 
-  // --- DEFINIÇÃO DE COLUNAS ---
+  const paginatedEmprestimos = useMemo(() => {
+    const start = (emprestimoPage - 1) * emprestimoPerPage;
+    return sortedEmprestimos.slice(start, start + emprestimoPerPage);
+  }, [sortedEmprestimos, emprestimoPage, emprestimoPerPage]);
 
+  // --- DEFINIÇÃO DE COLUNAS ---
+  
   const solicitacoesColumns: ColumnDef<SolicitacaoDisplay>[] = [
     {
       key: 'aluno',
@@ -409,7 +415,7 @@ export function DashboardPage() {
           <TableFooter
             viewMode={'exception'}
             className="h-8"
-            selectClassName="h-6" 
+            selectClassName="h-6"
             pagination={{
               currentPage: solicitacaoPage,
               totalPages: Math.ceil(
@@ -451,7 +457,7 @@ export function DashboardPage() {
           <TableFooter
             viewMode={'exception'}
             className="h-8"
-            selectClassName="h-6" 
+            selectClassName="h-6"
             pagination={{
               currentPage: emprestimoPage,
               totalPages: Math.ceil(

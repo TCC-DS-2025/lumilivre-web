@@ -1,23 +1,24 @@
 import api from './api';
-import type { Emprestimo, Page } from '../types';
+import type { Page } from '../types';
 
-export interface ListaEmprestimo {
-  id: number;
+export interface EmprestimoListagemDTO {
   statusEmprestimo: 'ATIVO' | 'ATRASADO' | 'CONCLUIDO';
-  exemplar: {
-    tombo: string;
-    livro: {
-      nome: string;
-    };
-  };
-  aluno: {
-    nomeCompleto: string;
-    curso: {
-      nome: string;
-    };
-  };
+  livroNome: string;
+  livroTombo: string;
+  nomeAluno: string;
+  curso: string;
   dataEmprestimo: string;
   dataDevolucao: string;
+}
+
+export interface EmprestimoAtivoDTO {
+  id: number;
+  livroNome: string;
+  alunoNome: string;
+  alunoMatricula: string;
+  tombo: string;
+  dataDevolucao: string; // O backend envia 'yyyy-MM-dd'
+  statusEmprestimo: 'ATIVO' | 'ATRASADO' | 'CONCLUIDO';
 }
 
 export interface AlunoRanking {
@@ -31,26 +32,19 @@ export const buscarEmprestimosPaginado = async (
   page: number,
   size: number,
   sort: string,
-): Promise<Page<ListaEmprestimo>> => {
-  
-  if (!texto || texto.trim() === '') {
-    const response = await api.get('/emprestimos/home', {
-      params: {
-        page,
-        size,
-        sort,
-      },
-    });
-    return response.data;
-  }
+): Promise<Page<EmprestimoListagemDTO>> => {
+  const params = {
+    page,
+    size,
+    sort,
+    texto: texto || undefined,
+  };
 
-  const response = await api.get('/emprestimos/buscar', {
-    params: {
-      texto,
-      page,
-      size,
-      sort,
-    },
+  const endpoint =
+    !texto || texto.trim() === '' ? '/emprestimos/home' : '/emprestimos/buscar';
+
+  const response = await api.get<Page<EmprestimoListagemDTO>>(endpoint, {
+    params,
   });
   return response.data;
 };
@@ -66,9 +60,9 @@ export const getContagemEmprestimosTotais = async (): Promise<number> => {
 };
 
 export const buscarEmprestimosAtivosEAtrasados = async (): Promise<
-  Emprestimo[]
+  EmprestimoAtivoDTO[]
 > => {
-  const response = await api.get<Emprestimo[]>(
+  const response = await api.get<EmprestimoAtivoDTO[]>(
     '/emprestimos/buscar/ativos-e-atrasados',
   );
   return response.data || [];

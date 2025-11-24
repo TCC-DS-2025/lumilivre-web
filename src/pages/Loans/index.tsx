@@ -6,7 +6,7 @@ import { TableFooter } from '../../components/TableFooter';
 
 import {
   buscarEmprestimosPaginado,
-  type ListaEmprestimo,
+  type EmprestimoListagemDTO,
 } from '../../services/emprestimoService';
 import type { Page } from '../../types';
 import { formatarNome } from '../../utils/formatters';
@@ -25,7 +25,7 @@ const emprestimosLegend = [
 ];
 
 interface EmprestimoDisplay {
-  id: number;
+  id: string;
   status: StatusEmprestimoDisplay;
   livro: string;
   tombo: string;
@@ -37,7 +37,9 @@ interface EmprestimoDisplay {
 
 export function EmprestimosPage() {
   const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
-  const [pageData, setPageData] = useState<Page<ListaEmprestimo> | null>(null);
+  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,14 +54,12 @@ export function EmprestimosPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState('');
 
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const fetchEmprestimos = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const sortParam = `${sortConfig.key},${sortConfig.direction}`;
+
       const data = await buscarEmprestimosPaginado(
         termoBusca,
         currentPage - 1,
@@ -72,7 +72,7 @@ export function EmprestimosPage() {
         hoje.setHours(0, 0, 0, 0);
 
         const emprestimosMapeados: EmprestimoDisplay[] = data.content.map(
-          (item) => {
+          (item, index) => {
             const dataDevolucao = new Date(item.dataDevolucao);
             dataDevolucao.setHours(0, 0, 0, 0);
 
@@ -89,12 +89,12 @@ export function EmprestimosPage() {
             }
 
             return {
-              id: item.id,
+              id: `${item.livroTombo}-${index}`,
               status: status,
-              livro: item.exemplar?.livro?.nome ?? 'Livro não identificado',
-              tombo: item.exemplar?.tombo ?? 'N/A',
-              aluno: item.aluno?.nomeCompleto ?? 'Aluno não identificado',
-              curso: item.aluno?.curso?.nome ?? '-',
+              livro: item.livroNome,
+              tombo: item.livroTombo,
+              aluno: item.nomeAluno,
+              curso: item.curso || '-',
               emprestimo: new Date(item.dataEmprestimo),
               devolucao: new Date(item.dataDevolucao),
             };
@@ -127,11 +127,6 @@ export function EmprestimosPage() {
     setSortConfig({ key, direction });
     setCurrentPage(1);
   };
-
-  // const handleSearch = () => {
-  //   setCurrentPage(1);
-  //   fetchEmprestimos();
-  // };
 
   const StatusIndicator = ({ status }: { status: StatusEmprestimoDisplay }) => {
     const colorMap = {
@@ -189,11 +184,12 @@ export function EmprestimosPage() {
       header: 'Aluno',
       width: '20%',
       render: (item) => (
-        <span className="font-bold dark:text-white truncate">{formatarNome(item.aluno)}</span>
+        <span className="font-bold dark:text-white truncate">
+          {formatarNome(item.aluno)}
+        </span>
       ),
     },
     {
-      // data de retirada do livro?
       key: 'emprestimo',
       header: 'Empréstimo',
       width: '15%',
