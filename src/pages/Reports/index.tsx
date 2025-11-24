@@ -10,21 +10,21 @@ import { buscarEnum } from '../../services/livroService';
 import { Modal } from '../../components/Modal';
 import { LoadingIcon } from '../../components/LoadingIcon';
 
+
 import AddIcon from '../../assets/icons/add.svg?react';
 import DownloadIcon from '../../assets/icons/upload.svg';
+import ReportPaperIcon from '../../assets/icons/report-paper.svg?react';
 
-const ReportItem = ({
-  title,
-  description,
-  onGenerate,
-}: {
+interface ReportItemProps {
   title: string;
   description: string;
   onGenerate: () => void;
-}) => (
-  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+}
+
+const ReportItem = ({ title, description, onGenerate }: ReportItemProps) => (
+  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
     <div className="flex items-center">
-      <div className="p-2 rounded-lg mr-4">
+      <div className="p-2 rounded-lg mr-4 bg-gray-100 dark:bg-gray-700">
         <AddIcon className="w-6 h-6 text-lumi-primary dark:text-lumi-label" />
       </div>
       <div>
@@ -43,7 +43,6 @@ const ReportItem = ({
   </div>
 );
 
-// filtros
 interface ModalFiltrosProps {
   isOpen: boolean;
   onClose: () => void;
@@ -60,7 +59,6 @@ function ModalFiltrosRelatorio({
   const [isLoading, setIsLoading] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({});
 
-  // opções de select
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [modulos, setModulos] = useState<string[]>([]);
   const [statusLivroOpts, setStatusLivroOpts] = useState<any[]>([]);
@@ -76,38 +74,35 @@ function ModalFiltrosRelatorio({
 
       const carregarDados = async () => {
         try {
+          const promises = [];
+
           if (tipoRelatorio === 'alunos' || tipoRelatorio === 'emprestimos') {
-            const [cursosRes, modulosRes] = await Promise.all([
-              buscarCursos(),
-              buscarModulos(),
-            ]);
-            setCursos(cursosRes.content);
-            setModulos(modulosRes);
+            promises.push(buscarCursos().then((res) => setCursos(res.content)));
+            promises.push(buscarModulos().then(setModulos));
           }
 
           if (tipoRelatorio === 'alunos') {
-            const pen = await buscarEnum('PENALIDADE');
-            setPenalidadeOpts(pen);
+            promises.push(buscarEnum('PENALIDADE').then(setPenalidadeOpts));
           }
 
           if (tipoRelatorio === 'livros') {
-            const [classif, capas] = await Promise.all([
-              buscarEnum('CLASSIFICACAO_ETARIA'),
-              buscarEnum('TIPO_CAPA'),
-            ]);
-            setClassificacaoOpts(classif);
-            setTipoCapaOpts(capas);
+            promises.push(
+              buscarEnum('CLASSIFICACAO_ETARIA').then(setClassificacaoOpts),
+            );
+            promises.push(buscarEnum('TIPO_CAPA').then(setTipoCapaOpts));
           }
 
           if (tipoRelatorio === 'exemplares') {
-            const status = await buscarEnum('STATUS_LIVRO');
-            setStatusLivroOpts(status);
+            promises.push(buscarEnum('STATUS_LIVRO').then(setStatusLivroOpts));
           }
 
           if (tipoRelatorio === 'emprestimos') {
-            const status = await buscarEnum('STATUS_EMPRESTIMO');
-            setStatusEmpOpts(status);
+            promises.push(
+              buscarEnum('STATUS_EMPRESTIMO').then(setStatusEmpOpts),
+            );
           }
+
+          await Promise.all(promises);
         } catch (error) {
           console.error('Erro ao carregar opções do filtro', error);
         }
@@ -158,7 +153,7 @@ function ModalFiltrosRelatorio({
 
     return (
       <form onSubmit={handleBaixar} className="space-y-4">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md mb-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md mb-4 border border-blue-100 dark:border-blue-800">
           <p className="text-sm text-blue-800 dark:text-blue-200">
             Deixe em branco os filtros para trazer todos os registros.
           </p>
@@ -189,7 +184,6 @@ function ModalFiltrosRelatorio({
 
         {/* --- FILTROS ESPECÍFICOS --- */}
 
-        {/* ALUNOS */}
         {tipoRelatorio === 'alunos' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -221,7 +215,7 @@ function ModalFiltrosRelatorio({
                   <option key={idx} value={idx + 1}>
                     {m}
                   </option>
-                ))}{' '}
+                ))}
               </select>
             </div>
             <div>
@@ -243,7 +237,6 @@ function ModalFiltrosRelatorio({
           </div>
         )}
 
-        {/* LIVROS */}
         {tipoRelatorio === 'livros' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -314,7 +307,6 @@ function ModalFiltrosRelatorio({
           </div>
         )}
 
-        {/* EXEMPLARES */}
         {tipoRelatorio === 'exemplares' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -347,7 +339,6 @@ function ModalFiltrosRelatorio({
           </div>
         )}
 
-        {/* EMPRÉSTIMOS */}
         {tipoRelatorio === 'emprestimos' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -410,7 +401,7 @@ function ModalFiltrosRelatorio({
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg"
+            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform active:scale-95"
           >
             <img
               src={DownloadIcon}
@@ -446,21 +437,25 @@ export function RelatoriosPage() {
     setModalOpen(true);
   };
 
-  // TODO: Destacar ao passar o mouse no modo escuro
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Central de Relatórios
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Selecione um tipo de relatório, aplique filtros e baixe o PDF.
-        </p>
+      <div className="flex items-center gap-3 mb-6 shrink-0 select-none">
+        <div className="p-2 bg-lumi-primary/10 dark:bg-lumi-primary/20 rounded-full">
+          <ReportPaperIcon className="w-8 h-8 text-lumi-primary dark:text-lumi-label" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Central de Relatórios
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Selecione um tipo de relatório, aplique filtros e baixe o PDF.
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto border border-gray-100 dark:border-gray-700">
         <div className="p-6">
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
             <ReportItem
               title="Relatório de Alunos"
               description="Lista de alunos com filtros por curso, módulo, turno, penalidade e data de inclusão."
