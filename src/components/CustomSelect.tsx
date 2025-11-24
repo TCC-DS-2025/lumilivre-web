@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+import ArrowIcon from '../assets/icons/arrow-drop.svg?react';
+
 interface Option {
   label: string;
   value: string | number;
@@ -68,10 +70,10 @@ export function CustomSelect({
         </div>
         <span
           className={`text-[10px] ml-2 opacity-70 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
+            isOpen ? 'rotate-0' : 'rotate-180'
           }`}
         >
-          ▼
+          <ArrowIcon className="w-4 h-4 fill-current" />
         </span>
       </button>
 

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import ArrowIcon from '../assets/icons/arrow-drop.svg?react';
+
 type SortDirection = 'asc' | 'desc';
 
 interface SortableThProps {
@@ -24,7 +26,7 @@ export function SortableTh({
 
   return (
     <div
-      className={`relative h-full px-2 cursor-pointer select-none flex items-center justify-center transition-colors duration-200 ${className}`}
+      className={`relative h-full px-2 cursor-pointer select-none flex items-center justify-center ${className}`}
       onClick={onClick}
       style={style}
     >
@@ -32,12 +34,12 @@ export function SortableTh({
 
       <span
         className={`
-          absolute right-3 text-[10px] transition-transform duration-200
+          absolute right-1 flex items-center justify-center
           ${isSorted ? 'opacity-100' : 'opacity-0'} 
           ${isAsc ? 'rotate-180' : 'rotate-0'}
         `}
       >
-        ▼
+        <ArrowIcon className="w-4 h-4 fill-current" />
       </span>
     </div>
   );

@@ -89,7 +89,6 @@ export function DashboardPage() {
     direction: 'asc' | 'desc';
   }>({ key: 'devolucao', direction: 'asc' });
 
-
   // Solicitações
   const sortedSolicitacoes = useMemo(() => {
     const items = [...solicitacoesState.data];
@@ -300,22 +299,22 @@ export function DashboardPage() {
 
   const emprestimosColumns: ColumnDef<EmprestimoVencer>[] = [
     {
-      key: 'livro',
-      header: 'Livro',
+      key: 'aluno',
+      header: 'Aluno',
       width: '25%',
       render: (item) => (
         <span className="text-gray-700 dark:text-gray-300 truncate">
-          {item.livro}
+          {item.aluno}
         </span>
       ),
     },
     {
-      key: 'aluno',
-      header: 'Aluno',
+      key: 'livro',
+      header: 'Livro',
       width: '30%',
       render: (item) => (
         <span className="text-gray-700 dark:text-gray-300 truncate">
-          {item.aluno}
+          {item.livro}
         </span>
       ),
     },
@@ -324,9 +323,7 @@ export function DashboardPage() {
       header: 'Devolução',
       width: '25%',
       render: (item) => (
-        <span className="dark:text-white font-bold">
-          {item.devolucao}
-        </span>
+        <span className="dark:text-white font-bold">{item.devolucao}</span>
       ),
     },
     {
