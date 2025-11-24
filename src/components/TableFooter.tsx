@@ -22,6 +22,8 @@ interface TableFooterProps {
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (size: number) => void;
   viewMode?: 'normal' | 'exception';
+  className?: string;
+  selectClassName?: string;
 }
 
 const StatusLegend: React.FC<{ items: LegendItem[] }> = ({ items }) => (
@@ -43,6 +45,8 @@ export function TableFooter({
   onPageChange,
   onItemsPerPageChange,
   viewMode = 'normal',
+  className = '', 
+  selectClassName,
 }: TableFooterProps) {
   const { currentPage, totalPages, itemsPerPage, totalItems } = pagination;
 
@@ -76,6 +80,7 @@ export function TableFooter({
           onChange={(value) => onItemsPerPageChange(Number(value))}
           placeholder="Qtd"
           direction="up"
+          buttonClassName={selectClassName}
         />
       </div>
     </div>
@@ -114,7 +119,7 @@ export function TableFooter({
   const isException = viewMode === 'exception';
 
   return (
-    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 select-none bg-white dark:bg-dark-card rounded-b-lg">
+    <div className={`flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 select-none bg-white dark:bg-dark-card rounded-b-lg ${className}`}>
       <div className={isException ? 'pl-2' : 'flex-1'}>
         {isException
           ? PageSizeControl

@@ -74,10 +74,10 @@ export function DashboardPage() {
   });
 
   const [solicitacaoPage, setSolicitacaoPage] = useState(1);
-  const [solicitacaoPerPage, setSolicitacaoPerPage] = useState(5);
+  const [solicitacaoPerPage, setSolicitacaoPerPage] = useState(10);
 
   const [emprestimoPage, setEmprestimoPage] = useState(1);
-  const [emprestimoPerPage, setEmprestimoPerPage] = useState(5);
+  const [emprestimoPerPage, setEmprestimoPerPage] = useState(10);
 
   const [solicitacaoSort, setSolicitacaoSort] = useState<{
     key: string;
@@ -332,7 +332,7 @@ export function DashboardPage() {
       width: '20%',
       isSortable: false,
       render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
           Detalhes
         </button>
       ),
@@ -340,7 +340,7 @@ export function DashboardPage() {
   ];
 
   const dashboardHeaderClass =
-    'bg-white dark:bg-dark-card border-b border-gray-200 dark:border-gray-700 shadow-sm';
+    'h-8 bg-white dark:bg-dark-card border-gray-200 dark:border-gray-700 shadow-sm';
   const dashboardHeaderTextClass = 'text-gray-800 dark:text-white';
   const dashboardHoverClass = 'hover:bg-gray-200 dark:hover:bg-gray-700';
 
@@ -401,10 +401,13 @@ export function DashboardPage() {
             headerClassName={dashboardHeaderClass}
             headerTextClassName={dashboardHeaderTextClass}
             hoverHeaderClassName={dashboardHoverClass}
+            hasRoundedBorderTop={false}
           />
 
           <TableFooter
             viewMode={'exception'}
+            className="h-8"
+            selectClassName="h-6" 
             pagination={{
               currentPage: solicitacaoPage,
               totalPages: Math.ceil(
@@ -440,10 +443,13 @@ export function DashboardPage() {
             headerClassName={dashboardHeaderClass}
             headerTextClassName={dashboardHeaderTextClass}
             hoverHeaderClassName={dashboardHoverClass}
+            hasRoundedBorderTop={false}
           />
 
           <TableFooter
             viewMode={'exception'}
+            className="h-8"
+            selectClassName="h-6" 
             pagination={{
               currentPage: emprestimoPage,
               totalPages: Math.ceil(

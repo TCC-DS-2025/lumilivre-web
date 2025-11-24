@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { LoadingIcon } from './LoadingIcon';
 import { SortableTh } from './SortableTh';
@@ -24,6 +24,7 @@ interface DataTableProps<T> {
   headerClassName?: string;
   headerTextClassName?: string;
   hoverHeaderClassName?: string;
+  hasRoundedBorderTop?: boolean;
 }
 
 export function DataTable<T>({
@@ -36,20 +37,49 @@ export function DataTable<T>({
   getRowKey,
   getRowClass,
   emptyStateMessage = 'Nenhum item encontrado.',
-  headerClassName = 'bg-lumi-primary shadow-md',
+  headerClassName = 'h-12 bg-lumi-primary shadow-md',
   headerTextClassName = 'text-white',
   hoverHeaderClassName = 'hover:bg-white/20',
+  hasRoundedBorderTop = true,
 }: DataTableProps<T>) {
+  const [hasScroll, setHasScroll] = useState(false);
+  const tableBodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkForScroll = () => {
+      const element = tableBodyRef.current;
+      if (element) {
+        const hasVerticalScroll = element.scrollHeight > element.clientHeight;
+        setHasScroll(hasVerticalScroll);
+      }
+    };
+
+    const timeoutId = setTimeout(checkForScroll, 0);
+
+    window.addEventListener('resize', checkForScroll);
+    return () => {
+      window.removeEventListener('resize', checkForScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [data]);
+
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-dark-card rounded-t-lg">
+    <div
+      className={`flex flex-col h-full overflow-hidden bg-white dark:bg-dark-card ${
+        hasRoundedBorderTop ? 'rounded-t-lg' : ''
+      }`}
+    >
       <div
-        className={`h-12 flex items-stretch shrink-0 z-10 pr-2 ${headerClassName}`}
+        className={`flex items-stretch shrink-0 z-10 ${headerClassName}`}
       >
-        {columns.map((col) =>
-          col.isSortable === false ? (
+        {columns.map((col, index) => {
+          const isLast = index === columns.length - 1;
+          const scrollPaddingClass = isLast && hasScroll ? 'mr-[14px]' : '';
+
+          return col.isSortable === false ? (
             <div
               key={col.key}
-              className={`h-full px-3 text-sm font-bold tracking-wider text-center flex items-center justify-center ${headerTextClassName}`}
+              className={`h-full px-2 text-sm font-bold tracking-wider text-center flex items-center justify-center ${headerTextClassName} ${scrollPaddingClass}`}
               style={{ width: col.width }}
             >
               {col.header}
@@ -60,16 +90,19 @@ export function DataTable<T>({
               onClick={() => onSort(col.key)}
               sortConfig={sortConfig}
               sortKey={col.key}
-              className={`text-sm font-bold tracking-wider ${headerTextClassName} ${hoverHeaderClassName}`}
+              className={`text-sm font-bold tracking-wider ${headerTextClassName} ${hoverHeaderClassName} ${scrollPaddingClass}`}
               style={{ width: col.width }}
             >
               {col.header}
             </SortableTh>
-          ),
-        )}
+          );
+        })}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div 
+        ref={tableBodyRef} 
+        className="flex-1 overflow-y-auto custom-scrollbar"
+      >
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <LoadingIcon />
@@ -94,10 +127,12 @@ export function DataTable<T>({
                 {columns.map((col) => (
                   <div
                     key={`${getRowKey(item)}-${col.key}`}
-                    className="p-4 whitespace-nowrap text-center overflow-hidden text-ellipsis"
+                    className="px-2 py-3 whitespace-nowrap flex justify-center items-center overflow-hidden"
                     style={{ width: col.width }}
                   >
-                    {col.render(item)}
+                    <div className="w-full flex justify-center">
+                      {col.render(item)}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -15,6 +15,7 @@ interface CustomSelectProps {
   className?: string;
   icon?: React.ReactNode;
   direction?: 'up' | 'down';
+  buttonClassName?: string;
 }
 
 export function CustomSelect({
@@ -25,6 +26,7 @@ export function CustomSelect({
   className = '',
   icon,
   direction = 'down',
+  buttonClassName = 'px-3 py-2'
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,6 +55,7 @@ export function CustomSelect({
         onClick={() => setIsOpen(!isOpen)}
         className={`
           flex items-center justify-between w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary
+          ${buttonClassName}
           ${
             isOpen
               ? 'bg-gray-100 dark:bg-gray-700'
