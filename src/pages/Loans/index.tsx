@@ -148,7 +148,7 @@ export function EmprestimosPage() {
   };
 
   const getRowClass = (status: StatusEmprestimoDisplay) => {
-    const baseHover = 'transition-colors duration-200 hover:duration-0';
+    const baseHover = 'hover:duration-0';
     switch (status) {
       case 'atrasado':
         return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/60 dark:hover:bg-red-500/60 ${baseHover}`;
@@ -211,7 +211,7 @@ export function EmprestimosPage() {
       header: 'Ações',
       isSortable: false,
       render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
           DETALHES
         </button>
       ),
@@ -237,7 +237,7 @@ export function EmprestimosPage() {
         }}
       />
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 transition-all duration-200">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <DataTable
           data={emprestimos}
           columns={columns}

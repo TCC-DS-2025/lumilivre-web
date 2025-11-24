@@ -45,7 +45,7 @@ export function LoginPage() {
   };
 
   return (
-    <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative transition-all duration-200 select-none">
+    <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative select-none">
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center mb-5">
           <img
@@ -72,7 +72,7 @@ export function LoginPage() {
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
               placeholder="Digite seu usuário"
-              className="w-full p-3 bg-white dark:bg-dark-card rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
+              className="w-full p-3 bg-white dark:bg-dark-card rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
             />
           </div>
@@ -90,7 +90,7 @@ export function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               placeholder="Digite sua senha"
-              className="w-full p-3 bg-white dark:bg-gray-800 rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
+              className="w-full p-3 bg-white dark:bg-gray-800 rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
             />
           </div>
@@ -105,7 +105,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Entrando...' : 'ENTRAR'}
             </button>

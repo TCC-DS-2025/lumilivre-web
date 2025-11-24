@@ -14,7 +14,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
     : 'pl-20';
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden transition-colors duration-200">
+    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden">
       <Header
         isSidebarExpanded={isSidebarExpanded}
         setSidebarExpanded={setIsSidebarExpanded}
@@ -30,7 +30,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
         />
 
         <div
-          className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${contentSpacingClass}`}
+          className={`flex-1 overflow-y-auto duration-300 ${contentSpacingClass}`}
         >
           <main className="p-6 sm:p-6 lg:p-8 h-full">{children}</main>
         </div>

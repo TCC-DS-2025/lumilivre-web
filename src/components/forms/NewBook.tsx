@@ -170,11 +170,11 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   };
 
   const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 select-none';
+    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none select-none';
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
   const highlightedInputStyles =
-    'w-full p-2 border-2 border-lumi-primary dark:border-lumi-label rounded-md bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none transition-all duration-200';
+    'w-full p-2 border-2 border-lumi-primary dark:border-lumi-label rounded-md bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none';
 
   return (
     <div className="flex flex-col h-full max-h-[75vh]">
@@ -205,7 +205,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
             <div>
               <label
                 htmlFor="capaFile"
-                className="flex cursor-pointer items-center justify-center gap-1 mt-2 text-sm text-lumi-primary transition-opacity hover:opacity-75"
+                className="flex cursor-pointer items-center justify-center gap-1 mt-2 text-sm text-lumi-primary hover:opacity-75"
               >
                 <img
                   src={uploadIconUrl}
@@ -437,7 +437,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         type="submit"
         form="form-novo-livro"
         disabled={isLoading || isBuscandoIsbn}
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 disabled:bg-gray-400"
+        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md disabled:bg-gray-400"
       >
         {isLoading
           ? 'Salvando...'

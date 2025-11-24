@@ -41,7 +41,7 @@ export function FiltroAvançado({
   };
 
   const inputStyles =
-    'w-full p-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200';
+    'w-full p-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none';
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
 
@@ -130,13 +130,13 @@ export function FiltroAvançado({
         <div className="flex justify-end space-x-2 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClear}
-            className="font-semibold py-2 px-4 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="font-semibold py-2 px-4 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             Limpar
           </button>
           <button
             onClick={onApply}
-            className="bg-lumi-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-lumi-primary-hover transition-colors transform hover:scale-105"
+            className="bg-lumi-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-lumi-primary-hover transform hover:scale-105"
           >
             Aplicar Filtros
           </button>

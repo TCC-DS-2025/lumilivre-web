@@ -40,7 +40,6 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         ${isAnimatingOut ? 'animate-fade-out' : 'animate-fade-in'}
       `}
     >
-
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
@@ -60,10 +59,10 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
           <button
             onClick={onClose}
-            className="rounded-md transition-all duration-200"
+            className="rounded-md"
             aria-label="Fechar modal"
           >
-            <CloseIcon className="w-8 h-8 text-lumi-primary dark:text-lumi-label transition-all duration-200 hover:text-opacity-75" />
+            <CloseIcon className="w-8 h-8 text-lumi-primary dark:text-lumi-label  hover:text-opacity-75" />
           </button>
         </div>
 

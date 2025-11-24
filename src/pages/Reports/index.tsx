@@ -22,21 +22,21 @@ const ReportItem = ({
   description: string;
   onGenerate: () => void;
 }) => (
-  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200">
+  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
     <div className="flex items-center">
       <div className="p-2 rounded-lg mr-4">
         <AddIcon className="w-6 h-6 text-lumi-primary dark:text-lumi-label" />
       </div>
       <div>
-        <h3 className="font-semibold text-gray-800 dark:text-white transition-all duration-200">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 transition-all duration-200">
+        <h3 className="font-semibold text-gray-800 dark:text-white">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {description}
         </p>
       </div>
     </div>
     <button
       onClick={onGenerate}
-      className="flex items-center gap-2 font-semibold text-white py-2 px-4 rounded-lg shadow-md bg-lumi-primary hover:bg-lumi-primary-hover transition-all duration-200 transform hover:scale-105 active:scale-95"
+      className="flex items-center gap-2 font-semibold text-white py-2 px-4 rounded-lg shadow-md bg-lumi-primary hover:bg-lumi-primary-hover transform hover:scale-105 active:scale-95"
     >
       <span>Gerar</span>
     </button>
@@ -138,7 +138,7 @@ function ModalFiltrosRelatorio({
   };
 
   const inputClass =
-    'w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none transition-all';
+    'w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none';
   const labelClass =
     'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
@@ -410,7 +410,7 @@ function ModalFiltrosRelatorio({
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg"
           >
             <img
               src={DownloadIcon}
@@ -450,17 +450,17 @@ export function RelatoriosPage() {
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-all duration-200">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Central de Relatórios
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 transition-all duration-200">
+        <p className="text-gray-500 dark:text-gray-400">
           Selecione um tipo de relatório, aplique filtros e baixe o PDF.
         </p>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto transition-all duration-200">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto">
         <div className="p-6">
-          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-200">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <ReportItem
               title="Relatório de Alunos"
               description="Lista de alunos com filtros por curso, módulo, turno, penalidade e data de inclusão."

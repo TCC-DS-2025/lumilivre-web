@@ -48,7 +48,7 @@ export function NovoExemplar({
   };
 
   const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200';
+    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none';
   const disabledInputStyles =
     'w-full p-2 border-2 border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed';
   const labelStyles =
@@ -111,7 +111,7 @@ export function NovoExemplar({
       <button
         type="submit"
         disabled={isLoading}
-        className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 disabled:bg-gray-400"
+        className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md disabled:bg-gray-400"
       >
         {isLoading ? 'Cadastrando...' : 'CADASTRAR'}
       </button>

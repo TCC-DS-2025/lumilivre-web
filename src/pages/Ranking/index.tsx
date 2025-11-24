@@ -151,7 +151,7 @@ const PodiumItem = ({
 
   return (
     <div
-      className={`flex flex-col items-center justify-end w-1/3 ${orderClass} ${zIndex} h-full transition-all duration-500 hover:scale-105`}
+      className={`flex flex-col items-center justify-end w-1/3 ${orderClass} ${zIndex} h-full duration-500 hover:scale-105`}
     >
       <div className="flex flex-col items-center mb-2 w-full">
         <Medal className={`w-12 h-12 mb-1 ${medalColorClass}`} />
@@ -190,7 +190,7 @@ export function ClassificacaoPage() {
 
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [modulos, setModulos] = useState<string[]>([]);
-  
+
   const [filtroCurso, setFiltroCurso] = useState<string>('');
   const [filtroModulo, setFiltroModulo] = useState<string>('');
   const [filtroTurno, setFiltroTurno] = useState<string>('');
@@ -234,16 +234,17 @@ export function ClassificacaoPage() {
     const calculateLimit = () => {
       if (chartContainerRef.current) {
         // Pega a largura exata do container em pixels
-        const containerWidth = chartContainerRef.current.getBoundingClientRect().width;
-        
+        const containerWidth =
+          chartContainerRef.current.getBoundingClientRect().width;
+
         if (containerWidth <= 0) return;
 
         const availableSpace = containerWidth - Y_AXIS_WIDTH - CHART_PADDING;
-        
+
         const itemSize = BAR_WIDTH + MIN_GAP;
-        
+
         const calculatedLimit = Math.floor(availableSpace / itemSize);
-        
+
         setChartLimit((prev) => {
           const newValue = Math.max(5, calculatedLimit);
           return prev !== newValue ? newValue : prev;
@@ -343,9 +344,7 @@ export function ClassificacaoPage() {
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden border border-gray-100 dark:border-gray-700">
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          
           <div className="grid grid-cols-12 gap-8">
-            
             {/* PODIO */}
             <div className="flex flex-col h-full min-h-[400px] col-span-5">
               <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 shrink-0">
@@ -482,8 +481,7 @@ export function ClassificacaoPage() {
                       barSize={BAR_WIDTH}
                     >
                       {chartData.map((_, index) => {
-                        let fillColor =
-                          BAR_COLORS[index % BAR_COLORS.length];
+                        let fillColor = BAR_COLORS[index % BAR_COLORS.length];
                         if (index === 0) fillColor = TOP_3_COLORS[0];
                         if (index === 1) fillColor = TOP_3_COLORS[1];
                         if (index === 2) fillColor = TOP_3_COLORS[2];

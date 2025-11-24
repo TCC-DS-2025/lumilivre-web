@@ -1,4 +1,5 @@
 import Lottie from 'lottie-react';
+
 import lumiLoading from '../assets/animations/loading.json';
 
 export function LoadingIcon() {

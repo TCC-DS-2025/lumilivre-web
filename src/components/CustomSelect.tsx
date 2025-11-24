@@ -50,10 +50,7 @@ export function CustomSelect({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between w-full px-3 py-2 text-sm 
-          border border-gray-300 dark:border-gray-600 rounded-md 
-          text-gray-700 dark:text-gray-200 
-          focus:ring-2 focus:ring-lumi-primary transition-all duration-200
+          flex items-center justify-between w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary
           ${
             isOpen
               ? 'bg-gray-100 dark:bg-gray-700'
@@ -70,7 +67,7 @@ export function CustomSelect({
           </span>
         </div>
         <span
-          className={`text-[10px] ml-2 opacity-70 transition-transform duration-200 ${
+          className={`text-[10px] ml-2 opacity-70 ${
             isOpen ? 'rotate-180' : 'rotate-0'
           }`}
         >
@@ -80,9 +77,7 @@ export function CustomSelect({
 
       <div
         className={`
-          absolute left-0 w-full max-h-60 overflow-y-auto
-          bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
-          rounded-md shadow-lg z-50 transition-all duration-200 ease-out
+          absolute left-0 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 ease-out
           
           ${
             direction === 'up'
@@ -108,7 +103,7 @@ export function CustomSelect({
               setIsOpen(false);
             }}
             className={`
-              w-full text-left px-3 py-2 text-sm transition-colors duration-150 truncate
+              w-full text-left px-3 py-2 text-sm duration-150 truncate
               ${
                 String(value) === String(option.value)
                   ? 'bg-lumi-primary/10 text-lumi-primary font-bold'

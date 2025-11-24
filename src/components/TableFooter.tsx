@@ -2,7 +2,7 @@ import React from 'react';
 
 import ArrowLeftIcon from '../assets/icons/arrow-left.svg?react';
 import ArrowRightIcon from '../assets/icons/arrow-right.svg?react';
-import { CustomSelect } from './CustomSelect'; 
+import { CustomSelect } from './CustomSelect';
 
 interface LegendItem {
   color: string;
@@ -50,7 +50,7 @@ export function TableFooter({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   const navButtonClass =
-    'p-1.5 rounded-md transition-colors duration-200 ' +
+    'p-1.5 rounded-md ' +
     'hover:bg-gray-200 dark:hover:bg-gray-700 ' +
     'active:bg-gray-300 dark:active:bg-gray-600 ' +
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:bg-transparent';
@@ -65,11 +65,11 @@ export function TableFooter({
 
   const PageSizeControl = (
     <div className="flex items-center space-x-2">
-      <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400 transition-all duration-200">
+      <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400">
         Itens por página:
       </span>
-      
-      <div className="w-20"> 
+
+      <div className="w-20">
         <CustomSelect
           value={itemsPerPage}
           options={pageSizeOptions}
@@ -114,11 +114,12 @@ export function TableFooter({
   const isException = viewMode === 'exception';
 
   return (
-    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
+    <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 select-none bg-white dark:bg-dark-card rounded-b-lg">
       <div className={isException ? 'pl-2' : 'flex-1'}>
         {isException
           ? PageSizeControl
-          : legendItems && legendItems.length > 0 && <StatusLegend items={legendItems} />}
+          : legendItems &&
+            legendItems.length > 0 && <StatusLegend items={legendItems} />}
       </div>
 
       <div

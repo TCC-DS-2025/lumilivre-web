@@ -29,28 +29,25 @@ export function StatCard({
   return (
     <Link
       to={to}
-      className="group flex items-stretch bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 hover:shadow-lg"
+      className="group flex items-stretch bg-white dark:bg-dark-card rounded-lg shadow-md overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-700 hover:scale-105 hover:shadow-lg"
     >
       <div
-        className={`w-24 flex items-center justify-center shrink-0 transition-colors duration-200 ${
-          isDanger ? 'bg-red-500' : 'bg-lumi-primary'
-        }`}
+        className={`w-24 flex items-center justify-center shrink-0 
+          ${isDanger ? 'bg-red-500' : 'bg-lumi-primary'}`}
       >
         <Icon className="w-10 h-10 text-white fill-current" />
       </div>
 
       <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
         <p
-          className={`font-bold uppercase tracking-wide truncate transition-all duration-200 ${
-            isDanger ? 'text-red-400' : 'text-gray-500 dark:text-gray-400'
-          }`}
+          className={`font-bold uppercase tracking-wide truncate 
+            ${isDanger ? 'text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
         >
           {title}
         </p>
         <p
-          className={`text-3xl font-bold truncate mt-1 transition-colors duration-200 ${
-            isDanger ? 'text-red-500' : 'text-gray-800 dark:text-white'
-          }`}
+          className={`text-3xl font-bold truncate mt-1
+            ${isDanger ? 'text-red-500' : 'text-gray-800 dark:text-white'}`}
           title={String(displayValue)}
         >
           {displayValue}

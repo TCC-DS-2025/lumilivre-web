@@ -91,7 +91,7 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
+      className={`fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-lumi-primary text-gray-200 flex flex-col shrink-0 duration-300 shadow-[8px_0_15px_rgba(0,0,0,0.2)] select-none z-40 ${
         isExpanded ? 'w-48' : 'w-20'
       }`}
       onMouseEnter={handleMouseEnter}
@@ -100,7 +100,7 @@ export function Sidebar({
       <div className="relative top-1 flex items-center justify-end">
         <button
           onClick={handlePinToggle}
-          className={`transition-all duration-200 hover:opacity-75 p-2 ${
+          className={`hover:opacity-75 p-2 ${
             isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
           title={isPinned ? 'Desafixar menu' : 'Fixar menu'}
@@ -115,7 +115,7 @@ export function Sidebar({
             key={link.path}
             to={link.path}
             className={({ isActive }) =>
-              `flex items-center p-3 justify-center rounded-lg transition-all duration-200 hover:bg-white/20 ${
+              `flex items-center p-3 justify-center rounded-lg hover:bg-white/20 ${
                 isActive ? 'bg-white/20' : ''
               }`
             }
@@ -126,12 +126,12 @@ export function Sidebar({
               return (
                 <>
                   <IconComponent
-                    className={`w-6 h-6 shrink-0 pointer-events-none transition-all duration-200 ${
+                    className={`w-6 h-6 shrink-0 pointer-events-none ${
                       isActive ? 'text-white' : 'text-gray-300'
                     }`}
                   />
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${
+                    className={`overflow-hidden duration-300 ${
                       isExpanded ? 'w-40 ml-4' : 'w-0'
                     }`}
                   >
@@ -154,7 +154,7 @@ export function Sidebar({
         <NavLink
           to="/configuracoes"
           className={({ isActive }) =>
-            `flex items-center p-3 justify-center rounded-lg transition-all duration-200 hover:bg-white/20 ${
+            `flex items-center p-3 justify-center rounded-lg hover:bg-white/20 ${
               isActive ? 'bg-white/20' : ''
             }`
           }
@@ -167,12 +167,12 @@ export function Sidebar({
             return (
               <>
                 <SettingsComponent
-                  className={`w-6 h-6 shrink-0 pointer-events-none transition-all duration-200 ${
+                  className={`w-6 h-6 shrink-0 pointer-events-none ${
                     isActive ? 'text-white' : 'text-gray-300'
                   }`}
                 />
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
+                  className={`overflow-hidden duration-300 ${
                     isExpanded ? 'w-40 ml-4' : 'w-0'
                   }`}
                 >

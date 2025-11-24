@@ -31,7 +31,7 @@ export function SortableTh({
       <div className="flex items-center justify-center">
         <span>{children}</span>
         <span
-          className={`ml-2 text-xs transition-all ${
+          className={`ml-2 text-xs ${
             isSorted
               ? 'relative opacity-100 duration-200'
               : 'absolute opacity-0 duration-0'

@@ -36,13 +36,13 @@ export function ActionHeader({
         {children}
 
         {/* Barra de Pesquisa */}
-        <div className="relative mr-2 transition-all duration-200 select-none">
+        <div className="relative mr-2 select-none">
           <button
             onClick={onSearchSubmit}
             aria-label="Pesquisar"
-            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 transition-all duration-200 group"
+            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 group"
           >
-            <SearchIcon className="w-5 h-5 text-lumi-primary dark:text-lumi-label transition-colors duration-200" />
+            <SearchIcon className="w-5 h-5 text-lumi-primary dark:text-lumi-label" />
           </button>
           <input
             type="text"
@@ -52,7 +52,7 @@ export function ActionHeader({
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSearchSubmit();
             }}
-            className="pl-5 pr-14 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md transition-all duration-200"
+            className="pl-5 pr-14 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md"
           />
         </div>
 
@@ -61,10 +61,10 @@ export function ActionHeader({
           <div className="relative">
             <button
               onClick={onFilterToggle}
-              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 transition-all duration-200 shadow-md select-none group"
+              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 shadow-md select-none group"
             >
               <span>Filtro Avançado</span>
-              <FilterIcon className="w-5 h-5 ml-2 -mr-1 text-lumi-primary dark:text-lumi-label transition-colors duration-200" />
+              <FilterIcon className="w-5 h-5 ml-2 -mr-1 text-lumi-primary dark:text-lumi-label" />
             </button>
           </div>
         )}
@@ -73,7 +73,7 @@ export function ActionHeader({
       {/* Adicionar */}
       <button
         onClick={onAddNew}
-        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 pl-3 rounded-lg hover:bg-green-600 active:bg-green-700 transition-all duration-200 shadow-md"
+        className="flex items-center bg-green-500 text-white font-bold py-2 px-4 pl-3 rounded-lg hover:bg-green-600 active:bg-green-700 shadow-md"
       >
         <AddIcon className="w-6 h-6 mr-2 text-white" />
         <span>{addNewButtonLabel}</span>

@@ -35,7 +35,7 @@ export function DataTable<T>({
   emptyStateMessage = 'Nenhum item encontrado.',
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card transition-all duration-200 rounded-t-lg">
+    <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card rounded-t-lg">
       <table className="min-w-full table-auto">
         <thead className="sticky top-0 bg-lumi-primary shadow-md z-10 text-white">
           <tr>
@@ -54,7 +54,7 @@ export function DataTable<T>({
                   onClick={() => onSort(col.key)}
                   sortConfig={sortConfig}
                   sortKey={col.key}
-                  className="p-4 text-sm font-bold text-white tracking-wider transition-all duration-200 hover:bg-white/30"
+                  className="p-4 text-sm font-bold text-white tracking-wider hover:bg-white/30"
                   style={{ width: col.width }}
                 >
                   {col.header}
@@ -63,7 +63,7 @@ export function DataTable<T>({
             )}
           </tr>
         </thead>
-        <tbody className="divide-y text-center bg-white dark:bg-dark-card transition-all duration-200">
+        <tbody className="divide-y text-center bg-white dark:bg-dark-card">
           {isLoading ? (
             <tr>
               <td colSpan={columns.length}>
@@ -89,7 +89,7 @@ export function DataTable<T>({
                 className={
                   getRowClass
                     ? getRowClass(item)
-                    : 'transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0'
+                    : 'hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0'
                 }
               >
                 {columns.map((col) => (

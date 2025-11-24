@@ -29,7 +29,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.classList.remove('dark', 'light');
     root.classList.add(effectiveTheme);
 
-    // salva a preferência do usuário
     localStorage.setItem('theme', theme);
 
   }, [theme]); 

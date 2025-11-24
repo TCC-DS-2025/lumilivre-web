@@ -64,7 +64,8 @@ export function DetalhesLivroModal({
                 dadosCompletos.data_lancamento.split('T')[0];
             }
 
-            const nomesDosGeneros = dadosCompletos.generos?.map((g) => g.nome) || [];
+            const nomesDosGeneros =
+              dadosCompletos.generos?.map((g) => g.nome) || [];
 
             const dadosParaForm = {
               ...dadosCompletos,
@@ -189,7 +190,7 @@ export function DetalhesLivroModal({
   const inputStyles =
     'w-full p-2 border-2 border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none';
   const editableInputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200';
+    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none';
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
 
@@ -220,7 +221,7 @@ export function DetalhesLivroModal({
                 <div>
                   <label
                     htmlFor="capaFileModal"
-                    className="flex cursor-pointer items-center justify-center gap-1 text-sm text-lumi-primary transition-opacity hover:opacity-75"
+                    className="flex cursor-pointer items-center justify-center gap-1 text-sm text-lumi-primary hover:opacity-75"
                   >
                     <img src={uploadIconUrl} alt="Upload" className="h-5 w-5" />
                     <span>Trocar Imagem</span>
@@ -362,11 +363,12 @@ export function DetalhesLivroModal({
                               type="button"
                               key={genero.id}
                               onClick={() => handleGenreToggle(genero.nome)}
-                              className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors ${
-                                isSelected
-                                  ? 'bg-lumi-primary text-white'
-                                  : 'bg-gray-200 dark:bg-gray-700'
-                              }`}
+                              className={`px-3 py-1 text-sm font-semibold rounded-full
+                                 ${
+                                   isSelected
+                                     ? 'bg-lumi-primary text-white'
+                                     : 'bg-gray-200 dark:bg-gray-700'
+                                 }`}
                             >
                               {genero.nome}
                             </button>

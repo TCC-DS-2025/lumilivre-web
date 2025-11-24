@@ -48,7 +48,7 @@ const FormInput = ({
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
   const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200';
+    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none';
 
   return (
     <div>
@@ -223,7 +223,7 @@ export function NovoAluno({
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 dark:text-white';
   const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 select-none';
+    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none select-none';
 
   return (
     <div className="flex flex-col h-full max-h-[70vh]">
@@ -356,7 +356,7 @@ export function NovoAluno({
                     <button
                       type="button"
                       onClick={() => setIsNovoCursoModuloModalOpen(true)}
-                      className="p-2 mb-0.5 bg-gray-400 dark:bg-transparent rounded-md hover:opacity-75 transition-all transform hover:scale-110 duration-200"
+                      className="p-2 mb-0.5 bg-gray-400 dark:bg-transparent rounded-md hover:opacity-75 transform hover:scale-110"
                     >
                       <img
                         src={addIconUrl}
@@ -505,7 +505,7 @@ export function NovoAluno({
               <button
                 type="button"
                 onClick={handleCriarCurso}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center gap-x-2">
                   <img
@@ -538,7 +538,7 @@ export function NovoAluno({
               <button
                 type="button"
                 onClick={handleCriarModulo}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-center gap-x-2">
                   <img
@@ -558,7 +558,7 @@ export function NovoAluno({
         type="submit"
         form="form-novo-aluno"
         disabled={isCepLoading}
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md transition duration-200 disabled:bg-gray-400"
+        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md disabled:bg-gray-400"
       >
         {isCepLoading ? 'Buscando CEP...' : 'SALVAR'}
       </button>

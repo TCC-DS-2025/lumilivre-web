@@ -118,7 +118,7 @@ export function MudarSenhaPage() {
             onChange={(e) => setNovaSenha(e.target.value)}
             placeholder="Digite uma nova senha"
             required
-            className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
           />
         </div>
         <div>
@@ -135,7 +135,7 @@ export function MudarSenhaPage() {
             onChange={(e) => setConfirmarSenha(e.target.value)}
             placeholder="Digite novamente a senha"
             required
-            className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transition-all duration-200 transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="w-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 shadow-md rounded-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
           />
         </div>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -143,7 +143,7 @@ export function MudarSenhaPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 shadow-md rounded-md transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+            className="w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 shadow-md rounded-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Salvando...' : 'SALVAR'}
           </button>

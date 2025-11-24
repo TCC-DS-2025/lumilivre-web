@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(parsedUser);
 
         api.defaults.headers.common['Authorization'] =
-          `Bearer ${parsedUser.token}`; // configura o token do usuário no axios
+          `Bearer ${parsedUser.token}`;
       }
     } catch (error) {
       console.error('Falha ao carregar dados do usuário', error);
@@ -50,14 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
 
-    api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`; // configura o header
+    api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
 
-    delete api.defaults.headers.common['Authorization']; // deleta o token após o logout
+    delete api.defaults.headers.common['Authorization'];
   };
 
   const isAuthenticated = !!user;

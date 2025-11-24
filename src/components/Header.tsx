@@ -26,18 +26,17 @@ export function Header({
   const LogoContent = (
     <div className="flex items-center gap-3">
       <LogoIcon className="h-10 w-10 shrink-0" />
-      <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white transition-all duration-200">
+      <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white">
         LumiLivre
       </span>
     </div>
   );
 
   return (
-    <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md transition-all duration-200">
+    <header className="sticky top-0 left-0 w-full z-30 bg-white dark:bg-dark-header shadow-md">
       <div
         className={`
-          flex items-center justify-between h-14 px-4 sm:px-6 select-none 
-          transition-all duration-300 ease-in-out 
+          flex items-center justify-between h-14 px-4 sm:px-6 select-none
           ${getHeaderSpacingClass()}
         `}
       >
@@ -45,7 +44,7 @@ export function Header({
           <button
             type="button"
             aria-label="Alternar menu lateral"
-            className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+            className="md:hidden mr-4 p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => setSidebarExpanded(!isSidebarExpanded)}
           >
             <MenuIcon className="h-6 w-6 fill-current" />
@@ -58,11 +57,9 @@ export function Header({
           ) : (
             <Link
               to="/dashboard"
-              className="flex items-center rounded-lg p-1.5 -ml-2 group transition-all duration-200"
+              className="flex items-center rounded-lg p-1.5 -ml-2 group"
             >
-              <div className="transition-opacity duration-200 group-hover:opacity-75">
-                {LogoContent}
-              </div>
+              <div className="group-hover:opacity-75">{LogoContent}</div>
             </Link>
           )}
         </div>

@@ -277,7 +277,7 @@ export function AlunosPage() {
       width: '10%',
       isSortable: false,
       render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
           DETALHES
         </button>
       ),
@@ -322,7 +322,7 @@ export function AlunosPage() {
         />
       </Modal>
 
-      <div className="bg-white dark:bg-dark-card transition-colors duration-200 rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <DataTable
           data={sortedAlunos}
           columns={columns}

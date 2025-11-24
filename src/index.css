@@ -22,6 +22,14 @@
   background-color: #6b7280;
 }
 
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply transition-all duration-200 ease-in-out;
+  }
+}
+
 @layer utilities {
   /* entrada */
   .animate-fade-in {
