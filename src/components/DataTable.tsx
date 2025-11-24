@@ -21,6 +21,9 @@ interface DataTableProps<T> {
   getRowKey: (item: T) => string | number;
   getRowClass?: (item: T) => string;
   emptyStateMessage?: string;
+  headerClassName?: string;
+  headerTextClassName?: string;
+  hoverHeaderClassName?: string;
 }
 
 export function DataTable<T>({
@@ -33,15 +36,20 @@ export function DataTable<T>({
   getRowKey,
   getRowClass,
   emptyStateMessage = 'Nenhum item encontrado.',
+  headerClassName = 'bg-lumi-primary shadow-md',
+  headerTextClassName = 'text-white',
+  hoverHeaderClassName = 'hover:bg-white/20',
 }: DataTableProps<T>) {
   return (
     <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-dark-card rounded-t-lg">
-      <div className="h-12 flex items-stretch shrink-0 bg-lumi-primary shadow-md z-10 text-white pr-2">
+      <div
+        className={`h-12 flex items-stretch shrink-0 z-10 pr-2 ${headerClassName}`}
+      >
         {columns.map((col) =>
           col.isSortable === false ? (
             <div
               key={col.key}
-              className="h-full px-3 text-sm font-bold text-white tracking-wider text-center flex items-center justify-center"
+              className={`h-full px-3 text-sm font-bold tracking-wider text-center flex items-center justify-center ${headerTextClassName}`}
               style={{ width: col.width }}
             >
               {col.header}
@@ -52,7 +60,7 @@ export function DataTable<T>({
               onClick={() => onSort(col.key)}
               sortConfig={sortConfig}
               sortKey={col.key}
-              className="text-sm font-bold text-white tracking-wider hover:bg-white/20"
+              className={`text-sm font-bold tracking-wider ${headerTextClassName} ${hoverHeaderClassName}`}
               style={{ width: col.width }}
             >
               {col.header}

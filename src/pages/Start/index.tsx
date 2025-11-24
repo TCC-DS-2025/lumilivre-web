@@ -1,14 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 
 import { StatCard } from '../../components/StatCard';
-import { SortableTh } from '../../components/SortableTh';
+import { DataTable, type ColumnDef } from '../../components/DataTable';
+import { TableFooter } from '../../components/TableFooter';
 import type { Emprestimo } from '../../types';
-import { LoadingIcon } from '../../components/LoadingIcon';
-
-import BookIcon from '../../assets/icons/books-active.svg?react';
-import UsersIcon from '../../assets/icons/users-active.svg?react';
-import AlertIcon from '../../assets/icons/alert.svg?react';
-import LoansIcon from '../../assets/icons/loans-active.svg?react';
 
 import { getContagemLivros } from '../../services/livroService';
 import { getContagemAlunos } from '../../services/alunoService';
@@ -18,6 +13,11 @@ import {
   buscarEmprestimosAtivosEAtrasados,
 } from '../../services/emprestimoService';
 import { buscarSolicitacoesPendentes } from '../../services/solicitacaoEmprestimoService';
+
+import BookIcon from '../../assets/icons/books-active.svg?react';
+import UsersIcon from '../../assets/icons/users-active.svg?react';
+import AlertIcon from '../../assets/icons/alert.svg?react';
+import LoansIcon from '../../assets/icons/loans-active.svg?react';
 
 interface DataState<T> {
   data: T;
@@ -50,6 +50,7 @@ interface SolicitacaoDisplay {
 }
 
 export function DashboardPage() {
+  // --- ESTADOS DE DADOS ---
   const [statsState, setStatsState] = useState<DataState<StatsData | null>>({
     data: null,
     isLoading: true,
@@ -72,22 +73,28 @@ export function DashboardPage() {
     error: null,
   });
 
-  // Configurações de Ordenação
+  const [solicitacaoPage, setSolicitacaoPage] = useState(1);
+  const [solicitacaoPerPage, setSolicitacaoPerPage] = useState(5);
+
+  const [emprestimoPage, setEmprestimoPage] = useState(1);
+  const [emprestimoPerPage, setEmprestimoPerPage] = useState(5);
+
   const [solicitacaoSort, setSolicitacaoSort] = useState<{
-    key: keyof SolicitacaoDisplay;
+    key: string;
     direction: 'asc' | 'desc';
   }>({ key: 'solicitacao', direction: 'asc' });
 
   const [emprestimoSort, setEmprestimoSort] = useState<{
-    key: keyof EmprestimoVencer;
+    key: string;
     direction: 'asc' | 'desc';
   }>({ key: 'devolucao', direction: 'asc' });
 
-  // Lógica de Ordenação
+
+  // Solicitações
   const sortedSolicitacoes = useMemo(() => {
     const items = [...solicitacoesState.data];
     items.sort((a, b) => {
-      const key = solicitacaoSort.key;
+      const key = solicitacaoSort.key as keyof SolicitacaoDisplay;
       if (key === 'solicitacao') {
         return solicitacaoSort.direction === 'asc'
           ? a.solicitacao.getTime() - b.solicitacao.getTime()
@@ -100,10 +107,16 @@ export function DashboardPage() {
     return items;
   }, [solicitacoesState.data, solicitacaoSort]);
 
+  const paginatedSolicitacoes = useMemo(() => {
+    const start = (solicitacaoPage - 1) * solicitacaoPerPage;
+    return sortedSolicitacoes.slice(start, start + solicitacaoPerPage);
+  }, [sortedSolicitacoes, solicitacaoPage, solicitacaoPerPage]);
+
+  // Empréstimos
   const sortedEmprestimos = useMemo(() => {
     const items = [...emprestimosState.data];
     items.sort((a, b) => {
-      const key = emprestimoSort.key;
+      const key = emprestimoSort.key as keyof EmprestimoVencer;
       if (key === 'devolucao') {
         const dateA = new Date(a.devolucao.split('/').reverse().join('-'));
         const dateB = new Date(b.devolucao.split('/').reverse().join('-'));
@@ -118,7 +131,12 @@ export function DashboardPage() {
     return items;
   }, [emprestimosState.data, emprestimoSort]);
 
-  const requestSolicitacaoSort = (key: keyof SolicitacaoDisplay) => {
+  const paginatedEmprestimos = useMemo(() => {
+    const start = (emprestimoPage - 1) * emprestimoPerPage;
+    return sortedEmprestimos.slice(start, start + emprestimoPerPage);
+  }, [sortedEmprestimos, emprestimoPage, emprestimoPerPage]);
+
+  const requestSolicitacaoSort = (key: string) => {
     const direction =
       solicitacaoSort.key === key && solicitacaoSort.direction === 'asc'
         ? 'desc'
@@ -126,7 +144,7 @@ export function DashboardPage() {
     setSolicitacaoSort({ key, direction });
   };
 
-  const requestEmprestimoSort = (key: keyof EmprestimoVencer) => {
+  const requestEmprestimoSort = (key: string) => {
     const direction =
       emprestimoSort.key === key && emprestimoSort.direction === 'asc'
         ? 'desc'
@@ -156,7 +174,6 @@ export function DashboardPage() {
           setStatsState({ data: null, isLoading: false, error: 'Erro' });
         });
 
-      // Carregar Solicitações
       buscarSolicitacoesPendentes()
         .then((lista) => {
           const processadas = lista.map((s) => ({
@@ -222,9 +239,9 @@ export function DashboardPage() {
     carregarDados();
   }, []);
 
-  const getRowClass = (status: EmprestimoVencer['statusVencimento']) => {
+  const getRowClass = (item: EmprestimoVencer) => {
     const baseHover = 'hover:duration-0';
-    switch (status) {
+    switch (item.statusVencimento) {
       case 'atrasado':
         return `bg-red-500/30 dark:bg-red-500/30 hover:bg-red-500/40 dark:hover:bg-red-500/40 ${baseHover}`;
       case 'vence-hoje':
@@ -234,6 +251,101 @@ export function DashboardPage() {
         return `hover:bg-gray-300 dark:hover:bg-gray-600 ${baseHover}`;
     }
   };
+
+  // --- DEFINIÇÃO DE COLUNAS ---
+
+  const solicitacoesColumns: ColumnDef<SolicitacaoDisplay>[] = [
+    {
+      key: 'aluno',
+      header: 'Aluno',
+      width: '25%',
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300 truncate">
+          {item.aluno}
+        </span>
+      ),
+    },
+    {
+      key: 'livro',
+      header: 'Livro',
+      width: '30%',
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300 truncate">
+          {item.livro}
+        </span>
+      ),
+    },
+    {
+      key: 'solicitacao',
+      header: 'Solicitação',
+      width: '25%',
+      render: (item) => (
+        <span className="dark:text-white font-bold">
+          {item.solicitacao.toLocaleDateString('pt-BR')}
+        </span>
+      ),
+    },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      width: '20%',
+      isSortable: false,
+      render: () => (
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
+          Detalhes
+        </button>
+      ),
+    },
+  ];
+
+  const emprestimosColumns: ColumnDef<EmprestimoVencer>[] = [
+    {
+      key: 'livro',
+      header: 'Livro',
+      width: '25%',
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300 truncate">
+          {item.livro}
+        </span>
+      ),
+    },
+    {
+      key: 'aluno',
+      header: 'Aluno',
+      width: '30%',
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300 truncate">
+          {item.aluno}
+        </span>
+      ),
+    },
+    {
+      key: 'devolucao',
+      header: 'Devolução',
+      width: '25%',
+      render: (item) => (
+        <span className="dark:text-white font-bold">
+          {item.devolucao}
+        </span>
+      ),
+    },
+    {
+      key: 'acoes',
+      header: 'Ações',
+      width: '20%',
+      isSortable: false,
+      render: () => (
+        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
+          Detalhes
+        </button>
+      ),
+    },
+  ];
+
+  const dashboardHeaderClass =
+    'bg-white dark:bg-dark-card border-b border-gray-200 dark:border-gray-700 shadow-sm';
+  const dashboardHeaderTextClass = 'text-gray-800 dark:text-white';
+  const dashboardHoverClass = 'hover:bg-gray-200 dark:hover:bg-gray-700';
 
   return (
     <div className="flex flex-col h-full">
@@ -274,190 +386,81 @@ export function DashboardPage() {
       </div>
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
-        {/* Tabela: Solicitações de Empréstimo */}
+        {/* Solicitações de Empréstimo */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Solicitações de Empréstimo
           </h3>
-          <div className="overflow-y-auto flex-grow">
-            <table className="w-full text-center table-fixed">
-              <colgroup>
-                <col style={{ width: '25%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '25%' }} />
-                <col style={{ width: '20%' }} />
-              </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md dark:shadow-sm dark:shadow-white z-20">
-                <tr className="select-none">
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-2/5"
-                    onClick={() => requestSolicitacaoSort('aluno')}
-                    sortConfig={solicitacaoSort}
-                    sortKey="aluno"
-                  >
-                    Aluno
-                  </SortableTh>
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-2/5"
-                    onClick={() => requestSolicitacaoSort('livro')}
-                    sortConfig={solicitacaoSort}
-                    sortKey="livro"
-                  >
-                    Livro
-                  </SortableTh>
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 w-1/5"
-                    onClick={() => requestSolicitacaoSort('solicitacao')}
-                    sortConfig={solicitacaoSort}
-                    sortKey="solicitacao"
-                  >
-                    Solicitação
-                  </SortableTh>
-                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y bg-white dark:bg-dark-card">
-                {solicitacoesState.isLoading ? (
-                  <tr>
-                    <td colSpan={4} className="p-8">
-                      <div className="flex justify-center h-24">
-                        <LoadingIcon />
-                      </div>
-                    </td>
-                  </tr>
-                ) : solicitacoesState.error ? (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-red-500">
-                      {solicitacoesState.error}
-                    </td>
-                  </tr>
-                ) : sortedSolicitacoes.length > 0 ? (
-                  sortedSolicitacoes.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0"
-                    >
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {item.aluno}
-                      </td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {item.livro}
-                      </td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-white font-bold">
-                        {item.solicitacao.toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="py-3 px-2">
-                        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
-                          Detalhes
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-gray-500">
-                      Nenhuma solicitação pendente.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+
+          <DataTable
+            data={paginatedSolicitacoes}
+            columns={solicitacoesColumns}
+            isLoading={solicitacoesState.isLoading}
+            error={solicitacoesState.error}
+            sortConfig={solicitacaoSort}
+            onSort={requestSolicitacaoSort}
+            getRowKey={(item) => item.id}
+            emptyStateMessage="Nenhuma solicitação pendente."
+            headerClassName={dashboardHeaderClass}
+            headerTextClassName={dashboardHeaderTextClass}
+            hoverHeaderClassName={dashboardHoverClass}
+          />
+
+          <TableFooter
+            viewMode={'exception'}
+            pagination={{
+              currentPage: solicitacaoPage,
+              totalPages: Math.ceil(
+                sortedSolicitacoes.length / solicitacaoPerPage,
+              ),
+              itemsPerPage: solicitacaoPerPage,
+              totalItems: sortedSolicitacoes.length,
+            }}
+            onPageChange={setSolicitacaoPage}
+            onItemsPerPageChange={(size) => {
+              setSolicitacaoPerPage(size);
+              setSolicitacaoPage(1);
+            }}
+          />
         </div>
 
-        {/* Tabela: Empréstimos Ativos */}
+        {/* Empréstimos Ativos */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Empréstimos Ativos
           </h3>
-          <div className="overflow-y-auto flex-grow">
-            <table className="w-full text-center table-fixed">
-              <colgroup>
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '15%' }} />
-              </colgroup>
-              <thead className="sticky top-0 bg-white dark:bg-dark-card shadow-md dark:shadow-sm dark:shadow-white z-20">
-                <tr className="select-none">
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
-                    onClick={() => requestEmprestimoSort('livro')}
-                    sortConfig={emprestimoSort}
-                    sortKey="livro"
-                  >
-                    Livro
-                  </SortableTh>
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
-                    onClick={() => requestEmprestimoSort('aluno')}
-                    sortConfig={emprestimoSort}
-                    sortKey="aluno"
-                  >
-                    Aluno
-                  </SortableTh>
-                  <SortableTh
-                    className="text-sm font-bold text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
-                    onClick={() => requestEmprestimoSort('devolucao')}
-                    sortConfig={emprestimoSort}
-                    sortKey="devolucao"
-                  >
-                    Devolução
-                  </SortableTh>
-                  <th className="py-2 px-2 text-sm font-bold text-gray-800 dark:text-white">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y bg-white dark:bg-dark-card">
-                {emprestimosState.isLoading ? (
-                  <tr>
-                    <td colSpan={4} className="p-8">
-                      <div className="flex justify-center h-24">
-                        <LoadingIcon />
-                      </div>
-                    </td>
-                  </tr>
-                ) : emprestimosState.error ? (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-red-500">
-                      {emprestimosState.error}
-                    </td>
-                  </tr>
-                ) : sortedEmprestimos.length > 0 ? (
-                  sortedEmprestimos.map((item) => (
-                    <tr
-                      key={item.id}
-                      className={getRowClass(item.statusVencimento)}
-                    >
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {item.livro}
-                      </td>
-                      <td className="py-3 px-2 text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {item.aluno}
-                      </td>
-                      <td className="py-3 px-2 text-sm font-medium text-gray-700 dark:text-white">
-                        {item.devolucao}
-                      </td>
-                      <td className="py-3 px-2">
-                        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 transition-all duration-200 hover:scale-105 shadow-md select-none">
-                          Detalhes
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-gray-500">
-                      Nenhum empréstimo ativo no momento.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+
+          <DataTable
+            data={paginatedEmprestimos}
+            columns={emprestimosColumns}
+            isLoading={emprestimosState.isLoading}
+            error={emprestimosState.error}
+            sortConfig={emprestimoSort}
+            onSort={requestEmprestimoSort}
+            getRowKey={(item) => item.id}
+            getRowClass={getRowClass}
+            emptyStateMessage="Nenhum empréstimo ativo no momento."
+            headerClassName={dashboardHeaderClass}
+            headerTextClassName={dashboardHeaderTextClass}
+            hoverHeaderClassName={dashboardHoverClass}
+          />
+
+          <TableFooter
+            viewMode={'exception'}
+            pagination={{
+              currentPage: emprestimoPage,
+              totalPages: Math.ceil(
+                sortedEmprestimos.length / emprestimoPerPage,
+              ),
+              itemsPerPage: emprestimoPerPage,
+              totalItems: sortedEmprestimos.length,
+            }}
+            onPageChange={setEmprestimoPage}
+            onItemsPerPageChange={(size) => {
+              setEmprestimoPerPage(size);
+              setEmprestimoPage(1);
+            }}
+          />
         </div>
       </div>
     </div>
