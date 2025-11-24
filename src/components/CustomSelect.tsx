@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface Option {
   label: string;
@@ -12,6 +12,7 @@ interface CustomSelectProps {
   placeholder?: string;
   className?: string;
   icon?: React.ReactNode;
+  direction?: 'up' | 'down';
 }
 
 export function CustomSelect({
@@ -21,6 +22,7 @@ export function CustomSelect({
   placeholder = 'Selecione',
   className = '',
   icon,
+  direction = 'down',
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,7 +54,11 @@ export function CustomSelect({
           border border-gray-300 dark:border-gray-600 rounded-md 
           text-gray-700 dark:text-gray-200 
           focus:ring-2 focus:ring-lumi-primary transition-all duration-200
-          ${isOpen ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'}
+          ${
+            isOpen
+              ? 'bg-gray-100 dark:bg-gray-700'
+              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+          }
         `}
       >
         <div className="flex items-center gap-2 truncate">
@@ -74,13 +80,22 @@ export function CustomSelect({
 
       <div
         className={`
-          absolute top-full left-0 mt-1 w-full max-h-60 overflow-y-auto
+          absolute left-0 w-full max-h-60 overflow-y-auto
           bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
-          rounded-md shadow-lg z-50 origin-top transition-all duration-200 ease-out
+          rounded-md shadow-lg z-50 transition-all duration-200 ease-out
+          
+          ${
+            direction === 'up'
+              ? 'bottom-full mb-1 origin-bottom'
+              : 'top-full mt-1 origin-top'
+          }
+
           ${
             isOpen
               ? 'opacity-100 scale-y-100 translate-y-0'
-              : 'opacity-0 scale-y-0 -translate-y-2 pointer-events-none'
+              : `opacity-0 scale-y-0 pointer-events-none ${
+                  direction === 'up' ? 'translate-y-2' : '-translate-y-2'
+                }`
           }
         `}
       >

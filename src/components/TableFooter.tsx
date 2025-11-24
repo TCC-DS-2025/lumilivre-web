@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 
 import ArrowLeftIcon from '../assets/icons/arrow-left.svg?react';
 import ArrowRightIcon from '../assets/icons/arrow-right.svg?react';
+import { CustomSelect } from './CustomSelect'; 
 
 interface LegendItem {
   color: string;
@@ -36,88 +37,6 @@ const StatusLegend: React.FC<{ items: LegendItem[] }> = ({ items }) => (
   </div>
 );
 
-interface PageSizeSelectorProps {
-  value: number;
-  onChange: (value: number) => void;
-  options: number[];
-}
-
-const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
-  value,
-  onChange,
-  options,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative" ref={containerRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary transition-all duration-200
-          ${
-            isOpen
-              ? 'bg-gray-200 dark:bg-gray-600'
-              : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-          }
-        `}
-      >
-        <span>{value}</span>
-        <span
-          className={`text-[10px] ml-1 opacity-70 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`}
-        >
-          ▼
-        </span>
-      </button>
-
-      <div
-        className={`absolute bottom-full left-0 mb-1 w-full bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 overflow-hidden origin-bottom transition-all duration-200 ease-out
-          ${
-            isOpen
-              ? 'opacity-100 scale-y-100 translate-y-0'
-              : 'opacity-0 scale-y-0 translate-y-2 pointer-events-none'
-          }
-        `}
-      >
-        {options.map((option) => (
-          <button
-            key={option}
-            onClick={() => {
-              onChange(option);
-              setIsOpen(false);
-            }}
-            className={`
-              w-full text-left px-3 py-2 text-sm transition-colors duration-150
-              ${
-                value === option
-                  ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'
-              }
-            `}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export function TableFooter({
   legendItems,
   pagination,
@@ -138,16 +57,27 @@ export function TableFooter({
 
   const iconClass = 'w-4 h-4 text-lumi-primary dark:text-lumi-label';
 
+  const pageSizeOptions = [
+    { label: '10', value: 10 },
+    { label: '25', value: 25 },
+    { label: '50', value: 50 },
+  ];
+
   const PageSizeControl = (
     <div className="flex items-center space-x-2">
       <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400 transition-all duration-200">
         Itens por página:
       </span>
-      <PageSizeSelector
-        value={itemsPerPage}
-        onChange={onItemsPerPageChange}
-        options={[10, 25, 50]}
-      />
+      
+      <div className="w-20"> 
+        <CustomSelect
+          value={itemsPerPage}
+          options={pageSizeOptions}
+          onChange={(value) => onItemsPerPageChange(Number(value))}
+          placeholder="Qtd"
+          direction="up"
+        />
+      </div>
     </div>
   );
 
@@ -187,18 +117,14 @@ export function TableFooter({
     <div className="flex items-center justify-between p-1.5 border-t border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 select-none bg-white dark:bg-dark-card rounded-b-lg">
       <div className={isException ? 'pl-2' : 'flex-1'}>
         {isException
-          ?
-            PageSizeControl
-          :
-            legendItems &&
-            legendItems.length > 0 && <StatusLegend items={legendItems} />}
+          ? PageSizeControl
+          : legendItems && legendItems.length > 0 && <StatusLegend items={legendItems} />}
       </div>
 
       <div
         className={`flex items-center pr-2 ${isException ? 'space-x-4' : 'space-x-6'}`}
       >
         {!isException && PageSizeControl}
-
         {ItemCounter}
         {NavigationControls}
       </div>
