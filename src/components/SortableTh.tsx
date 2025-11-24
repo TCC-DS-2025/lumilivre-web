@@ -23,8 +23,8 @@ export function SortableTh({
   const directionIcon = sortConfig?.direction === 'asc' ? '▲' : '▼';
 
   return (
-    <th
-      className={`py-2 px-2 cursor-pointer ${className}`}
+    <div
+      className={`py-2 px-2 cursor-pointer select-none flex items-center justify-center ${className}`}
       onClick={onClick}
       style={style}
     >
@@ -40,6 +40,6 @@ export function SortableTh({
           {directionIcon}
         </span>
       </div>
-    </th>
+    </div>
   );
 }

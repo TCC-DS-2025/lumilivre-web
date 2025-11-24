@@ -35,76 +35,70 @@ export function DataTable<T>({
   emptyStateMessage = 'Nenhum item encontrado.',
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-y-auto flex-grow bg-white dark:bg-dark-card rounded-t-lg">
-      <table className="min-w-full table-auto">
-        <thead className="sticky top-0 bg-lumi-primary shadow-md z-10 text-white">
-          <tr>
-            {columns.map((col) =>
-              col.isSortable === false ? (
-                <th
-                  key={col.key}
-                  className="p-3 text-sm font-bold text-white tracking-wider"
-                  style={{ width: col.width }}
-                >
-                  {col.header}
-                </th>
-              ) : (
-                <SortableTh
-                  key={col.key}
-                  onClick={() => onSort(col.key)}
-                  sortConfig={sortConfig}
-                  sortKey={col.key}
-                  className="p-4 text-sm font-bold text-white tracking-wider hover:bg-white/30"
-                  style={{ width: col.width }}
-                >
-                  {col.header}
-                </SortableTh>
-              ),
-            )}
-          </tr>
-        </thead>
-        <tbody className="divide-y text-center bg-white dark:bg-dark-card">
-          {isLoading ? (
-            <tr>
-              <td colSpan={columns.length}>
-                <LoadingIcon />
-              </td>
-            </tr>
-          ) : error ? (
-            <tr>
-              <td colSpan={columns.length} className="p-8 text-red-500">
-                {error}
-              </td>
-            </tr>
-          ) : data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} className="p-8 text-gray-500">
-                {emptyStateMessage}
-              </td>
-            </tr>
+    // Container Principal: Flex Column, ocupa altura total, sem scroll externo
+    <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-dark-card rounded-t-lg">
+      
+      {/* CABEÇALHO: Fixo, não rola */}
+      <div className="flex items-center shrink-0 bg-lumi-primary shadow-md z-10 text-white pr-2">
+        {columns.map((col) =>
+          col.isSortable === false ? (
+            <div
+              key={col.key}
+              className="p-3 text-sm font-bold text-white tracking-wider text-center flex items-center justify-center"
+              style={{ width: col.width }}
+            >
+              {col.header}
+            </div>
           ) : (
-            data.map((item) => (
-              <tr
+            <SortableTh
+              key={col.key}
+              onClick={() => onSort(col.key)}
+              sortConfig={sortConfig}
+              sortKey={col.key}
+              className="p-4 text-sm font-bold text-white tracking-wider hover:bg-white/30"
+              style={{ width: col.width }}
+            >
+              {col.header}
+            </SortableTh>
+          ),
+        )}
+      </div>
+
+      {/* CORPO: Ocupa o resto do espaço (flex-1) e tem scroll (overflow-y-auto) */}
+      <div className="flex-1 overflow-y-auto">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <LoadingIcon />
+          </div>
+        ) : error ? (
+          <div className="p-8 text-red-500 text-center">{error}</div>
+        ) : data.length === 0 ? (
+          <div className="p-8 text-gray-500 text-center">{emptyStateMessage}</div>
+        ) : (
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {data.map((item) => (
+              <div
                 key={getRowKey(item)}
-                className={
+                className={`flex items-center ${
                   getRowClass
                     ? getRowClass(item)
                     : 'hover:bg-gray-300 dark:hover:bg-gray-600 hover:duration-0'
-                }
+                }`}
               >
                 {columns.map((col) => (
-                  <td
+                  <div
                     key={`${getRowKey(item)}-${col.key}`}
-                    className="p-4 whitespace-nowrap"
+                    className="p-4 whitespace-nowrap text-center overflow-hidden text-ellipsis"
+                    style={{ width: col.width }}
                   >
                     {col.render(item)}
-                  </td>
+                  </div>
                 ))}
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
