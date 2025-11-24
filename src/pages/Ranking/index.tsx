@@ -33,6 +33,11 @@ import Medal2Icon from '../../assets/icons/medal2.svg?react';
 import Medal3Icon from '../../assets/icons/medal3.svg?react';
 import FilterIcon from '../../assets/icons/filter.svg?react';
 
+const BAR_WIDTH = 40;
+const MIN_GAP = 20;
+const Y_AXIS_WIDTH = 60;
+const CHART_PADDING = 40;
+
 const BAR_COLORS = ['#762075', '#9b2c9a', '#bf3abf', '#d65ad6', '#e085e0'];
 const TOP_3_COLORS = ['#EAB308', '#9CA3AF', '#F97316'];
 
@@ -47,7 +52,6 @@ const PIE_COLORS = [
   '#4ecdc4',
 ];
 
-// Gráfico de Pizza Reutilizável
 const PieChartCard = ({
   title,
   data,
@@ -110,7 +114,6 @@ const PieChartCard = ({
   </div>
 );
 
-// Item do Pódio
 const PodiumItem = ({
   aluno,
   position,
@@ -151,13 +154,13 @@ const PodiumItem = ({
       className={`flex flex-col items-center justify-end w-1/3 ${orderClass} ${zIndex} h-full transition-all duration-500 hover:scale-105`}
     >
       <div className="flex flex-col items-center mb-2 w-full">
-        <Medal className={`w-8 h-8 sm:w-12 sm:h-12 mb-1 ${medalColorClass}`} />
+        <Medal className={`w-12 h-12 mb-1 ${medalColorClass}`} />
         {aluno ? (
           <>
-            <span className="font-bold text-gray-800 dark:text-white text-center text-xs sm:text-sm line-clamp-1 w-full px-1">
+            <span className="font-bold text-gray-800 dark:text-white text-center text-sm line-clamp-1 w-full px-1">
               {aluno.nome.split(' ')[0]}
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-lumi-primary dark:text-lumi-label bg-white dark:bg-gray-800 px-2 py-0.5 rounded-full shadow-sm mt-1 border border-gray-100 dark:border-gray-600 whitespace-nowrap">
+            <span className="text-xs font-bold text-lumi-primary dark:text-lumi-label bg-white dark:bg-gray-800 px-2 py-0.5 rounded-full shadow-sm mt-1 border border-gray-100 dark:border-gray-600 whitespace-nowrap">
               {aluno.emprestimosCount} livros
             </span>
           </>
@@ -168,7 +171,7 @@ const PodiumItem = ({
       <div
         className={`w-full ${heightClass} ${colorClass} rounded-t-lg shadow-lg flex items-start justify-center pt-2 relative overflow-hidden border-t border-white/20`}
       >
-        <span className="text-3xl sm:text-5xl font-black text-white/40 mix-blend-overlay select-none">
+        <span className="text-5xl font-black text-white/40 mix-blend-overlay select-none">
           {position}
         </span>
       </div>
@@ -187,14 +190,12 @@ export function ClassificacaoPage() {
 
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [modulos, setModulos] = useState<string[]>([]);
+  
   const [filtroCurso, setFiltroCurso] = useState<string>('');
   const [filtroModulo, setFiltroModulo] = useState<string>('');
   const [filtroTurno, setFiltroTurno] = useState<string>('');
-  const [filtroPieMobile, setFiltroPieMobile] = useState<
-    'curso' | 'modulo' | 'turno'
-  >('curso');
 
-  const [chartLimit, setChartLimit] = useState(10);
+  const [chartLimit, setChartLimit] = useState(15);
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -230,26 +231,41 @@ export function ClassificacaoPage() {
   }, []);
 
   useEffect(() => {
-    const updateChartLimit = () => {
+    const calculateLimit = () => {
       if (chartContainerRef.current) {
-        const width = chartContainerRef.current.offsetWidth;
-        if (width <= 0) return;
+        // Pega a largura exata do container em pixels
+        const containerWidth = chartContainerRef.current.getBoundingClientRect().width;
+        
+        if (containerWidth <= 0) return;
 
-        const calculatedLimit = Math.floor((width - 50) / 32);
-        setChartLimit(Math.max(5, Math.min(calculatedLimit, 100)));
+        const availableSpace = containerWidth - Y_AXIS_WIDTH - CHART_PADDING;
+        
+        const itemSize = BAR_WIDTH + MIN_GAP;
+        
+        const calculatedLimit = Math.floor(availableSpace / itemSize);
+        
+        setChartLimit((prev) => {
+          const newValue = Math.max(5, calculatedLimit);
+          return prev !== newValue ? newValue : prev;
+        });
       }
     };
 
-    const observer = new ResizeObserver(() => {
-      window.requestAnimationFrame(updateChartLimit);
+    const resizeObserver = new ResizeObserver(() => {
+      calculateLimit();
     });
 
+    window.addEventListener('resize', calculateLimit);
+
     if (chartContainerRef.current) {
-      observer.observe(chartContainerRef.current);
-      setTimeout(updateChartLimit, 100);
+      resizeObserver.observe(chartContainerRef.current);
+      calculateLimit();
     }
 
-    return () => observer.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', calculateLimit);
+    };
   }, []);
 
   useEffect(() => {
@@ -279,7 +295,7 @@ export function ClassificacaoPage() {
       }
     };
 
-    const timeoutId = setTimeout(fetchChartRanking, 300);
+    const timeoutId = setTimeout(fetchChartRanking, 50);
     return () => clearTimeout(timeoutId);
   }, [filtroCurso, filtroModulo, filtroTurno, modulos, chartLimit]);
 
@@ -307,17 +323,11 @@ export function ClassificacaoPage() {
     { label: 'Integral', value: 'INTEGRAL' },
   ];
 
-  const pieFilterOptions = [
-    { label: 'Por Curso', value: 'curso' },
-    { label: 'Por Módulo', value: 'modulo' },
-    { label: 'Por Turno', value: 'turno' },
-  ];
-
   if (isLoading) return <LoadingIcon />;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden shadow-lg">
-      <div className="flex items-center gap-3 mb-4 shrink-0 select-none px-1">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-3 mb-6 shrink-0 select-none">
         <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
           <CrownIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
         </div>
@@ -331,17 +341,19 @@ export function ClassificacaoPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-xl  border border-gray-100 dark:border-gray-700 flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden border border-gray-100 dark:border-gray-700">
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {/* Pódio */}
-            <div className="flex flex-col h-full min-h-[400px] xl:col-span-5">
+          
+          <div className="grid grid-cols-12 gap-8">
+            
+            {/* PODIO */}
+            <div className="flex flex-col h-full min-h-[400px] col-span-5">
               <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2 shrink-0">
                 <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
                 Pódio dos Maiores Leitores
               </h3>
               <div className="flex-grow bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700 p-4 flex items-end justify-center h-96">
-                <div className="flex items-end justify-center w-full max-w-lg gap-2 sm:gap-4 h-full">
+                <div className="flex items-end justify-center w-full max-w-lg gap-4 h-full">
                   <PodiumItem aluno={podiumData[2]} position={3} />
                   <PodiumItem aluno={podiumData[0]} position={1} />
                   <PodiumItem aluno={podiumData[1]} position={2} />
@@ -349,88 +361,52 @@ export function ClassificacaoPage() {
               </div>
             </div>
 
-            {/* Gráficos de Pizza */}
-            <div className="flex flex-col h-full min-h-[400px] xl:col-span-7">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 shrink-0">
+            {/* GRAFICOS DE PIZZA */}
+            <div className="flex flex-col h-full min-h-[400px] col-span-7">
+              <div className="flex justify-between items-center mb-4 gap-2 shrink-0">
                 <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                   <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
                   Distribuição de Empréstimos
                 </h3>
-
-                <div className="w-40 self-end sm:self-auto xl:hidden">
-                  <CustomSelect
-                    value={filtroPieMobile}
-                    onChange={(val) => setFiltroPieMobile(val as any)}
-                    options={pieFilterOptions}
-                    icon={<FilterIcon className="w-4 h-4" />}
-                  />
-                </div>
               </div>
 
-              <div className="flex-grow h-full">
-                {/* Mobile */}
-                <div className="xl:hidden h-96">
-                  {filtroPieMobile === 'curso' && (
-                    <PieChartCard
-                      title="Por Curso"
-                      data={pieDataCurso}
-                      emptyMessage="Sem dados de cursos"
-                    />
-                  )}
-                  {filtroPieMobile === 'modulo' && (
-                    <PieChartCard
-                      title="Por Módulo"
-                      data={pieDataModulo}
-                      emptyMessage="Sem dados de módulos"
-                    />
-                  )}
-                  {filtroPieMobile === 'turno' && (
-                    <PieChartCard
-                      title="Por Turno"
-                      data={pieDataTurno}
-                      emptyMessage="Sem dados de turnos"
-                    />
-                  )}
-                </div>
-
-                {/* Desktop */}
-                <div className="hidden xl:grid grid-cols-3 gap-4 h-96">
-                  <PieChartCard
-                    title="Por Curso"
-                    data={pieDataCurso}
-                    emptyMessage="Sem dados"
-                  />
-                  <PieChartCard
-                    title="Por Módulo"
-                    data={pieDataModulo}
-                    emptyMessage="Sem dados"
-                  />
-                  <PieChartCard
-                    title="Por Turno"
-                    data={pieDataTurno}
-                    emptyMessage="Sem dados"
-                  />
-                </div>
+              <div className="grid grid-cols-3 gap-4 h-full min-h-[384px]">
+                <PieChartCard
+                  title="Por Curso"
+                  data={pieDataCurso}
+                  emptyMessage="Sem dados de cursos"
+                />
+                <PieChartCard
+                  title="Por Módulo"
+                  data={pieDataModulo}
+                  emptyMessage="Sem dados de módulos"
+                />
+                <PieChartCard
+                  title="Por Turno"
+                  data={pieDataTurno}
+                  emptyMessage="Sem dados de turnos"
+                />
               </div>
             </div>
           </div>
 
           <hr className="border-gray-200 dark:border-gray-700" />
 
-          {/* GRÁFICO DE BARRAS */}
+          {/* GRAFICO DE BARRAS */}
           <div className="flex flex-col min-h-[500px]">
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+            <div className="flex flex-row justify-between items-center gap-4 mb-6">
               <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                 <span className="w-1 h-6 bg-lumi-primary dark:bg-lumi-label rounded-full"></span>
                 Top Alunos com Mais Empréstimos
               </h3>
 
-              <div className="flex flex-wrap gap-3 items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 w-full xl:w-auto">
+              {/* Filtros - Layout fixo horizontal */}
+              <div className="flex gap-3 items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 w-auto">
                 <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wide mr-1">
                   <FilterIcon className="w-4 h-4" />
                   Filtrar:
                 </div>
-                <div className="w-full sm:w-48">
+                <div className="w-48">
                   <CustomSelect
                     value={filtroCurso}
                     onChange={setFiltroCurso}
@@ -438,7 +414,7 @@ export function ClassificacaoPage() {
                     placeholder="Todos os Cursos"
                   />
                 </div>
-                <div className="w-full sm:w-40">
+                <div className="w-40">
                   <CustomSelect
                     value={filtroModulo}
                     onChange={setFiltroModulo}
@@ -446,7 +422,7 @@ export function ClassificacaoPage() {
                     placeholder="Todos os Módulos"
                   />
                 </div>
-                <div className="w-full sm:w-40">
+                <div className="w-40">
                   <CustomSelect
                     value={filtroTurno}
                     onChange={setFiltroTurno}
@@ -457,6 +433,7 @@ export function ClassificacaoPage() {
               </div>
             </div>
 
+            {/* Container do Gráfico */}
             <div className="w-full h-[500px]" ref={chartContainerRef}>
               {chartData && chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -502,14 +479,14 @@ export function ClassificacaoPage() {
                       dataKey="emprestimosCount"
                       radius={[6, 6, 0, 0]}
                       animationDuration={1500}
-                      barSize={40}
+                      barSize={BAR_WIDTH}
                     >
                       {chartData.map((_, index) => {
                         let fillColor =
                           BAR_COLORS[index % BAR_COLORS.length];
-                        if (index === 0) fillColor = TOP_3_COLORS[0]; // Ouro
-                        if (index === 1) fillColor = TOP_3_COLORS[1]; // Prata
-                        if (index === 2) fillColor = TOP_3_COLORS[2]; // Bronze
+                        if (index === 0) fillColor = TOP_3_COLORS[0];
+                        if (index === 1) fillColor = TOP_3_COLORS[1];
+                        if (index === 2) fillColor = TOP_3_COLORS[2];
 
                         return (
                           <Cell
