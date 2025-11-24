@@ -9,6 +9,7 @@ import {
   type ListaEmprestimo,
 } from '../../services/emprestimoService';
 import type { Page } from '../../types';
+import { formatarNome } from '../../utils/formatters';
 
 type StatusEmprestimoDisplay =
   | 'ativo'
@@ -188,7 +189,7 @@ export function EmprestimosPage() {
       header: 'Aluno',
       width: '20%',
       render: (item) => (
-        <span className="font-bold dark:text-white truncate">{item.aluno}</span>
+        <span className="font-bold dark:text-white truncate">{formatarNome(item.aluno)}</span>
       ),
     },
     {

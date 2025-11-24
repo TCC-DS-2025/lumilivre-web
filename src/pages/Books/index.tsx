@@ -231,7 +231,7 @@ export function LivrosPage() {
         header: 'ISBN',
         width: '15%',
         render: (item) => (
-          <span className="font-bold dark:text-white">{item.isbn}</span>
+          <span className="font-bold dark:text-white">{item.isbn || '-'}</span>
         ),
       },
       {

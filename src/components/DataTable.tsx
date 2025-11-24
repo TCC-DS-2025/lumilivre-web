@@ -42,24 +42,30 @@ export function DataTable<T>({
   hoverHeaderClassName = 'hover:bg-white/20',
   hasRoundedBorderTop = true,
 }: DataTableProps<T>) {
-  const [hasScroll, setHasScroll] = useState(false);
   const tableBodyRef = useRef<HTMLDivElement>(null);
+  const [hasScroll, setHasScroll] = useState(false);
 
   useEffect(() => {
+    const element = tableBodyRef.current;
+    if (!element) return;
+
     const checkForScroll = () => {
-      const element = tableBodyRef.current;
-      if (element) {
-        const hasVerticalScroll = element.scrollHeight > element.clientHeight;
-        setHasScroll(hasVerticalScroll);
-      }
+      const hasVerticalScroll = element.scrollHeight > Math.ceil(element.clientHeight);
+      setHasScroll(hasVerticalScroll);
     };
 
-    const timeoutId = setTimeout(checkForScroll, 0);
+    checkForScroll();
 
+    const observer = new ResizeObserver(() => {
+      checkForScroll();
+    });
+    
+    observer.observe(element);
     window.addEventListener('resize', checkForScroll);
+
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', checkForScroll);
-      clearTimeout(timeoutId);
     };
   }, [data]);
 
@@ -69,9 +75,7 @@ export function DataTable<T>({
         hasRoundedBorderTop ? 'rounded-t-lg' : ''
       }`}
     >
-      <div
-        className={`flex items-stretch shrink-0 z-10 ${headerClassName}`}
-      >
+      <div className={`flex items-stretch shrink-0 z-10 ${headerClassName}`}>
         {columns.map((col, index) => {
           const isLast = index === columns.length - 1;
           const scrollPaddingClass = isLast && hasScroll ? 'mr-[14px]' : '';
@@ -99,8 +103,8 @@ export function DataTable<T>({
         })}
       </div>
 
-      <div 
-        ref={tableBodyRef} 
+      <div
+        ref={tableBodyRef}
         className="flex-1 overflow-y-auto custom-scrollbar"
       >
         {isLoading ? (

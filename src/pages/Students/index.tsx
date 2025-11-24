@@ -3,10 +3,10 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
-
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { FiltroAvançado } from '../../components/filters/AdvancedFilter';
+import { formatarNome } from '../../utils/formatters';
 
 import {
   buscarAlunosAvancado,
@@ -249,7 +249,7 @@ export function AlunosPage() {
       width: '35%',
       render: (item) => (
         <span className="font-bold dark:text-gray-300 truncate">
-          {item.nomeCompleto}
+          {formatarNome(item.nomeCompleto)}
         </span>
       ),
     },

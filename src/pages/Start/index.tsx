@@ -4,6 +4,7 @@ import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import type { Emprestimo } from '../../types';
+import { formatarNome } from '../../utils/formatters';
 
 import { getContagemLivros } from '../../services/livroService';
 import { getContagemAlunos } from '../../services/alunoService';
@@ -18,6 +19,7 @@ import BookIcon from '../../assets/icons/books-active.svg?react';
 import UsersIcon from '../../assets/icons/users-active.svg?react';
 import AlertIcon from '../../assets/icons/alert.svg?react';
 import LoansIcon from '../../assets/icons/loans-active.svg?react';
+
 
 interface DataState<T> {
   data: T;
@@ -260,7 +262,7 @@ export function DashboardPage() {
       width: '25%',
       render: (item) => (
         <span className="text-gray-700 dark:text-gray-300 truncate">
-          {item.aluno}
+          {formatarNome(item.aluno)}
         </span>
       ),
     },
@@ -304,7 +306,7 @@ export function DashboardPage() {
       width: '25%',
       render: (item) => (
         <span className="text-gray-700 dark:text-gray-300 truncate">
-          {item.aluno}
+          {formatarNome(item.aluno)}
         </span>
       ),
     },
