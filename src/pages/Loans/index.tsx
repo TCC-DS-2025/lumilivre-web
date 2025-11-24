@@ -90,10 +90,10 @@ export function EmprestimosPage() {
             return {
               id: item.id,
               status: status,
-              livro: item.exemplar.livro.nome,
-              tombo: item.exemplar.tombo,
-              aluno: item.aluno.nomeCompleto,
-              curso: item.aluno.curso.nome,
+              livro: item.exemplar?.livro?.nome ?? 'Livro não identificado',
+              tombo: item.exemplar?.tombo ?? 'N/A',
+              aluno: item.aluno?.nomeCompleto ?? 'Aluno não identificado',
+              curso: item.aluno?.curso?.nome ?? '-',
               emprestimo: new Date(item.dataEmprestimo),
               devolucao: new Date(item.dataDevolucao),
             };
@@ -164,11 +164,13 @@ export function EmprestimosPage() {
     {
       key: 'status',
       header: 'Status',
+      width: '10%',
       render: (item) => <StatusIndicator status={item.status} />,
     },
     {
       key: 'tombo',
       header: 'Tombo',
+      width: '10%',
       render: (item) => (
         <span className="font-bold dark:text-white">{item.tombo}</span>
       ),
@@ -176,6 +178,7 @@ export function EmprestimosPage() {
     {
       key: 'livro',
       header: 'Livro',
+      width: '20%',
       render: (item) => (
         <span className="dark:text-gray-300 truncate">{item.livro}</span>
       ),
@@ -183,6 +186,7 @@ export function EmprestimosPage() {
     {
       key: 'aluno',
       header: 'Aluno',
+      width: '20%',
       render: (item) => (
         <span className="font-bold dark:text-white truncate">{item.aluno}</span>
       ),
@@ -191,6 +195,7 @@ export function EmprestimosPage() {
       // data de retirada do livro?
       key: 'emprestimo',
       header: 'Empréstimo',
+      width: '15%',
       render: (item) => (
         <span className="dark:text-gray-300">
           {item.emprestimo.toLocaleDateString('pt-BR')}
@@ -200,6 +205,7 @@ export function EmprestimosPage() {
     {
       key: 'devolucao',
       header: 'Devolução',
+      width: '15%',
       render: (item) => (
         <span className="font-bold dark:text-white">
           {item.devolucao.toLocaleDateString('pt-BR')}
@@ -209,6 +215,7 @@ export function EmprestimosPage() {
     {
       key: 'acoes',
       header: 'Ações',
+      width: '10%',
       isSortable: false,
       render: () => (
         <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
