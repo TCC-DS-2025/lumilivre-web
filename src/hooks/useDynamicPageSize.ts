@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 
 interface DynamicPageSizeOptions {
   rowHeight?: number;
@@ -8,7 +8,7 @@ interface DynamicPageSizeOptions {
 }
 
 export function useDynamicPageSize(
-  containerRef: { current: HTMLElement | null },
+  containerRef: RefObject<HTMLElement | null>,
   options: DynamicPageSizeOptions = {},
 ) {
   const {
@@ -18,7 +18,7 @@ export function useDynamicPageSize(
     minRows = 5,
   } = options;
 
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(0);
 
   useEffect(() => {
     const calculatePageSize = () => {

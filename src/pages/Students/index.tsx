@@ -68,17 +68,28 @@ export function AlunosPage() {
   }>({ key: 'nomeCompleto', direction: 'asc' });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const dynamicPageSize = useDynamicPageSize(tableContainerRef, {
-    rowHeight: 48,
-    footerHeight: 50,
-  });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const dynamicPageSizeOptions = useMemo(
+    () => ({
+      rowHeight: 48,
+      footerHeight: 50,
+    }),
+    [],
+  );
+  const dynamicPageSize = useDynamicPageSize(
+    tableContainerRef,
+    dynamicPageSizeOptions,
+  );
+  const [itemsPerPage, setItemsPerPage] = useState(0);
 
   useEffect(() => {
-    setItemsPerPage(dynamicPageSize);
+    if (dynamicPageSize > 0) {
+      setItemsPerPage(dynamicPageSize);
+    }
   }, [dynamicPageSize]);
 
   const fetchAlunos = useCallback(async () => {
+    if (itemsPerPage === 0) return;
+
     setIsLoading(true);
     setError(null);
     try {
@@ -333,7 +344,10 @@ export function AlunosPage() {
         />
       </Modal>
 
-      <div ref={tableContainerRef} className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div
+        ref={tableContainerRef}
+        className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0"
+      >
         <DataTable
           data={sortedAlunos}
           columns={columns}

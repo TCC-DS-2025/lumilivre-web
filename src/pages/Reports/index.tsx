@@ -22,7 +22,7 @@ interface ReportItemProps {
 }
 
 const ReportItem = ({ title, description, onGenerate }: ReportItemProps) => (
-  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
+  <div className="flex items-center justify-between p-4 border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:duration-0">
     <div className="flex items-center">
       <div className="p-2 rounded-lg mr-4 bg-gray-100 dark:bg-gray-700">
         <AddIcon className="w-6 h-6 text-lumi-primary dark:text-lumi-label" />
