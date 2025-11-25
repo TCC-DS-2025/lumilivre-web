@@ -73,7 +73,7 @@ export function CustomSelect({
         </div>
         <span
           className={`text-[10px] ml-2 opacity-70 ${
-            isOpen ? 'rotate-0' : 'rotate-180'
+            isOpen ? 'rotate-180' : 'rotate-0'
           }`}
         >
           <ArrowIcon className="w-4 h-4 fill-current" />

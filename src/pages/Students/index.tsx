@@ -5,7 +5,7 @@ import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
-import { FiltroAvançado } from '../../components/filters/AdvancedFilter';
+import { StudentFilter } from '../../components/filters/StudentFilter';
 import { formatarNome } from '../../utils/formatters';
 
 import {
@@ -297,19 +297,17 @@ export function AlunosPage() {
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
       />
 
-      {isFilterOpen && (
-        <div className="relative">
-          {' '}
-          <FiltroAvançado
-            filters={filterParams}
-            onFilterChange={(field, value) =>
-              setFilterParams((prev) => ({ ...prev, [field]: value }))
-            }
-            onApply={handleApplyFilters}
-            onClear={handleClearFilters}
-          />
-        </div>
-      )}
+      <div className="relative z-20">
+        <StudentFilter
+          isOpen={isFilterOpen}
+          filters={filterParams}
+          onFilterChange={(field, value) =>
+            setFilterParams((prev) => ({ ...prev, [field]: value }))
+          }
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
+      </div>
 
       <Modal
         isOpen={isModalOpen}
