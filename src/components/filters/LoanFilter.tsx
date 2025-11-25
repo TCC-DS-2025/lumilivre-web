@@ -65,6 +65,7 @@ export function LoanFilter({
             onChange={(val) => onFilterChange('statusEmprestimo', val)}
             options={statusOpts}
             placeholder="Selecione o status"
+            invertArrow={true}
           />
         </div>
 

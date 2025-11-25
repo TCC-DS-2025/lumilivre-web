@@ -86,6 +86,7 @@ export function StudentFilter({
             onChange={(val) => onFilterChange('penalidade', val)}
             options={penalidadeOptions}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
 
@@ -109,6 +110,7 @@ export function StudentFilter({
             onChange={(val) => onFilterChange('cursoNome', val)}
             options={cursoOptions}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
 
@@ -119,6 +121,7 @@ export function StudentFilter({
             onChange={(val) => onFilterChange('turno', val)}
             options={turnoOptions}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
 
@@ -129,6 +132,7 @@ export function StudentFilter({
             onChange={(val) => onFilterChange('modulo', val)}
             options={moduloOptions}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
       </div>

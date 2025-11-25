@@ -16,6 +16,7 @@ interface CustomSelectProps {
   icon?: React.ReactNode;
   direction?: 'up' | 'down';
   buttonClassName?: string;
+  invertArrow?: boolean;
 }
 
 export function CustomSelect({
@@ -26,7 +27,8 @@ export function CustomSelect({
   className = '',
   icon,
   direction = 'down',
-  buttonClassName = 'px-3 py-2'
+  buttonClassName = 'px-3 py-2',
+  invertArrow = false,
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,14 @@ export function CustomSelect({
   const selectedOption = options.find(
     (opt) => String(opt.value) === String(value),
   );
+
+  const rotationClass = invertArrow
+    ? isOpen
+      ? 'rotate-0'
+      : 'rotate-180'
+    : isOpen
+      ? 'rotate-180'
+      : 'rotate-0';
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
@@ -71,11 +81,7 @@ export function CustomSelect({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <span
-          className={`text-[10px] ml-2 opacity-70 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`}
-        >
+        <span className={`text-[10px] ml-2 opacity-70 ${rotationClass}`}>
           <ArrowIcon className="w-4 h-4 fill-current" />
         </span>
       </button>

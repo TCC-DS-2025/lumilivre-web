@@ -96,7 +96,7 @@ export function BookFilter({
       onClear={onClear}
       width="w-[800px]"
     >
-      {/* Linha 1: Autor, Editora, Gênero */}
+      {/* Autor, Editora, Gênero */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className={labelStyles}>Autor</label>
@@ -125,11 +125,12 @@ export function BookFilter({
             onChange={(val) => onFilterChange('genero', val)}
             options={generoOpts}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
       </div>
 
-      {/* Linha 2: CDD, Classificação, Tipo Capa, Lançamento */}
+      {/* CDD, Classificação, Tipo Capa, Lançamento */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className={labelStyles}>CDD</label>
@@ -138,6 +139,7 @@ export function BookFilter({
             onChange={(val) => onFilterChange('cdd', val)}
             options={cddOpts}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
         <div>
@@ -147,6 +149,7 @@ export function BookFilter({
             onChange={(val) => onFilterChange('classificacaoEtaria', val)}
             options={classOpts}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
         <div>
@@ -156,6 +159,7 @@ export function BookFilter({
             onChange={(val) => onFilterChange('tipoCapa', val)}
             options={capaOpts}
             placeholder="Selecione"
+            invertArrow={true}
           />
         </div>
         <div>

@@ -411,6 +411,7 @@ export function ClassificacaoPage() {
                     onChange={setFiltroCurso}
                     options={cursoOptions}
                     placeholder="Todos os Cursos"
+                    invertArrow={true}
                   />
                 </div>
                 <div className="w-40">
@@ -419,6 +420,7 @@ export function ClassificacaoPage() {
                     onChange={setFiltroModulo}
                     options={moduloOptions}
                     placeholder="Todos os Módulos"
+                    invertArrow={true}
                   />
                 </div>
                 <div className="w-40">
@@ -427,6 +429,7 @@ export function ClassificacaoPage() {
                     onChange={setFiltroTurno}
                     options={turnoOptions}
                     placeholder="Todos os Turnos"
+                    invertArrow={true}
                   />
                 </div>
               </div>
