@@ -1,17 +1,69 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
+import { getRouteIndex } from '../utils/navigationOrder';
 
 export function MainLayout({ children }: { children: ReactNode }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(false);
 
+  const location = useLocation();
+
+  const prevIdxRef = useRef(getRouteIndex(location.pathname));
+  const directionRef = useRef(0);
+
+  const currentIdx = getRouteIndex(location.pathname);
+
+  if (currentIdx !== prevIdxRef.current) {
+    if (currentIdx > prevIdxRef.current) {
+      directionRef.current = 1;
+    } else if (currentIdx < prevIdxRef.current) {
+      directionRef.current = -1;
+    }
+    prevIdxRef.current = currentIdx;
+  }
+
   const contentSpacingClass = isSidebarPinned
     ? isSidebarExpanded
-      ? 'md:ml-48'
-      : 'md:ml-24'
-    : 'pl-20';
+      ? 'md:ml-48' 
+      : 'md:ml-20' 
+    : 'ml-20';    
+
+  const variants: Variants = {
+    enter: (direction: number) => ({
+      y: direction > 0 ? '8%' : '-8%',
+      opacity: 0,
+      scale: 0.985,
+      zIndex: 1,
+      willChange: 'transform, opacity',
+    }),
+
+    center: {
+      y: '0%',
+      opacity: 1,
+      scale: 1,
+      zIndex: 1,
+      transition: {
+        duration: 0.15,
+        ease: [0.25, 0.1, 0.25, 1],
+      },
+    },
+
+    exit: (direction: number) => ({
+      y: direction > 0 ? '-8%' : '8%',
+      opacity: 0,
+      scale: 0.985,
+      zIndex: 0,
+      willChange: 'transform, opacity',
+      transition: {
+        duration: 0.18,
+        ease: [0.25, 0.1, 0.25, 1],
+      },
+    }),
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden">
@@ -21,7 +73,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
         isSidebarPinned={isSidebarPinned}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         <Sidebar
           isExpanded={isSidebarExpanded}
           setExpanded={setIsSidebarExpanded}
@@ -30,9 +82,26 @@ export function MainLayout({ children }: { children: ReactNode }) {
         />
 
         <div
-          className={`flex-1 overflow-y-auto scroll-smooth custom-scrollbar ${contentSpacingClass}`}
+          className={`flex-1 relative h-full overflow-hidden ${contentSpacingClass}`}
         >
-          <main className="p-6 sm:p-6 lg:p-8 h-full">{children}</main>
+          <AnimatePresence
+            mode="popLayout"
+            custom={directionRef.current}
+            initial={false}
+          >
+            <motion.main
+              key={location.pathname}
+              custom={directionRef.current}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="absolute inset-0 w-full h-full p-6 sm:p-6 lg:p-8 overflow-y-auto scroll-smooth custom-scrollbar bg-gray-100 dark:bg-dark-background will-change-transform"
+              style={{ backfaceVisibility: 'hidden' }}
+            >
+              {children}
+            </motion.main>
+          </AnimatePresence>
         </div>
       </div>
     </div>

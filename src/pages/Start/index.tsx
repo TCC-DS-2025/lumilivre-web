@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, type Variants } from 'framer-motion';
 
 import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -270,6 +271,26 @@ export function DashboardPage() {
     }
   };
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { y: -50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 },
+    },
+  };
+
   const solicitacoesColumns: ColumnDef<SolicitacaoDisplay>[] = [
     {
       key: 'aluno',
@@ -362,41 +383,54 @@ export function DashboardPage() {
   const dashboardHoverClass = 'hover:bg-gray-200 dark:hover:bg-gray-700';
 
   return (
-    <div className="flex flex-col h-full">
+    <motion.div
+      className="flex flex-col h-full will-change-transform"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
-        <StatCard
-          to="/livros"
-          Icon={BookIcon}
-          title="LIVROS"
-          value={statsState.data?.livros ?? 0}
-          isLoading={statsState.isLoading}
-          hasError={!!statsState.error}
-        />
-        <StatCard
-          to="/alunos"
-          Icon={UsersIcon}
-          title="ALUNOS"
-          value={statsState.data?.alunos ?? 0}
-          isLoading={statsState.isLoading}
-          hasError={!!statsState.error}
-        />
-        <StatCard
-          to="/emprestimos"
-          Icon={LoansIcon}
-          title="EMPRÉSTIMOS"
-          value={statsState.data?.emprestimosAtivos ?? 0}
-          isLoading={statsState.isLoading}
-          hasError={!!statsState.error}
-        />
-        <StatCard
-          to="/emprestimos"
-          Icon={AlertIcon}
-          title="PENDÊNCIAS"
-          value={statsState.data?.atrasados ?? 0}
-          variant="danger"
-          isLoading={statsState.isLoading}
-          hasError={!!statsState.error}
-        />
+        <motion.div variants={itemVariants} className="contents will-change-transform">
+          <StatCard
+            to="/livros"
+            Icon={BookIcon}
+            title="LIVROS"
+            value={statsState.data?.livros ?? 0}
+            isLoading={statsState.isLoading}
+            hasError={!!statsState.error}
+          />
+        </motion.div>
+        <motion.div variants={itemVariants} className="contents will-change-transform">
+          <StatCard
+            to="/alunos"
+            Icon={UsersIcon}
+            title="ALUNOS"
+            value={statsState.data?.alunos ?? 0}
+            isLoading={statsState.isLoading}
+            hasError={!!statsState.error}
+          />
+        </motion.div>
+        <motion.div variants={itemVariants} className="contents will-change-transform">
+          <StatCard
+            to="/emprestimos"
+            Icon={LoansIcon}
+            title="EMPRÉSTIMOS"
+            value={statsState.data?.emprestimosAtivos ?? 0}
+            isLoading={statsState.isLoading}
+            hasError={!!statsState.error}
+          />
+        </motion.div>
+        <motion.div variants={itemVariants} className="contents will-change-transform">
+          <StatCard
+            to="/emprestimos"
+            Icon={AlertIcon}
+            title="PENDÊNCIAS"
+            value={statsState.data?.atrasados ?? 0}
+            variant="danger"
+            isLoading={statsState.isLoading}
+            hasError={!!statsState.error}
+          />
+        </motion.div>
       </div>
 
       <div
@@ -404,7 +438,10 @@ export function DashboardPage() {
         className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0"
       >
         {/* Solicitações de Empréstimo */}
-        <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0 will-change-transform"
+        >
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Solicitações de Empréstimo
           </h3>
@@ -442,10 +479,13 @@ export function DashboardPage() {
               setSolicitacaoPage(1);
             }}
           />
-        </div>
+        </motion.div>
 
         {/* Empréstimos Ativos */}
-        <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0 will-change-transform"
+        >
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Empréstimos Ativos
           </h3>
@@ -484,8 +524,8 @@ export function DashboardPage() {
               setEmprestimoPage(1);
             }}
           />
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
