@@ -3,16 +3,17 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
-
 import { Modal } from '../../components/Modal';
 import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
 import { DetalhesLivroModal } from '../../components/ModalBookDetails';
+import { BookFilter } from '../../components/filters/BookFilter';
 
 import backIconUrl from '../../assets/icons/arrow-left.svg';
 
 import {
   buscarLivrosAgrupados,
+  buscarLivrosAvancado,
   type LivroAgrupado,
   type ListaLivro,
 } from '../../services/livroService';
@@ -32,15 +33,15 @@ const livrosLegend = [
 ];
 
 export function LivrosPage() {
-  // estados de controle de view
+  // --- ESTADOS DE CONTROLE DE VIEW ---
   const [isExemplarView, setIsExemplarView] = useState(false);
   const [selectedBook, setSelectedBook] = useState<LivroAgrupado | null>(null);
 
-  // estados de dados
+  // --- ESTADOS DE DADOS ---
   const [livrosAgrupados, setLivrosAgrupados] = useState<LivroAgrupado[]>([]);
   const [exemplares, setExemplares] = useState<ListaLivro[]>([]);
 
-  // estados de ui e paginação
+  // --- ESTADOS DE UI E PAGINAÇÃO ---
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pageData, setPageData] = useState<Page<any> | null>(null);
@@ -54,18 +55,35 @@ export function LivrosPage() {
     direction: 'asc',
   });
   const [termoBusca, setTermoBusca] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // estados do botão de detalhes
+  // --- ESTADOS DE MODAIS ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [livroSelecionado, setLivroSelecionado] =
     useState<LivroAgrupado | null>(null);
 
+  // --- ESTADOS DO FILTRO AVANÇADO ---
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const [filterParams, setFilterParams] = useState({
+    autor: '',
+    editora: '',
+    genero: '',
+    cdd: '',
+    classificacaoEtaria: '',
+    tipoCapa: '',
+    dataLancamento: '',
+  });
+
+  const [activeFilters, setActiveFilters] = useState({});
+
+  // --- BUSCA DE DADOS ---
   const fetchDados = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       if (isExemplarView && selectedBook) {
+        // Lógica de visualização de Exemplares (mantida igual)
         const [listaExemplares, emprestimosAtivos] = await Promise.all([
           buscarExemplaresPorLivroId(selectedBook.id),
           buscarEmprestimosAtivosEAtrasados(),
@@ -96,12 +114,28 @@ export function LivrosPage() {
           totalPages: Math.ceil(exemplaresComResponsavel.length / itemsPerPage),
         } as Page<any>);
       } else {
-        const paginaDeLivros = await buscarLivrosAgrupados(
-          termoBusca,
-          currentPage - 1,
-          itemsPerPage,
-          `${sortConfig.key},${sortConfig.direction}`,
+        const hasActiveFilters = Object.values(activeFilters).some(
+          (val) => val !== '',
         );
+
+        let paginaDeLivros;
+
+        if (hasActiveFilters) {
+          paginaDeLivros = await buscarLivrosAvancado({
+            ...activeFilters,
+            page: currentPage - 1,
+            size: itemsPerPage,
+            sort: `${sortConfig.key},${sortConfig.direction}`,
+          });
+        } else {
+          paginaDeLivros = await buscarLivrosAgrupados(
+            termoBusca,
+            currentPage - 1,
+            itemsPerPage,
+            `${sortConfig.key},${sortConfig.direction}`,
+          );
+        }
+
         setLivrosAgrupados(paginaDeLivros?.content || []);
         setPageData(paginaDeLivros || null);
       }
@@ -129,19 +163,48 @@ export function LivrosPage() {
     currentPage,
     itemsPerPage,
     sortConfig,
+    activeFilters,
   ]);
+
   useEffect(() => {
     fetchDados();
   }, [fetchDados]);
 
+  // --- HANDLERS DE FILTRO ---
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setTermoBusca('');
+    setActiveFilters(filterParams);
+    setIsFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setCurrentPage(1);
+    setFilterParams({
+      autor: '',
+      editora: '',
+      genero: '',
+      cdd: '',
+      classificacaoEtaria: '',
+      tipoCapa: '',
+      dataLancamento: '',
+    });
+    setActiveFilters({});
+    setIsFilterOpen(false);
+  };
+
+  // --- HANDLERS DE AÇÃO ---
   const handleVerExemplares = useCallback((livro: LivroAgrupado) => {
     setSelectedBook(livro);
     setIsExemplarView(true);
+    setActiveFilters({});
+    setTermoBusca('');
   }, []);
 
   const handleVoltarParaLivros = () => {
     setIsExemplarView(false);
     setSelectedBook(null);
+    setTermoBusca('');
   };
 
   const handleAbrirDetalhes = useCallback((livro: LivroAgrupado) => {
@@ -178,6 +241,7 @@ export function LivrosPage() {
     [fetchDados],
   );
 
+  // --- COMPONENTES AUXILIARES ---
   const StatusIndicator = ({ status }: { status: string }) => {
     const statusInfo = {
       DISPONIVEL: { color: 'bg-green-500', title: 'Disponível' },
@@ -203,7 +267,7 @@ export function LivrosPage() {
     setSortConfig({ key, direction });
   };
 
-  // paginação para a lista de exemplares
+  // --- MEMOS DE DADOS ---
   const exemplaresFiltrados = useMemo(() => {
     if (!isExemplarView) return [];
     if (!termoBusca.trim()) return exemplares;
@@ -213,7 +277,6 @@ export function LivrosPage() {
     );
   }, [exemplares, isExemplarView, termoBusca]);
 
-  // paginação para a lista de livros agrupados
   const dadosPaginados = useMemo(() => {
     const source = isExemplarView ? exemplaresFiltrados : livrosAgrupados;
     const firstPageIndex = (currentPage - 1) * itemsPerPage;
@@ -227,7 +290,7 @@ export function LivrosPage() {
     isExemplarView,
   ]);
 
-  // colunas para tabela (LIVROS AGRUPADOS)
+  // --- DEFINIÇÃO DE COLUNAS ---
   const livrosColumns = useMemo(
     (): ColumnDef<LivroAgrupado>[] => [
       {
@@ -298,7 +361,6 @@ export function LivrosPage() {
     [handleVerExemplares, handleAbrirDetalhes],
   );
 
-  // colunas para tabela (EXEMPLARES)
   const exemplaresColumns = useMemo(
     (): ColumnDef<ListaLivro>[] => [
       {
@@ -365,9 +427,7 @@ export function LivrosPage() {
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}
         showFilterButton={!isExemplarView}
-        onFilterToggle={() => {
-          alert('Funcionalidade de filtro avançado a ser implementada.');
-        }}
+        onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
       >
         {isExemplarView && selectedBook && (
           <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -378,7 +438,7 @@ export function LivrosPage() {
               <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
             </button>
             <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4">
-              Exemplares de: {/* ajustar o truncate para não aparecer em duas linhas */}
+              Exemplares de:{' '}
               <span className="text-lumi-primary truncate">
                 {selectedBook.nome}
               </span>
@@ -392,6 +452,19 @@ export function LivrosPage() {
           </div>
         )}
       </ActionHeader>
+
+      {/* Filtro Avançado */}
+      <div className="relative z-20">
+        <BookFilter
+          isOpen={isFilterOpen}
+          filters={filterParams}
+          onFilterChange={(field, value) =>
+            setFilterParams((prev) => ({ ...prev, [field]: value }))
+          }
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
+      </div>
 
       <Modal
         isOpen={isModalOpen}

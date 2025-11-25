@@ -90,7 +90,7 @@ export const buscarLivrosAgrupados = async (
 
 export const buscarLivrosAvancado = async (
   params: LivroFilterParams,
-): Promise<Page<ListaLivro>> => {
+): Promise<Page<LivroAgrupado>> => {
   const response = await api.get('/livros/buscar/avancado', { params });
   return response.data;
 };
@@ -100,7 +100,6 @@ export const cadastrarLivro = async (livroData: LivroPayload) => {
   return response.data;
 };
 
-// upload da capa de um livro existente
 export const uploadCapaLivro = async (isbn: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
