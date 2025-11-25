@@ -30,7 +30,7 @@ export function MainLayout({ children }: { children: ReactNode }) {
         />
 
         <div
-          className={`flex-1 overflow-y-auto duration-300 ${contentSpacingClass}`}
+          className={`flex-1 overflow-y-auto scroll-smooth custom-scrollbar ${contentSpacingClass}`}
         >
           <main className="p-6 sm:p-6 lg:p-8 h-full">{children}</main>
         </div>

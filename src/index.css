@@ -67,10 +67,17 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   *,
   ::before,
   ::after {
     @apply transition-all duration-200 ease-in-out;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -95,7 +102,14 @@
 
   .custom-scrollbar {
     overflow-y: auto;
-    overflow-y: overlay !important;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #762075 transparent;
+  }
+
+  .dark .custom-scrollbar {
+    scrollbar-color: #4b5563 transparent;
   }
 
   .animate-slide-down {
