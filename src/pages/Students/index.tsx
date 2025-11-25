@@ -294,12 +294,14 @@ export function AlunosPage() {
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO ALUNO"
         showFilterButton={true}
+        isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
       />
 
       <div className="relative z-20">
         <StudentFilter
           isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
           filters={filterParams}
           onFilterChange={(field, value) =>
             setFilterParams((prev) => ({ ...prev, [field]: value }))

@@ -427,6 +427,7 @@ export function LivrosPage() {
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}
         showFilterButton={!isExemplarView}
+        isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
       >
         {isExemplarView && selectedBook && (
@@ -457,6 +458,7 @@ export function LivrosPage() {
       <div className="relative z-20">
         <BookFilter
           isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
           filters={filterParams}
           onFilterChange={(field, value) =>
             setFilterParams((prev) => ({ ...prev, [field]: value }))

@@ -1,10 +1,11 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 interface FilterPanelProps {
   isOpen: boolean;
   children: ReactNode;
   onApply: () => void;
   onClear: () => void;
+  onClose: () => void;
   width?: string;
 }
 
@@ -13,10 +14,12 @@ export function FilterPanel({
   children,
   onApply,
   onClear,
+  onClose,
   width = 'w-[700px]',
 }: FilterPanelProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -31,10 +34,32 @@ export function FilterPanel({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!isOpen) return;
+
+      const target = event.target as Node;
+      const toggleButton = document.getElementById('filter-toggle-button');
+
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(target) &&
+        toggleButton &&
+        !toggleButton.contains(target)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onClose]);
+
   if (!shouldRender) return null;
 
   return (
     <div
+      ref={panelRef}
       className={`absolute top-full left-1/2 -mt-3 -translate-x-1/2 bg-white dark:bg-dark-card rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 z-50 select-none
         ${width}
         ${isClosing ? 'animate-slide-up' : 'animate-slide-down'}

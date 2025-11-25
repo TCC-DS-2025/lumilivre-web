@@ -9,13 +9,11 @@ interface ActionHeaderProps {
   onSearchChange: (value: string) => void;
   onSearchSubmit: () => void;
   searchPlaceholder: string;
-
   onAddNew: () => void;
   addNewButtonLabel: string;
-
   onFilterToggle?: () => void;
   showFilterButton?: boolean;
-
+  isFilterOpen?: boolean;
   children?: ReactNode;
 }
 
@@ -28,6 +26,7 @@ export function ActionHeader({
   addNewButtonLabel,
   onFilterToggle,
   showFilterButton = false,
+  isFilterOpen = false,
   children,
 }: ActionHeaderProps) {
   return (
@@ -60,11 +59,18 @@ export function ActionHeader({
         {showFilterButton && (
           <div className="relative">
             <button
+              id="filter-toggle-button"
               onClick={onFilterToggle}
-              className="flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 shadow-md select-none group"
+              className={`flex items-center bg-white dark:bg-dark-card dark:text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 shadow-md select-none group transition-colors ${
+                isFilterOpen ? 'ring-2 ring-lumi-primary' : ''
+              }`}
             >
               <span>Filtro Avançado</span>
-              <FilterIcon className="w-5 h-5 ml-2 -mr-1 text-lumi-primary dark:text-lumi-label" />
+              <FilterIcon
+                className={`w-5 h-5 ml-2 -mr-1 text-lumi-primary dark:text-lumi-label ${
+                  isFilterOpen ? '-rotate-90' : ''
+                }`}
+              />
             </button>
           </div>
         )}

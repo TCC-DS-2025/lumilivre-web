@@ -7,6 +7,7 @@ import { buscarEnum } from '../../services/livroService';
 
 interface BookFilterProps {
   isOpen: boolean;
+  onClose: () => void;
   filters: {
     autor: string;
     editora: string;
@@ -28,6 +29,7 @@ interface EnumOption {
 
 export function BookFilter({
   isOpen,
+  onClose,
   filters,
   onFilterChange,
   onApply,
@@ -89,6 +91,7 @@ export function BookFilter({
   return (
     <FilterPanel
       isOpen={isOpen}
+      onClose={onClose}
       onApply={onApply}
       onClear={onClear}
       width="w-[800px]"

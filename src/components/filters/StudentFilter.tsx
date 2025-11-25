@@ -7,6 +7,7 @@ import { buscarModulos } from '../../services/moduloService';
 
 interface StudentFilterProps {
   isOpen: boolean;
+  onClose: () => void;
   filters: {
     penalidade: string;
     cursoNome: string;
@@ -21,6 +22,7 @@ interface StudentFilterProps {
 
 export function StudentFilter({
   isOpen,
+  onClose,
   filters,
   onFilterChange,
   onApply,
@@ -70,7 +72,12 @@ export function StudentFilter({
     'w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none h-[42px]';
 
   return (
-    <FilterPanel isOpen={isOpen} onApply={onApply} onClear={onClear}>
+    <FilterPanel
+      isOpen={isOpen}
+      onClose={onClose}
+      onApply={onApply}
+      onClear={onClear}
+    >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className={labelStyles}>Status de Penalidade</label>
