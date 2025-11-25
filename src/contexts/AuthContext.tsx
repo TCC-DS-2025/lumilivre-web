@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: number;
@@ -18,8 +19,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
+  isLoggingOut: boolean;
   login: (userData: User) => void;
   logout: () => void;
+  logoutWithAnimation: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +30,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -60,11 +65,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     delete api.defaults.headers.common['Authorization'];
   };
 
+  const logoutWithAnimation = () => {
+    setIsLoggingOut(true);
+
+    setTimeout(() => {
+      logout();
+      navigate('/login');
+      setIsLoggingOut(false);
+    }, 300);
+  };
+
   const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, isLoading, login, logout }}
+      value={{
+        isAuthenticated,
+        user,
+        isLoading,
+        isLoggingOut,
+        login,
+        logout,
+        logoutWithAnimation,
+      }}
     >
       {children}
     </AuthContext.Provider>

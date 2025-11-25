@@ -2,6 +2,7 @@ import { type ReactNode, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
+import { useAuth } from '../contexts/AuthContext';
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
 import { getRouteIndex } from '../utils/navigationOrder';
@@ -9,6 +10,8 @@ import { getRouteIndex } from '../utils/navigationOrder';
 export function MainLayout({ children }: { children: ReactNode }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(false);
+
+  const { isLoggingOut } = useAuth();
 
   const location = useLocation();
 
@@ -28,9 +31,9 @@ export function MainLayout({ children }: { children: ReactNode }) {
 
   const contentSpacingClass = isSidebarPinned
     ? isSidebarExpanded
-      ? 'md:ml-48' 
-      : 'md:ml-20' 
-    : 'ml-20';    
+      ? 'md:ml-48'
+      : 'md:ml-20'
+    : 'ml-20';
 
   const variants: Variants = {
     enter: (direction: number) => ({
@@ -61,7 +64,12 @@ export function MainLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden">
+    <div
+      className={`
+        h-screen flex flex-col bg-gray-100 dark:bg-dark-background overflow-hidden
+        ${isLoggingOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}
+      `}
+    >
       <Header
         isSidebarExpanded={isSidebarExpanded}
         setSidebarExpanded={setIsSidebarExpanded}

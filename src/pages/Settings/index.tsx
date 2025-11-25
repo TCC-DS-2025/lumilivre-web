@@ -75,7 +75,7 @@ const SubPageHeader = ({
 
 export function ConfiguracoesPage() {
   const { theme, setTheme } = useContext(ThemeContext);
-  const { user, logout } = useAuth();
+  const { user, logoutWithAnimation } = useAuth();
   const navigate = useNavigate();
 
   const isAdmin = user?.role === 'ADMIN';
@@ -98,11 +98,6 @@ export function ConfiguracoesPage() {
       setEffectiveTheme(theme);
     }
   }, [theme]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const renderImportView = () => (
     <div className="p-6">
@@ -306,7 +301,7 @@ export function ConfiguracoesPage() {
         </div>
 
         <button
-          onClick={handleLogout}
+          onClick={logoutWithAnimation}
           className="flex items-center space-x-2 py-2 pl-4 pr-2 rounded-lg shadow-md bg-red-600 text-white hover:bg-red-700 transform hover:scale-105 ml-auto"
         >
           <span className="font-bold">Sair da Conta</span>

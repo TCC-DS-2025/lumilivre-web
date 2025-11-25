@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../../contexts/AuthContext';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { login as apiLogin } from '../../../services/authService';
-
 import Logo from '../../../assets/icons/logo.svg';
 
 export function LoginPage() {
@@ -11,9 +11,10 @@ export function LoginPage() {
   const [senha, setSenha] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isExiting, setIsExiting] = useState(false);
 
   const navigate = useNavigate();
-  const { login: setAuthUser } = useAuth(); // salva o estado globalmente
+  const { login: setAuthUser } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,20 +33,28 @@ export function LoginPage() {
 
       setAuthUser(userToStore);
 
-      navigate('/dashboard');
+      setIsExiting(true);
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
           err.response?.data ||
           'Usuário ou senha inválidos.',
       );
-    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <main className="bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative select-none">
+    <main
+      className={`
+        bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative select-none
+        ${isExiting ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}
+      `}
+    >
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center mb-5">
           <img
@@ -74,6 +83,7 @@ export function LoginPage() {
               placeholder="Digite seu usuário"
               className="w-full p-3 bg-white dark:bg-dark-card rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
+              disabled={isExiting}
             />
           </div>
 
@@ -92,6 +102,7 @@ export function LoginPage() {
               placeholder="Digite sua senha"
               className="w-full p-3 bg-white dark:bg-gray-800 rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
               required
+              disabled={isExiting}
             />
           </div>
 
@@ -104,10 +115,10 @@ export function LoginPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isExiting}
               className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Entrando...' : 'ENTRAR'}
+              {isLoading || isExiting ? 'Entrando...' : 'ENTRAR'}
             </button>
           </div>
         </form>
