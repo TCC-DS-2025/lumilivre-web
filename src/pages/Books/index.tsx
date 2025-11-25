@@ -413,50 +413,59 @@ export function LivrosPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <ActionHeader
-        searchTerm={termoBusca}
-        onSearchChange={setTermoBusca}
-        onSearchSubmit={handleSearchSubmit}
-        inputWidth={isExemplarView ? 'w-[300px]' : 'w-[500px]'}
-        searchPlaceholder={
-          isExemplarView ? 'Pesquise pelo tombo' : 'Pesquise pelo nome ou isbn'
-        }
-        onAddNew={() => setIsModalOpen(true)}
-        addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}
-        showFilterButton={!isExemplarView}
-        isFilterOpen={isFilterOpen}
-        onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+      <div
+        key={isExemplarView ? 'header-exemplares' : 'header-livros'}
+        className={`shrink-0 ${
+          isExemplarView ? 'animate-slide-in-right' : 'animate-slide-in-left'
+        }`}
       >
-        {isExemplarView && selectedBook && (
-          <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            <button
-              onClick={handleVoltarParaLivros}
-              className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-            >
-              <BackIcon className="m-0.5 mx-1.5 w-5 h-5 text-lumi-primary dark:text-lumi-label" />
-            </button>
-
-            <div className="flex items-center overflow-hidden mr-4">
-              <span className="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap mx-2 ml-4">
-                Exemplares de:
-              </span>
-              <span
-                className="text-lg font-bold text-lumi-primary dark:text-lumi-label max-w-[400px] truncate"
-                title={selectedBook.nome}
+        <ActionHeader
+          searchTerm={termoBusca}
+          onSearchChange={setTermoBusca}
+          onSearchSubmit={handleSearchSubmit}
+          inputWidth={isExemplarView ? 'w-[300px]' : 'w-[500px]'}
+          searchPlaceholder={
+            isExemplarView
+              ? 'Pesquise pelo tombo'
+              : 'Pesquise pelo nome ou isbn'
+          }
+          onAddNew={() => setIsModalOpen(true)}
+          addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}
+          showFilterButton={!isExemplarView}
+          isFilterOpen={isFilterOpen}
+          onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+        >
+          {isExemplarView && selectedBook && (
+            <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md">
+              <button
+                onClick={handleVoltarParaLivros}
+                className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
               >
-                {selectedBook.nome}
-              </span>
-            </div>
+                <BackIcon className="m-0.5 mx-1.5 w-5 h-5 text-lumi-primary dark:text-lumi-label" />
+              </button>
 
-            <button
-              onClick={() => handleAbrirDetalhes(selectedBook!)}
-              className="bg-lumi-label text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-opacity-75 hover:scale-105 shadow-md"
-            >
-              DETALHES
-            </button>
-          </div>
-        )}
-      </ActionHeader>
+              <div className="flex items-center overflow-hidden mr-4">
+                <span className="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap mx-2 ml-4">
+                  Exemplares de:
+                </span>
+                <span
+                  className="text-lg font-bold text-lumi-primary dark:text-lumi-label max-w-[400px] truncate"
+                  title={selectedBook.nome}
+                >
+                  {selectedBook.nome}
+                </span>
+              </div>
+
+              <button
+                onClick={() => handleAbrirDetalhes(selectedBook!)}
+                className="bg-lumi-label text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-opacity-75 hover:scale-105 shadow-md"
+              >
+                DETALHES
+              </button>
+            </div>
+          )}
+        </ActionHeader>
+      </div>
 
       {/* Filtro Avançado */}
       <div className="relative z-20">
@@ -500,44 +509,72 @@ export function LivrosPage() {
         livro={livroSelecionado}
       />
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden">
         {isExemplarView ? (
-          <DataTable<ListaLivro>
-            data={dadosPaginados as ListaLivro[]}
-            columns={exemplaresColumns}
-            isLoading={isLoading}
-            error={error}
-            sortConfig={sortConfig}
-            onSort={requestSort}
-            getRowKey={(item) => item.tomboExemplar}
-          />
+          // VIEW DE EXEMPLARES (Entra da direita)
+          <div
+            key="view-exemplares"
+            className="flex flex-col h-full animate-slide-in-right"
+          >
+            <DataTable<ListaLivro>
+              data={dadosPaginados as ListaLivro[]}
+              columns={exemplaresColumns}
+              isLoading={isLoading}
+              error={error}
+              sortConfig={sortConfig}
+              onSort={requestSort}
+              getRowKey={(item) => item.tomboExemplar}
+              // Removemos a borda arredondada superior pois o container pai já tem
+              hasRoundedBorderTop={false}
+            />
+            <TableFooter
+              viewMode="normal"
+              legendItems={livrosLegend}
+              pagination={{
+                currentPage,
+                totalPages: pageData?.totalPages ?? 1,
+                itemsPerPage,
+                totalItems: pageData?.totalElements ?? 0,
+              }}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
         ) : (
-          <DataTable<LivroAgrupado>
-            data={dadosPaginados as LivroAgrupado[]}
-            columns={livrosColumns}
-            isLoading={isLoading}
-            error={error}
-            sortConfig={sortConfig}
-            onSort={requestSort}
-            getRowKey={(item) => item.id}
-          />
+          // VIEW DE LIVROS (Entra da esquerda)
+          <div
+            key="view-livros"
+            className="flex flex-col h-full animate-slide-in-left"
+          >
+            <DataTable<LivroAgrupado>
+              data={dadosPaginados as LivroAgrupado[]}
+              columns={livrosColumns}
+              isLoading={isLoading}
+              error={error}
+              sortConfig={sortConfig}
+              onSort={requestSort}
+              getRowKey={(item) => item.id}
+              hasRoundedBorderTop={false}
+            />
+            <TableFooter
+              viewMode="exception"
+              pagination={{
+                currentPage,
+                totalPages: pageData?.totalPages ?? 1,
+                itemsPerPage,
+                totalItems: pageData?.totalElements ?? 0,
+              }}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
         )}
-
-        <TableFooter
-          viewMode={isExemplarView ? 'normal' : 'exception'}
-          legendItems={isExemplarView ? livrosLegend : undefined}
-          pagination={{
-            currentPage,
-            totalPages: pageData?.totalPages ?? 1,
-            itemsPerPage,
-            totalItems: pageData?.totalElements ?? 0,
-          }}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={(size) => {
-            setItemsPerPage(size);
-            setCurrentPage(1);
-          }}
-        />
       </div>
     </div>
   );
