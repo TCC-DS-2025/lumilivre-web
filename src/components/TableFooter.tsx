@@ -78,7 +78,7 @@ export function TableFooter({
           value={itemsPerPage}
           options={pageSizeOptions}
           onChange={(value) => onItemsPerPageChange(Number(value))}
-          placeholder="Qtd"
+          placeholder="-"
           direction="up"
           buttonClassName={selectClassName}
         />

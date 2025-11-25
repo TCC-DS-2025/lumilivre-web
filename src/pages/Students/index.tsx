@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -7,6 +7,7 @@ import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { StudentFilter } from '../../components/filters/StudentFilter';
 import { formatarNome } from '../../utils/formatters';
+import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
 import {
   buscarAlunosAvancado,
@@ -43,7 +44,6 @@ export function AlunosPage() {
 
   // estados de paginação e filtro
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageData, setPageData] = useState<Page<AlunoDisplay> | null>(null);
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
@@ -66,6 +66,17 @@ export function AlunosPage() {
     key: keyof AlunoDisplay;
     direction: 'asc' | 'desc';
   }>({ key: 'nomeCompleto', direction: 'asc' });
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const dynamicPageSize = useDynamicPageSize(tableContainerRef, {
+    rowHeight: 48,
+    footerHeight: 50,
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setItemsPerPage(dynamicPageSize);
+  }, [dynamicPageSize]);
 
   const fetchAlunos = useCallback(async () => {
     setIsLoading(true);
@@ -322,7 +333,7 @@ export function AlunosPage() {
         />
       </Modal>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div ref={tableContainerRef} className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <DataTable
           data={sortedAlunos}
           columns={columns}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -12,6 +12,7 @@ import {
 } from '../../services/emprestimoService';
 import type { Page } from '../../types';
 import { formatarNome } from '../../utils/formatters';
+import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
 type StatusEmprestimoDisplay =
   | 'ativo'
@@ -53,7 +54,6 @@ export function EmprestimosPage() {
     direction: 'asc',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
@@ -70,6 +70,17 @@ export function EmprestimosPage() {
   const hasActiveFilters = useMemo(() => {
     return Object.values(activeFilters).some((val) => val !== '');
   }, [activeFilters]);
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const dynamicPageSize = useDynamicPageSize(tableContainerRef, {
+    rowHeight: 48,
+    footerHeight: 50,
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setItemsPerPage(dynamicPageSize);
+  }, [dynamicPageSize]);
 
   // FUNÇÃO BUSCA
   const fetchEmprestimos = useCallback(async () => {
@@ -314,7 +325,7 @@ export function EmprestimosPage() {
         />
       </div>
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div ref={tableContainerRef} className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <DataTable
           data={emprestimos}
           columns={columns}

@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { formatarNome } from '../../utils/formatters';
+import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
 import { getContagemLivros } from '../../services/livroService';
 import { getContagemAlunos } from '../../services/alunoService';
@@ -50,7 +51,6 @@ interface SolicitacaoDisplay {
 }
 
 export function DashboardPage() {
-  // --- ESTADOS DE DADOS ---
   const [statsState, setStatsState] = useState<DataState<StatsData | null>>({
     data: null,
     isLoading: true,
@@ -73,11 +73,24 @@ export function DashboardPage() {
     error: null,
   });
 
+  const dashboardContainerRef = useRef<HTMLDivElement>(null);
+  const dynamicPageSize = useDynamicPageSize(dashboardContainerRef, {
+    rowHeight: 48,
+    headerHeight: 100,
+    footerHeight: 60,
+    minRows: 3,
+  });
+
   const [solicitacaoPage, setSolicitacaoPage] = useState(1);
   const [solicitacaoPerPage, setSolicitacaoPerPage] = useState(10);
 
   const [emprestimoPage, setEmprestimoPage] = useState(1);
   const [emprestimoPerPage, setEmprestimoPerPage] = useState(10);
+
+  useEffect(() => {
+    setSolicitacaoPerPage(dynamicPageSize);
+    setEmprestimoPerPage(dynamicPageSize);
+  }, [dynamicPageSize]);
 
   const [solicitacaoSort, setSolicitacaoSort] = useState<{
     key: string;
@@ -130,6 +143,11 @@ export function DashboardPage() {
     return items;
   }, [emprestimosState.data, emprestimoSort]);
 
+  const paginatedEmprestimos = useMemo(() => {
+    const start = (emprestimoPage - 1) * emprestimoPerPage;
+    return sortedEmprestimos.slice(start, start + emprestimoPerPage);
+  }, [sortedEmprestimos, emprestimoPage, emprestimoPerPage]);
+
   const requestSolicitacaoSort = (key: string) => {
     const direction =
       solicitacaoSort.key === key && solicitacaoSort.direction === 'asc'
@@ -165,7 +183,7 @@ export function DashboardPage() {
           });
         })
         .catch(() => {
-          setStatsState({ data: null, isLoading: false, error: 'Erro' });
+          setStatsState({ data: null as any, isLoading: false, error: 'Erro' });
         });
 
       buscarSolicitacoesPendentes()
@@ -196,13 +214,11 @@ export function DashboardPage() {
           hoje.setHours(0, 0, 0, 0);
 
           const processados = lista.map((e) => {
-            // O backend envia 'yyyy-MM-dd'
             const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
 
             let statusVencimento: EmprestimoVencer['statusVencimento'] =
               'ativo';
 
-            // Lógica de status visual
             if (e.statusEmprestimo === 'ATRASADO') {
               statusVencimento = 'atrasado';
             } else if (dataDevolucao < hoje) {
@@ -214,9 +230,9 @@ export function DashboardPage() {
             return {
               id: e.id,
               livro: e.livroNome,
-              isbn: '-', // Endpoint não retorna ISBN
+              isbn: '-',
               aluno: e.alunoNome,
-              retirada: '-', // Endpoint não retorna data de retirada
+              retirada: '-',
               devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
               statusVencimento,
             };
@@ -254,13 +270,6 @@ export function DashboardPage() {
     }
   };
 
-  const paginatedEmprestimos = useMemo(() => {
-    const start = (emprestimoPage - 1) * emprestimoPerPage;
-    return sortedEmprestimos.slice(start, start + emprestimoPerPage);
-  }, [sortedEmprestimos, emprestimoPage, emprestimoPerPage]);
-
-  // --- DEFINIÇÃO DE COLUNAS ---
-  
   const solicitacoesColumns: ColumnDef<SolicitacaoDisplay>[] = [
     {
       key: 'aluno',
@@ -390,7 +399,10 @@ export function DashboardPage() {
         />
       </div>
 
-      <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+      <div
+        ref={dashboardContainerRef}
+        className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0"
+      >
         {/* Solicitações de Empréstimo */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
