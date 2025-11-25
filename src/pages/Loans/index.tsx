@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -54,8 +54,11 @@ export function EmprestimosPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [termoBusca, setTermoBusca] = useState('');
 
+  const [termoBusca, setTermoBusca] = useState('');
+  const [filtroAtivo, setFiltroAtivo] = useState('');
+
+  // FILTRO
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterParams, setFilterParams] = useState({
     statusEmprestimo: '',
@@ -64,16 +67,17 @@ export function EmprestimosPage() {
   });
   const [activeFilters, setActiveFilters] = useState({});
 
+  const hasActiveFilters = useMemo(() => {
+    return Object.values(activeFilters).some((val) => val !== '');
+  }, [activeFilters]);
+
+  // FUNÇÃO BUSCA
   const fetchEmprestimos = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const sortParam = `${sortConfig.key},${sortConfig.direction}`;
       let data: Page<EmprestimoListagemDTO>;
-
-      const hasActiveFilters = Object.values(activeFilters).some(
-        (val) => val !== '',
-      );
 
       if (hasActiveFilters) {
         data = await buscarEmprestimosAvancado({
@@ -84,7 +88,7 @@ export function EmprestimosPage() {
         });
       } else {
         data = await buscarEmprestimosPaginado(
-          termoBusca,
+          filtroAtivo,
           currentPage - 1,
           itemsPerPage,
           sortParam,
@@ -137,15 +141,31 @@ export function EmprestimosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, termoBusca, activeFilters]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortConfig,
+    filtroAtivo,
+    activeFilters,
+    hasActiveFilters,
+  ]);
 
   useEffect(() => {
     fetchEmprestimos();
   }, [fetchEmprestimos]);
 
+  // HANDLERS
+
+  const handleBusca = () => {
+    setCurrentPage(1);
+    setActiveFilters({});
+    setFiltroAtivo(termoBusca);
+  };
+
   const handleApplyFilters = () => {
     setCurrentPage(1);
     setTermoBusca('');
+    setFiltroAtivo('');
     setActiveFilters(filterParams);
     setIsFilterOpen(false);
   };
@@ -161,12 +181,6 @@ export function EmprestimosPage() {
     setIsFilterOpen(false);
   };
 
-  const handleSearchSubmit = () => {
-    setActiveFilters({});
-    setCurrentPage(1);
-    fetchEmprestimos();
-  };
-
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -175,6 +189,8 @@ export function EmprestimosPage() {
     setSortConfig({ key, direction });
     setCurrentPage(1);
   };
+
+  // RENDERIZADORES AUXILIARES
 
   const StatusIndicator = ({ status }: { status: StatusEmprestimoDisplay }) => {
     const colorMap = {
@@ -203,7 +219,6 @@ export function EmprestimosPage() {
     }
   };
 
-  // colunas para a tabela
   const columns: ColumnDef<EmprestimoDisplay>[] = [
     {
       key: 'status',
@@ -275,7 +290,7 @@ export function EmprestimosPage() {
       <ActionHeader
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
-        onSearchSubmit={handleSearchSubmit}
+        onSearchSubmit={handleBusca}
         searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
         onAddNew={() => {
           alert('Funcionalidade de cadastro a ser implementada.');
