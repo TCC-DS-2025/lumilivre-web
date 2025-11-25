@@ -8,8 +8,7 @@ import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
 import { DetalhesLivroModal } from '../../components/ModalBookDetails';
 import { BookFilter } from '../../components/filters/BookFilter';
-
-import backIconUrl from '../../assets/icons/arrow-left.svg';
+import BackIcon from '../../assets/icons/arrow-left.svg?react';
 
 import {
   buscarLivrosAgrupados,
@@ -39,7 +38,7 @@ export function LivrosPage() {
   const [livrosAgrupados, setLivrosAgrupados] = useState<LivroAgrupado[]>([]);
   const [exemplares, setExemplares] = useState<ListaLivro[]>([]);
 
-  // PAGINAÇÃO 
+  // PAGINAÇÃO
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pageData, setPageData] = useState<Page<any> | null>(null);
@@ -203,7 +202,7 @@ export function LivrosPage() {
     setIsExemplarView(false);
     setSelectedBook(null);
     setTermoBusca('');
-    setTermoBuscaAtivo('')
+    setTermoBuscaAtivo('');
     setCurrentPage(1);
   };
 
@@ -289,7 +288,7 @@ export function LivrosPage() {
   ]);
 
   // DEFINIÇÃO DE COLUNAS
-  
+
   const livrosColumns = useMemo(
     (): ColumnDef<LivroAgrupado>[] => [
       {
@@ -418,6 +417,7 @@ export function LivrosPage() {
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleSearchSubmit}
+        inputWidth={isExemplarView ? 'w-[300px]' : 'w-[500px]'}
         searchPlaceholder={
           isExemplarView ? 'Pesquise pelo tombo' : 'Pesquise pelo nome ou isbn'
         }
@@ -433,14 +433,21 @@ export function LivrosPage() {
               onClick={handleVoltarParaLivros}
               className="p-2 rounded-l-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
             >
-              <img src={backIconUrl} alt="Voltar" className="w-6 h-6" />
+              <BackIcon className="m-0.5 mx-1.5 w-5 h-5 text-lumi-primary dark:text-lumi-label" />
             </button>
-            <h2 className="text-lg font-bold text-gray-800 dark:text-white mx-4">
-              Exemplares de:{' '}
-              <span className="text-lumi-primary truncate">
+
+            <div className="flex items-center overflow-hidden mr-4">
+              <span className="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap mx-2 ml-4">
+                Exemplares de:
+              </span>
+              <span
+                className="text-lg font-bold text-lumi-primary dark:text-lumi-label max-w-[400px] truncate"
+                title={selectedBook.nome}
+              >
                 {selectedBook.nome}
               </span>
-            </h2>
+            </div>
+
             <button
               onClick={() => handleAbrirDetalhes(selectedBook!)}
               className="bg-lumi-label text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-opacity-75 hover:scale-105 shadow-md"

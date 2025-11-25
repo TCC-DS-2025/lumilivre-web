@@ -15,6 +15,7 @@ interface ActionHeaderProps {
   showFilterButton?: boolean;
   isFilterOpen?: boolean;
   children?: ReactNode;
+  inputWidth?: string;
 }
 
 export function ActionHeader({
@@ -28,6 +29,7 @@ export function ActionHeader({
   showFilterButton = false,
   isFilterOpen = false,
   children,
+  inputWidth = 'w-[500px]',
 }: ActionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6 shrink-0">
@@ -51,7 +53,7 @@ export function ActionHeader({
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSearchSubmit();
             }}
-            className="pl-5 pr-14 py-2 w-[500px] rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md"
+            className={`pl-5 pr-14 py-2 ${inputWidth} rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md`}
           />
         </div>
 
