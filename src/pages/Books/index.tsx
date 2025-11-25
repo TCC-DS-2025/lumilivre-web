@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
+import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
@@ -43,7 +44,6 @@ export function LivrosPage() {
   const [error, setError] = useState<string | null>(null);
   const [pageData, setPageData] = useState<Page<any> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'asc' | 'desc';
@@ -71,6 +71,17 @@ export function LivrosPage() {
     dataLancamento: '',
   });
   const [activeFilters, setActiveFilters] = useState({});
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const dynamicPageSize = useDynamicPageSize(tableContainerRef, {
+    rowHeight: 48,
+    footerHeight: 50,
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setItemsPerPage(dynamicPageSize);
+  }, [dynamicPageSize]);
 
   // BUSCA DE DADOS
   const fetchDados = useCallback(async () => {
@@ -509,9 +520,12 @@ export function LivrosPage() {
         livro={livroSelecionado}
       />
 
-      <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden">
+      <div
+        ref={tableContainerRef}
+        className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden"
+      >
         {isExemplarView ? (
-          // VIEW DE EXEMPLARES (Entra da direita)
+          // VIEW DE EXEMPLARES
           <div
             key="view-exemplares"
             className="flex flex-col h-full animate-slide-in-right"
@@ -524,7 +538,6 @@ export function LivrosPage() {
               sortConfig={sortConfig}
               onSort={requestSort}
               getRowKey={(item) => item.tomboExemplar}
-              // Removemos a borda arredondada superior pois o container pai já tem
               hasRoundedBorderTop={false}
             />
             <TableFooter
@@ -544,7 +557,7 @@ export function LivrosPage() {
             />
           </div>
         ) : (
-          // VIEW DE LIVROS (Entra da esquerda)
+          // VIEW DE LIVROS
           <div
             key="view-livros"
             className="flex flex-col h-full animate-slide-in-left"
