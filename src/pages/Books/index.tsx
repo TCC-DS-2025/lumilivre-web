@@ -33,15 +33,13 @@ const livrosLegend = [
 ];
 
 export function LivrosPage() {
-  // --- ESTADOS DE CONTROLE DE VIEW ---
   const [isExemplarView, setIsExemplarView] = useState(false);
   const [selectedBook, setSelectedBook] = useState<LivroAgrupado | null>(null);
 
-  // --- ESTADOS DE DADOS ---
   const [livrosAgrupados, setLivrosAgrupados] = useState<LivroAgrupado[]>([]);
   const [exemplares, setExemplares] = useState<ListaLivro[]>([]);
 
-  // --- ESTADOS DE UI E PAGINAÇÃO ---
+  // PAGINAÇÃO 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pageData, setPageData] = useState<Page<any> | null>(null);
@@ -54,17 +52,16 @@ export function LivrosPage() {
     key: 'nome',
     direction: 'asc',
   });
-  const [termoBusca, setTermoBusca] = useState('');
 
-  // --- ESTADOS DE MODAIS ---
+  const [termoBusca, setTermoBusca] = useState('');
+  const [termoBuscaAtivo, setTermoBuscaAtivo] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [livroSelecionado, setLivroSelecionado] =
     useState<LivroAgrupado | null>(null);
 
-  // --- ESTADOS DO FILTRO AVANÇADO ---
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [filterParams, setFilterParams] = useState({
     autor: '',
     editora: '',
@@ -74,16 +71,14 @@ export function LivrosPage() {
     tipoCapa: '',
     dataLancamento: '',
   });
-
   const [activeFilters, setActiveFilters] = useState({});
 
-  // --- BUSCA DE DADOS ---
+  // BUSCA DE DADOS
   const fetchDados = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       if (isExemplarView && selectedBook) {
-        // Lógica de visualização de Exemplares (mantida igual)
         const [listaExemplares, emprestimosAtivos] = await Promise.all([
           buscarExemplaresPorLivroId(selectedBook.id),
           buscarEmprestimosAtivosEAtrasados(),
@@ -129,7 +124,7 @@ export function LivrosPage() {
           });
         } else {
           paginaDeLivros = await buscarLivrosAgrupados(
-            termoBusca,
+            termoBuscaAtivo,
             currentPage - 1,
             itemsPerPage,
             `${sortConfig.key},${sortConfig.direction}`,
@@ -159,7 +154,7 @@ export function LivrosPage() {
   }, [
     isExemplarView,
     selectedBook,
-    termoBusca,
+    termoBuscaAtivo,
     currentPage,
     itemsPerPage,
     sortConfig,
@@ -170,7 +165,6 @@ export function LivrosPage() {
     fetchDados();
   }, [fetchDados]);
 
-  // --- HANDLERS DE FILTRO ---
   const handleApplyFilters = () => {
     setCurrentPage(1);
     setTermoBusca('');
@@ -193,7 +187,11 @@ export function LivrosPage() {
     setIsFilterOpen(false);
   };
 
-  // --- HANDLERS DE AÇÃO ---
+  const handleSearchSubmit = () => {
+    setTermoBuscaAtivo(termoBusca);
+    setCurrentPage(1);
+  };
+
   const handleVerExemplares = useCallback((livro: LivroAgrupado) => {
     setSelectedBook(livro);
     setIsExemplarView(true);
@@ -205,6 +203,8 @@ export function LivrosPage() {
     setIsExemplarView(false);
     setSelectedBook(null);
     setTermoBusca('');
+    setTermoBuscaAtivo('')
+    setCurrentPage(1);
   };
 
   const handleAbrirDetalhes = useCallback((livro: LivroAgrupado) => {
@@ -241,7 +241,6 @@ export function LivrosPage() {
     [fetchDados],
   );
 
-  // --- COMPONENTES AUXILIARES ---
   const StatusIndicator = ({ status }: { status: string }) => {
     const statusInfo = {
       DISPONIVEL: { color: 'bg-green-500', title: 'Disponível' },
@@ -267,7 +266,6 @@ export function LivrosPage() {
     setSortConfig({ key, direction });
   };
 
-  // --- MEMOS DE DADOS ---
   const exemplaresFiltrados = useMemo(() => {
     if (!isExemplarView) return [];
     if (!termoBusca.trim()) return exemplares;
@@ -275,7 +273,7 @@ export function LivrosPage() {
     return exemplares.filter((ex) =>
       ex.tomboExemplar.toLowerCase().includes(termoBusca.toLowerCase()),
     );
-  }, [exemplares, isExemplarView, termoBusca]);
+  }, [exemplares, isExemplarView, termoBuscaAtivo]);
 
   const dadosPaginados = useMemo(() => {
     const source = isExemplarView ? exemplaresFiltrados : livrosAgrupados;
@@ -290,7 +288,8 @@ export function LivrosPage() {
     isExemplarView,
   ]);
 
-  // --- DEFINIÇÃO DE COLUNAS ---
+  // DEFINIÇÃO DE COLUNAS
+  
   const livrosColumns = useMemo(
     (): ColumnDef<LivroAgrupado>[] => [
       {
@@ -418,11 +417,9 @@ export function LivrosPage() {
       <ActionHeader
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
-        onSearchSubmit={fetchDados}
+        onSearchSubmit={handleSearchSubmit}
         searchPlaceholder={
-          isExemplarView
-            ? 'Pesquise pelo tombo'
-            : 'Pesquise pelo nome ou isbn'
+          isExemplarView ? 'Pesquise pelo tombo' : 'Pesquise pelo nome ou isbn'
         }
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}

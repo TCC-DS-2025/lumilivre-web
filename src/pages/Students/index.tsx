@@ -290,7 +290,7 @@ export function AlunosPage() {
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleBusca}
-        searchPlaceholder="Pesquise pelo nome do aluno ou curso"
+        searchPlaceholder="Pesquise pelo nome ou curso"
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO ALUNO"
         showFilterButton={true}
