@@ -27,6 +27,15 @@ export interface AlunoRanking {
   emprestimosCount: number;
 }
 
+export interface EmprestimoFilterParams {
+  statusEmprestimo?: string;
+  dataEmprestimo?: string;
+  dataDevolucao?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 export const buscarEmprestimosPaginado = async (
   texto: string,
   page: number,
@@ -83,4 +92,11 @@ export const buscarRanking = async (
     params,
   });
   return response.data || [];
+};
+
+export const buscarEmprestimosAvancado = async (
+  params: EmprestimoFilterParams,
+): Promise<Page<EmprestimoListagemDTO>> => {
+  const response = await api.get('/emprestimos/buscar/avancado', { params });
+  return response.data;
 };

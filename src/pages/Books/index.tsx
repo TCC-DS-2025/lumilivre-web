@@ -421,8 +421,8 @@ export function LivrosPage() {
         onSearchSubmit={fetchDados}
         searchPlaceholder={
           isExemplarView
-            ? 'Pesquise pelo tombo do exemplar'
-            : 'Pesquise pelo nome ou ISBN do livro'
+            ? 'Pesquise pelo tombo'
+            : 'Pesquise pelo nome ou isbn'
         }
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}

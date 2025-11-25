@@ -3,9 +3,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
+import { LoanFilter } from '../../components/filters/LoanFilter';
 
 import {
   buscarEmprestimosPaginado,
+  buscarEmprestimosAvancado,
   type EmprestimoListagemDTO,
 } from '../../services/emprestimoService';
 import type { Page } from '../../types';
@@ -54,18 +56,40 @@ export function EmprestimosPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [termoBusca, setTermoBusca] = useState('');
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterParams, setFilterParams] = useState({
+    statusEmprestimo: '',
+    dataEmprestimo: '',
+    dataDevolucao: '',
+  });
+  const [activeFilters, setActiveFilters] = useState({});
+
   const fetchEmprestimos = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const sortParam = `${sortConfig.key},${sortConfig.direction}`;
+      let data: Page<EmprestimoListagemDTO>;
 
-      const data = await buscarEmprestimosPaginado(
-        termoBusca,
-        currentPage - 1,
-        itemsPerPage,
-        sortParam,
+      const hasActiveFilters = Object.values(activeFilters).some(
+        (val) => val !== '',
       );
+
+      if (hasActiveFilters) {
+        data = await buscarEmprestimosAvancado({
+          ...activeFilters,
+          page: currentPage - 1,
+          size: itemsPerPage,
+          sort: sortParam,
+        });
+      } else {
+        data = await buscarEmprestimosPaginado(
+          termoBusca,
+          currentPage - 1,
+          itemsPerPage,
+          sortParam,
+        );
+      }
 
       if (data && data.content) {
         const hoje = new Date();
@@ -113,11 +137,35 @@ export function EmprestimosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortConfig, termoBusca]);
+  }, [currentPage, itemsPerPage, sortConfig, termoBusca, activeFilters]);
 
   useEffect(() => {
     fetchEmprestimos();
   }, [fetchEmprestimos]);
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setTermoBusca('');
+    setActiveFilters(filterParams);
+    setIsFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setCurrentPage(1);
+    setFilterParams({
+      statusEmprestimo: '',
+      dataEmprestimo: '',
+      dataDevolucao: '',
+    });
+    setActiveFilters({});
+    setIsFilterOpen(false);
+  };
+
+  const handleSearchSubmit = () => {
+    setActiveFilters({});
+    setCurrentPage(1);
+    fetchEmprestimos();
+  };
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -227,19 +275,29 @@ export function EmprestimosPage() {
       <ActionHeader
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
-        onSearchSubmit={() => {
-          alert('Funcionalidade de busca a ser implementada.');
-        }}
+        onSearchSubmit={handleSearchSubmit}
         searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
         onAddNew={() => {
           alert('Funcionalidade de cadastro a ser implementada.');
         }}
         addNewButtonLabel="NOVO EMPRÉSTIMO"
         showFilterButton={true}
-        onFilterToggle={() => {
-          alert('Funcionalidade de filtro avançado a ser implementada.');
-        }}
+        isFilterOpen={isFilterOpen}
+        onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
       />
+
+      <div className="relative z-20">
+        <LoanFilter
+          isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
+          filters={filterParams}
+          onFilterChange={(field, value) =>
+            setFilterParams((prev) => ({ ...prev, [field]: value }))
+          }
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+        />
+      </div>
 
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
         <DataTable
