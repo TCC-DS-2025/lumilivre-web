@@ -560,7 +560,7 @@ export function LivrosPage() {
           // VIEW DE LIVROS
           <div
             key="view-livros"
-            className="flex flex-col h-full animate-slide-in-left"
+            className="flex flex-col h-full"
           >
             <DataTable<LivroAgrupado>
               data={dadosPaginados as LivroAgrupado[]}

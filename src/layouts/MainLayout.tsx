@@ -34,32 +34,27 @@ export function MainLayout({ children }: { children: ReactNode }) {
 
   const variants: Variants = {
     enter: (direction: number) => ({
-      y: direction > 0 ? '8%' : '-8%',
+      y: direction > 0 ? '10%' : '-10%',
       opacity: 0,
-      scale: 0.985,
       zIndex: 1,
       willChange: 'transform, opacity',
     }),
-
     center: {
       y: '0%',
       opacity: 1,
-      scale: 1,
       zIndex: 1,
       transition: {
-        duration: 0.15,
+        duration: 0.05,
         ease: [0.25, 0.1, 0.25, 1],
       },
     },
-
     exit: (direction: number) => ({
-      y: direction > 0 ? '-8%' : '8%',
+      y: direction > 0 ? '-10%' : '10%',
       opacity: 0,
-      scale: 0.985,
       zIndex: 0,
       willChange: 'transform, opacity',
       transition: {
-        duration: 0.18,
+        duration: 0.25,
         ease: [0.25, 0.1, 0.25, 1],
       },
     }),
