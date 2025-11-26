@@ -64,6 +64,9 @@ export function EmprestimosPage() {
     statusEmprestimo: '',
     dataEmprestimo: '',
     dataDevolucao: '',
+    tombo: '',
+    livroNome: '',
+    alunoNome: '',
   });
   const [activeFilters, setActiveFilters] = useState({});
 
@@ -187,6 +190,9 @@ export function EmprestimosPage() {
       statusEmprestimo: '',
       dataEmprestimo: '',
       dataDevolucao: '',
+      tombo: '',
+      livroNome: '',
+      alunoNome: '',
     });
     setActiveFilters({});
     setIsFilterOpen(false);
@@ -325,7 +331,10 @@ export function EmprestimosPage() {
         />
       </div>
 
-      <div ref={tableContainerRef} className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0">
+      <div
+        ref={tableContainerRef}
+        className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0"
+      >
         <DataTable
           data={emprestimos}
           columns={columns}

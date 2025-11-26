@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
+import { CustomDatePicker } from '../CustomDatePicker';
+
 import { buscarEnum } from '../../services/livroService';
 
 interface LoanFilterProps {
@@ -17,9 +19,9 @@ interface LoanFilterProps {
   onClear: () => void;
 }
 
-interface EnumOption {
-  nome: string;
-  status: string;
+interface Option {
+  label: string;
+  value: string | number;
 }
 
 export function LoanFilter({
@@ -30,23 +32,30 @@ export function LoanFilter({
   onApply,
   onClear,
 }: LoanFilterProps) {
-  const [statusOptions, setStatusOptions] = useState<EnumOption[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusOptions, setStatusOptions] = useState<Option[]>([]);
 
   useEffect(() => {
-    buscarEnum('STATUS_EMPRESTIMO')
-      .then((data) => setStatusOptions(data))
-      .catch(console.error);
-  }, []);
-
-  const statusOpts = [
-    { label: 'Todos', value: '' },
-    ...statusOptions.map((s) => ({ label: s.status, value: s.nome })),
-  ];
+    if (isOpen) {
+      setIsLoading(true);
+      buscarEnum('STATUS_EMPRESTIMO')
+        .then((data) => {
+          setStatusOptions([
+            { label: 'Todos', value: '' },
+            ...data.map((s) => ({ label: s.status, value: s.nome })),
+          ]);
+        })
+        .catch((error) => {
+          console.error('Erro ao carregar status:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [isOpen]);
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
-  const inputStyles =
-    'w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none h-[42px]';
 
   return (
     <FilterPanel
@@ -54,43 +63,39 @@ export function LoanFilter({
       onClose={onClose}
       onApply={onApply}
       onClear={onClear}
-      width="w-[500px]"
+      width="w-[600px]"
     >
-      <div className="space-y-4">
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">
+          Carregando filtros...
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Status */}
+          <div className="md:col-span-2">
+            <label className={labelStyles}>Status do Empréstimo</label>
+            <CustomSelect
+              value={filters.statusEmprestimo}
+              onChange={(val) => onFilterChange('statusEmprestimo', val)}
+              options={statusOptions}
+              invertArrow={true}
+            />
+          </div>
 
-        <div>
-          <label className={labelStyles}>Status do Empréstimo</label>
-          <CustomSelect
-            value={filters.statusEmprestimo}
-            onChange={(val) => onFilterChange('statusEmprestimo', val)}
-            options={statusOpts}
-            placeholder="Selecione o status"
-            invertArrow={true}
+          {/* Datas */}
+          <CustomDatePicker
+            label="Data do Empréstimo"
+            value={filters.dataEmprestimo}
+            onChange={(e) => onFilterChange('dataEmprestimo', e.target.value)}
+          />
+
+          <CustomDatePicker
+            label="Data de Devolução"
+            value={filters.dataDevolucao}
+            onChange={(e) => onFilterChange('dataDevolucao', e.target.value)}
           />
         </div>
-
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelStyles}>Empréstimo (A partir de)</label>
-            <input
-              type="date"
-              value={filters.dataEmprestimo}
-              onChange={(e) => onFilterChange('dataEmprestimo', e.target.value)}
-              className={inputStyles}
-            />
-          </div>
-          <div>
-            <label className={labelStyles}>Devolução (Até)</label>
-            <input
-              type="date"
-              value={filters.dataDevolucao}
-              onChange={(e) => onFilterChange('dataDevolucao', e.target.value)}
-              className={inputStyles}
-            />
-          </div>
-        </div>
-      </div>
+      )}
     </FilterPanel>
   );
 }
