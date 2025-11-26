@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
+
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
+import { SearchableSelect } from '../SearchableSelect';
 
-import { buscarGeneros, type Genero } from '../../services/generoService';
-import { buscarEnum } from '../../services/livroService';
+import { buscarGeneros } from '../../services/generoService';
+import {
+  buscarEnum,
+  buscarCdds,
+  buscarLivrosParaAdmin,
+} from '../../services/livroService';
 
 interface BookFilterProps {
   isOpen: boolean;
@@ -22,9 +28,9 @@ interface BookFilterProps {
   onClear: () => void;
 }
 
-interface EnumOption {
-  nome: string;
-  status: string;
+interface Option {
+  label: string;
+  value: string | number;
 }
 
 export function BookFilter({
@@ -35,58 +41,88 @@ export function BookFilter({
   onApply,
   onClear,
 }: BookFilterProps) {
-  const [generos, setGeneros] = useState<Genero[]>([]);
-  const [cddOptions, setCddOptions] = useState<EnumOption[]>([]);
-  const [classificacaoOptions, setClassificacaoOptions] = useState<
-    EnumOption[]
-  >([]);
-  const [tipoCapaOptions, setTipoCapaOptions] = useState<EnumOption[]>([]);
+  const [generosOpts, setGenerosOpts] = useState<Option[]>([]);
+  const [cddOpts, setCddOpts] = useState<Option[]>([]);
+  const [classificacaoOpts, setClassificacaoOpts] = useState<Option[]>([]);
+  const [tipoCapaOpts, setTipoCapaOpts] = useState<Option[]>([]);
+  const [autoresOpts, setAutoresOpts] = useState<Option[]>([]);
+  const [editorasOpts, setEditorasOpts] = useState<Option[]>([]);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Carrega todas as listas necessárias
-    Promise.all([
-      buscarGeneros(),
-      buscarEnum('CDD'),
-      buscarEnum('CLASSIFICACAO_ETARIA'),
-      buscarEnum('TIPO_CAPA'),
-    ])
-      .then(([generosData, cddData, classData, capaData]) => {
-        setGeneros(generosData);
-        setCddOptions(cddData);
-        setClassificacaoOptions(classData);
-        setTipoCapaOptions(capaData);
-      })
-      .catch(console.error);
-  }, []);
+    if (isOpen) {
+      setIsLoading(true);
+      const carregarDados = async () => {
+        try {
+          const [
+            generosData,
+            cddData,
+            classificacaoData,
+            capaData,
+            livrosData,
+          ] = await Promise.all([
+            buscarGeneros(),
+            buscarCdds(),
+            buscarEnum('CLASSIFICACAO_ETARIA'),
+            buscarEnum('TIPO_CAPA'),
+            buscarLivrosParaAdmin('', 0, 1000),
+          ]);
 
-  // Helpers de opções
-  const generoOpts = [
-    { label: 'Todos', value: '' },
-    ...generos.map((g) => ({ label: g.nome, value: g.nome })),
-  ];
+          setGenerosOpts([
+            { label: 'Todos', value: '' },
+            ...generosData.map((g) => ({ label: g.nome, value: g.nome })),
+          ]);
 
-  const cddOpts = [
-    { label: 'Todos', value: '' },
-    ...cddOptions.map((c) => ({
-      label: `${c.nome} - ${c.status}`,
-      value: c.nome,
-    })),
-  ];
+          setCddOpts([
+            { label: 'Todos', value: '' },
+            ...cddData.map((c) => ({
+              label: `${c.id} - ${c.nome}`,
+              value: c.id,
+            })),
+          ]);
 
-  const classOpts = [
-    { label: 'Todas', value: '' },
-    ...classificacaoOptions.map((c) => ({ label: c.status, value: c.nome })),
-  ];
+          setClassificacaoOpts([
+            { label: 'Todas', value: '' },
+            ...classificacaoData.map((c) => ({
+              label: c.status,
+              value: c.nome,
+            })),
+          ]);
 
-  const capaOpts = [
-    { label: 'Todas', value: '' },
-    ...tipoCapaOptions.map((c) => ({ label: c.status, value: c.nome })),
-  ];
+          setTipoCapaOpts([
+            { label: 'Todas', value: '' },
+            ...capaData.map((c) => ({ label: c.status, value: c.nome })),
+          ]);
+
+          const autoresUnicos = Array.from(
+            new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
+          ).sort();
+          setAutoresOpts([
+            { label: 'Todos', value: '' },
+            ...autoresUnicos.map((a) => ({ label: a, value: a })),
+          ]);
+
+          const editorasUnicas = Array.from(
+            new Set(livrosData.content.map((l) => l.editora).filter(Boolean)),
+          ).sort();
+          setEditorasOpts([
+            { label: 'Todas', value: '' },
+            ...editorasUnicas.map((e) => ({ label: e, value: e })),
+          ]);
+        } catch (error) {
+          console.error('Erro ao carregar filtros:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      carregarDados();
+    }
+  }, [isOpen]);
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
-  const inputStyles =
-    'w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none h-[42px]';
 
   return (
     <FilterPanel
@@ -96,82 +132,63 @@ export function BookFilter({
       onClear={onClear}
       width="w-[800px]"
     >
-      {/* Autor, Editora, Gênero */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className={labelStyles}>Autor</label>
-          <input
-            type="text"
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">
+          Carregando filtros...
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SearchableSelect
+            label="Autor"
             value={filters.autor}
-            onChange={(e) => onFilterChange('autor', e.target.value)}
-            placeholder="Nome do autor"
-            className={inputStyles}
+            onChange={(val) => onFilterChange('autor', val)}
+            options={autoresOpts}
           />
-        </div>
-        <div>
-          <label className={labelStyles}>Editora</label>
-          <input
-            type="text"
+
+          <SearchableSelect
+            label="Editora"
             value={filters.editora}
-            onChange={(e) => onFilterChange('editora', e.target.value)}
-            placeholder="Nome da editora"
-            className={inputStyles}
+            onChange={(val) => onFilterChange('editora', val)}
+            options={editorasOpts}
           />
-        </div>
-        <div>
-          <label className={labelStyles}>Gênero</label>
-          <CustomSelect
+
+          <SearchableSelect
+            label="Gênero"
             value={filters.genero}
             onChange={(val) => onFilterChange('genero', val)}
-            options={generoOpts}
-            placeholder="Selecione"
-            invertArrow={true}
+            options={generosOpts}
           />
-        </div>
-      </div>
 
-      {/* CDD, Classificação, Tipo Capa, Lançamento */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label className={labelStyles}>CDD</label>
-          <CustomSelect
+          <SearchableSelect
+            label="CDD"
             value={filters.cdd}
             onChange={(val) => onFilterChange('cdd', val)}
             options={cddOpts}
-            placeholder="Selecione"
-            invertArrow={true}
           />
+
+          <div>
+            <label className={labelStyles}>Classificação</label>
+            <CustomSelect
+              value={filters.classificacaoEtaria}
+              onChange={(val) => onFilterChange('classificacaoEtaria', val)}
+              options={classificacaoOpts}
+              invertArrow={true}
+            />
+          </div>
+
+          <div>
+            <label className={labelStyles}>Capa</label>
+            <CustomSelect
+              value={filters.tipoCapa}
+              onChange={(val) => onFilterChange('tipoCapa', val)}
+              options={tipoCapaOpts}
+              invertArrow={true}
+            />
+          </div>
+
+          <div className="hidden md:block"></div>
         </div>
-        <div>
-          <label className={labelStyles}>Classificação</label>
-          <CustomSelect
-            value={filters.classificacaoEtaria}
-            onChange={(val) => onFilterChange('classificacaoEtaria', val)}
-            options={classOpts}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
-        </div>
-        <div>
-          <label className={labelStyles}>Tipo de Capa</label>
-          <CustomSelect
-            value={filters.tipoCapa}
-            onChange={(val) => onFilterChange('tipoCapa', val)}
-            options={capaOpts}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
-        </div>
-        <div>
-          <label className={labelStyles}>Lançamento</label>
-          <input
-            type="date"
-            value={filters.dataLancamento}
-            onChange={(e) => onFilterChange('dataLancamento', e.target.value)}
-            className={inputStyles}
-          />
-        </div>
-      </div>
+      )}
     </FilterPanel>
   );
 }
