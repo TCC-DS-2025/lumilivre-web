@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 import ArrowIcon from '../assets/icons/arrow-drop.svg?react';
 
@@ -31,6 +31,7 @@ export function CustomSelect({
   invertArrow = false,
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [listMaxHeight, setListMaxHeight] = useState<number>(240);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,9 +47,32 @@ export function CustomSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useLayoutEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const margin = 16;
+      const defaultMaxHeight = 240;
+
+      let availableSpace = 0;
+
+      if (direction === 'down') {
+        availableSpace = viewportHeight - rect.bottom - margin;
+      } else {
+        availableSpace = rect.top - margin;
+      }
+
+      setListMaxHeight(
+        Math.max(100, Math.min(availableSpace, defaultMaxHeight)),
+      );
+    }
+  }, [isOpen, direction]);
+
   const selectedOption = options.find(
     (opt) => String(opt.value) === String(value),
   );
+
+  const hasValue = value !== '' && value !== null && value !== undefined;
 
   const rotationClass = invertArrow
     ? isOpen
@@ -57,6 +81,11 @@ export function CustomSelect({
     : isOpen
       ? 'rotate-180'
       : 'rotate-0';
+
+  const arrowColorClass =
+    isOpen || hasValue
+      ? 'text-lumi-label opacity-100'
+      : 'text-gray-500 dark:text-gray-400 opacity-70';
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
@@ -81,15 +110,18 @@ export function CustomSelect({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <span className={`text-[10px] ml-2 opacity-70 ${rotationClass}`}>
+
+        <span
+          className={`text-[10px] ml-2 ${rotationClass} ${arrowColorClass}`}
+        >
           <ArrowIcon className="w-4 h-4 fill-current" />
         </span>
       </button>
 
       <div
+        style={{ maxHeight: `${listMaxHeight}px` }}
         className={`
-          absolute left-0 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 ease-out
-          
+          absolute left-0 w-full overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 ease-out
           ${
             direction === 'up'
               ? 'bottom-full mb-1 origin-bottom'
