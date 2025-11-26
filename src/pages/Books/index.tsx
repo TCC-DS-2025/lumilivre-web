@@ -286,10 +286,13 @@ export function LivrosPage() {
   }, [exemplares, isExemplarView, termoBuscaAtivo]);
 
   const dadosPaginados = useMemo(() => {
-    const source = isExemplarView ? exemplaresFiltrados : livrosAgrupados;
-    const firstPageIndex = (currentPage - 1) * itemsPerPage;
-    const lastPageIndex = firstPageIndex + itemsPerPage;
-    return source.slice(firstPageIndex, lastPageIndex);
+    if (isExemplarView) {
+      const source = exemplaresFiltrados;
+      const firstPageIndex = (currentPage - 1) * itemsPerPage;
+      const lastPageIndex = firstPageIndex + itemsPerPage;
+      return source.slice(firstPageIndex, lastPageIndex);
+    }
+    return livrosAgrupados;
   }, [
     currentPage,
     itemsPerPage,
@@ -338,10 +341,12 @@ export function LivrosPage() {
       },
       {
         key: 'quantidade',
-        header: 'Qtd.',
+        header: 'Qtd',
         width: '5%',
         render: (item) => (
-          <span className="font-bold dark:text-white">{item.quantidade}</span>
+          <span className="font-bold dark:text-white">
+            {item.quantidade || '-'}
+          </span>
         ),
       },
       {
@@ -558,10 +563,7 @@ export function LivrosPage() {
           </div>
         ) : (
           // VIEW DE LIVROS
-          <div
-            key="view-livros"
-            className="flex flex-col h-full"
-          >
+          <div key="view-livros" className="flex flex-col h-full">
             <DataTable<LivroAgrupado>
               data={dadosPaginados as LivroAgrupado[]}
               columns={livrosColumns}
