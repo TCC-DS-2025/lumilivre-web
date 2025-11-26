@@ -4,12 +4,23 @@ import {
   type FiltrosRelatorio,
 } from '../../services/relatorioService';
 
-import { buscarCursos, type Curso } from '../../services/cursoService';
+import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
-import { buscarEnum } from '../../services/livroService';
+import {
+  buscarEnum,
+  buscarCdds,
+  buscarLivrosParaAdmin,
+} from '../../services/livroService';
+import { buscarGeneros } from '../../services/generoService';
+import {
+  buscarAlunosParaAdmin,
+} from '../../services/alunoService';
+
 import { Modal } from '../../components/Modal';
 import { LoadingIcon } from '../../components/LoadingIcon';
-
+import { CustomSelect } from '../../components/CustomSelect';
+import { CustomDatePicker } from '../../components/CustomDatePicker';
+import { SearchableSelect } from '../../components/SearchableSelect';
 
 import AddIcon from '../../assets/icons/add.svg?react';
 import DownloadIcon from '../../assets/icons/upload.svg';
@@ -19,6 +30,11 @@ interface ReportItemProps {
   title: string;
   description: string;
   onGenerate: () => void;
+}
+
+interface Option {
+  label: string;
+  value: string | number;
 }
 
 const ReportItem = ({ title, description, onGenerate }: ReportItemProps) => (
@@ -57,64 +73,194 @@ function ModalFiltrosRelatorio({
   titulo,
 }: ModalFiltrosProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({});
 
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [modulos, setModulos] = useState<string[]>([]);
-  const [statusLivroOpts, setStatusLivroOpts] = useState<any[]>([]);
-  const [statusEmpOpts, setStatusEmpOpts] = useState<any[]>([]);
-  const [classificacaoOpts, setClassificacaoOpts] = useState<any[]>([]);
-  const [tipoCapaOpts, setTipoCapaOpts] = useState<any[]>([]);
-  const [penalidadeOpts, setPenalidadeOpts] = useState<any[]>([]);
+  const [cursosOpts, setCursosOpts] = useState<Option[]>([]);
+  const [modulosOpts, setModulosOpts] = useState<Option[]>([]);
+  const [generosOpts, setGenerosOpts] = useState<Option[]>([]);
+
+  const [statusLivroOpts, setStatusLivroOpts] = useState<Option[]>([]);
+  const [statusEmpOpts, setStatusEmpOpts] = useState<Option[]>([]);
+  const [classificacaoOpts, setClassificacaoOpts] = useState<Option[]>([]);
+  const [tipoCapaOpts, setTipoCapaOpts] = useState<Option[]>([]);
+  const [penalidadeOpts, setPenalidadeOpts] = useState<Option[]>([]);
+  const [cddOpts, setCddOpts] = useState<Option[]>([]);
+
+  const [autoresOpts, setAutoresOpts] = useState<Option[]>([]);
+  const [editorasOpts, setEditorasOpts] = useState<Option[]>([]);
+  const [livrosSelectOpts, setLivrosSelectOpts] = useState<Option[]>([]);
+  const [alunosSelectOpts, setAlunosSelectOpts] = useState<Option[]>([]);
+
+  const turnoOpts: Option[] = [
+    { label: 'Todos', value: '' },
+    { label: 'Manhã', value: 'MANHA' },
+    { label: 'Tarde', value: 'TARDE' },
+    { label: 'Noite', value: 'NOITE' },
+    { label: 'Integral', value: 'INTEGRAL' },
+  ];
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && tipoRelatorio) {
       setFiltros({});
       setIsLoading(false);
+      setIsDataLoading(true);
 
       const carregarDados = async () => {
         try {
           const promises = [];
 
           if (tipoRelatorio === 'alunos' || tipoRelatorio === 'emprestimos') {
-            promises.push(buscarCursos().then((res) => setCursos(res.content)));
-            promises.push(buscarModulos().then(setModulos));
+            promises.push(
+              buscarCursos().then((res) =>
+                setCursosOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.content.map((c) => ({ label: c.nome, value: c.id })),
+                ]),
+              ),
+            );
+            promises.push(
+              buscarModulos().then((res) =>
+                setModulosOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((m, idx) => ({ label: m, value: idx + 1 })),
+                ]),
+              ),
+            );
           }
 
           if (tipoRelatorio === 'alunos') {
-            promises.push(buscarEnum('PENALIDADE').then(setPenalidadeOpts));
+            promises.push(
+              buscarEnum('PENALIDADE').then((res) =>
+                setPenalidadeOpts([
+                  { label: 'Todas', value: '' },
+                  ...res.map((p) => ({ label: p.status, value: p.nome })),
+                ]),
+              ),
+            );
           }
 
           if (tipoRelatorio === 'livros') {
             promises.push(
-              buscarEnum('CLASSIFICACAO_ETARIA').then(setClassificacaoOpts),
+              buscarGeneros().then((res) =>
+                setGenerosOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((g) => ({ label: g.nome, value: g.nome })),
+                ]),
+              ),
             );
-            promises.push(buscarEnum('TIPO_CAPA').then(setTipoCapaOpts));
+
+            promises.push(
+              buscarCdds().then((res) =>
+                setCddOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((c) => ({
+                    label: `${c.id} - ${c.nome}`,
+                    value: c.id,
+                  })),
+                ]),
+              ),
+            );
+
+            promises.push(
+              buscarEnum('CLASSIFICACAO_ETARIA').then((res) =>
+                setClassificacaoOpts([
+                  { label: 'Todas', value: '' },
+                  ...res.map((c) => ({ label: c.status, value: c.nome })),
+                ]),
+              ),
+            );
+            promises.push(
+              buscarEnum('TIPO_CAPA').then((res) =>
+                setTipoCapaOpts([
+                  { label: 'Todas', value: '' },
+                  ...res.map((t) => ({ label: t.status, value: t.nome })),
+                ]),
+              ),
+            );
           }
 
           if (tipoRelatorio === 'exemplares') {
-            promises.push(buscarEnum('STATUS_LIVRO').then(setStatusLivroOpts));
+            promises.push(
+              buscarEnum('STATUS_LIVRO').then((res) =>
+                setStatusLivroOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((s) => ({ label: s.status, value: s.nome })),
+                ]),
+              ),
+            );
           }
 
           if (tipoRelatorio === 'emprestimos') {
             promises.push(
-              buscarEnum('STATUS_EMPRESTIMO').then(setStatusEmpOpts),
+              buscarEnum('STATUS_EMPRESTIMO').then((res) =>
+                setStatusEmpOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((s) => ({ label: s.status, value: s.nome })),
+                ]),
+              ),
+            );
+          }
+
+          if (['livros', 'exemplares', 'emprestimos'].includes(tipoRelatorio)) {
+            promises.push(
+              buscarLivrosParaAdmin('', 0, 1000).then((res) => {
+
+                const opts = res.content.map((l) => ({
+                  label: `${l.nome} (ISBN: ${l.isbn})`,
+                  value: l.isbn,
+                }));
+                setLivrosSelectOpts([{ label: 'Todos', value: '' }, ...opts]);
+
+                const autoresUnicos = Array.from(
+                  new Set(res.content.map((l) => l.autor)),
+                ).sort();
+                setAutoresOpts([
+                  { label: 'Todos', value: '' },
+                  ...autoresUnicos.map((a) => ({ label: a, value: a })),
+                ]);
+
+                const editorasUnicas = Array.from(
+                  new Set(res.content.map((l) => l.editora)),
+                ).sort();
+                setEditorasOpts([
+                  { label: 'Todas', value: '' },
+                  ...editorasUnicas.map((e) => ({ label: e, value: e })),
+                ]);
+              }),
+            );
+          }
+
+          if (tipoRelatorio === 'emprestimos') {
+            promises.push(
+              buscarAlunosParaAdmin('', 0, 1000).then((res) => {
+                
+                const opts = res.content.map((a) => ({
+                  label: `${a.nomeCompleto} (Mat: ${a.matricula})`,
+                  value: a.matricula,
+                }));
+                setAlunosSelectOpts([{ label: 'Todos', value: '' }, ...opts]);
+              }),
             );
           }
 
           await Promise.all(promises);
         } catch (error) {
           console.error('Erro ao carregar opções do filtro', error);
+        } finally {
+          setIsDataLoading(false);
         }
       };
       carregarDados();
     }
   }, [isOpen, tipoRelatorio]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setFiltros((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string | number) => {
     setFiltros((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -128,12 +274,11 @@ function ModalFiltrosRelatorio({
       onClose();
     } catch (error) {
       alert('Erro ao gerar o relatório. Tente novamente.');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const inputClass =
-    'w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none';
   const labelClass =
     'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
@@ -151,6 +296,15 @@ function ModalFiltrosRelatorio({
       );
     }
 
+    if (isDataLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[300px]">
+          <LoadingIcon />
+          <p className="text-gray-500 mt-4">Carregando filtros...</p>
+        </div>
+      );
+    }
+
     return (
       <form onSubmit={handleBaixar} className="space-y-4">
         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md mb-4 border border-blue-100 dark:border-blue-800">
@@ -160,242 +314,174 @@ function ModalFiltrosRelatorio({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <div>
-            <label className={labelClass}>Data Início</label>
-            <input
-              type="date"
-              name="dataInicio"
-              value={filtros.dataInicio || ''}
-              onChange={handleChange}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Data Fim</label>
-            <input
-              type="date"
-              name="dataFim"
-              value={filtros.dataFim || ''}
-              onChange={handleChange}
-              className={inputClass}
-            />
-          </div>
+          <CustomDatePicker
+            label="Data Início"
+            id="dataInicio"
+            name="dataInicio"
+            value={filtros.dataInicio || ''}
+            onChange={handleInputChange}
+          />
+          <CustomDatePicker
+            label="Data Fim"
+            id="dataFim"
+            name="dataFim"
+            value={filtros.dataFim || ''}
+            onChange={handleInputChange}
+          />
         </div>
 
         {/* --- FILTROS ESPECÍFICOS --- */}
 
         {tipoRelatorio === 'alunos' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Curso</label>
-              <select
-                name="idCurso"
-                value={filtros.idCurso || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todos</option>
-                {cursos.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
-                ))}
-              </select>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Curso</label>
+                <CustomSelect
+                  value={filtros.idCurso || ''}
+                  onChange={(val) => handleSelectChange('idCurso', val)}
+                  options={cursosOpts}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Módulo</label>
+                <CustomSelect
+                  value={filtros.idModulo || ''}
+                  onChange={(val) => handleSelectChange('idModulo', val)}
+                  options={modulosOpts}
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Módulo</label>
-              <select
-                name="idModulo"
-                value={filtros.idModulo || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todos</option>
-                {modulos.map((m, idx) => (
-                  <option key={idx} value={idx + 1}>
-                    {m}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Turno</label>
+                <CustomSelect
+                  value={filtros.idTurno || ''}
+                  onChange={(val) => handleSelectChange('idTurno', val)}
+                  options={turnoOpts}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Penalidade</label>
+                <CustomSelect
+                  value={filtros.penalidade || ''}
+                  onChange={(val) => handleSelectChange('penalidade', val)}
+                  options={penalidadeOpts}
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Penalidade</label>
-              <select
-                name="penalidade"
-                value={filtros.penalidade || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todas</option>
-                {penalidadeOpts.map((p) => (
-                  <option key={p.nome} value={p.nome}>
-                    {p.status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          </>
         )}
 
         {tipoRelatorio === 'livros' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Gênero</label>
-              <input
-                type="text"
-                name="genero"
-                placeholder="Ex: Romance"
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SearchableSelect
+                label="Gênero"
                 value={filtros.genero || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('genero', val)}
+                options={generosOpts}
               />
-            </div>
-            <div>
-              <label className={labelClass}>Autor</label>
-              <input
-                type="text"
-                name="autor"
-                placeholder="Nome do autor"
+              <SearchableSelect
+                label="Autor"
                 value={filtros.autor || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('autor', val)}
+                options={autoresOpts}
               />
             </div>
-            <div>
-              <label className={labelClass}>Código CDD</label>
-              <input
-                type="text"
-                name="cdd"
-                placeholder="Ex: 800"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SearchableSelect
+                label="Editora"
+                value={filtros.editora || ''} 
+                onChange={(val) => handleSelectChange('editora', val)}
+                options={editorasOpts}
+              />
+              <SearchableSelect
+                label="CDD"
                 value={filtros.cdd || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('cdd', val)}
+                options={cddOpts}
               />
             </div>
-            <div>
-              <label className={labelClass}>Classificação Etária</label>
-              <select
-                name="classificacaoEtaria"
-                value={filtros.classificacaoEtaria || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todas</option>
-                {classificacaoOpts.map((c) => (
-                  <option key={c.nome} value={c.nome}>
-                    {c.status}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Classificação</label>
+                <CustomSelect
+                  value={filtros.classificacaoEtaria || ''}
+                  onChange={(val) =>
+                    handleSelectChange('classificacaoEtaria', val)
+                  }
+                  options={classificacaoOpts}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Capa</label>
+                <CustomSelect
+                  value={filtros.tipoCapa || ''}
+                  onChange={(val) => handleSelectChange('tipoCapa', val)}
+                  options={tipoCapaOpts}
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Tipo de Capa</label>
-              <select
-                name="tipoCapa"
-                value={filtros.tipoCapa || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todas</option>
-                {tipoCapaOpts.map((t) => (
-                  <option key={t.nome} value={t.nome}>
-                    {t.status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          </>
         )}
 
         {tipoRelatorio === 'exemplares' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Status do Exemplar</label>
-              <select
-                name="statusLivro"
+              <CustomSelect
                 value={filtros.statusLivro || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todos</option>
-                {statusLivroOpts.map((s) => (
-                  <option key={s.nome} value={s.nome}>
-                    {s.status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>ISBN ou Tombo</label>
-              <input
-                type="text"
-                name="isbnOuTombo"
-                placeholder="Pesquisar..."
-                value={filtros.isbnOuTombo || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('statusLivro', val)}
+                options={statusLivroOpts}
               />
             </div>
+            <SearchableSelect
+              label="Livro (Nome ou ISBN)"
+              value={filtros.isbnOuTombo || ''}
+              onChange={(val) => handleSelectChange('isbnOuTombo', val)}
+              options={livrosSelectOpts}
+            />
           </div>
         )}
 
         {tipoRelatorio === 'emprestimos' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Status</label>
-              <select
-                name="statusEmprestimo"
-                value={filtros.statusEmprestimo || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todos</option>
-                {statusEmpOpts.map((s) => (
-                  <option key={s.nome} value={s.nome}>
-                    {s.status}
-                  </option>
-                ))}
-              </select>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Status</label>
+                <CustomSelect
+                  value={filtros.statusEmprestimo || ''}
+                  onChange={(val) =>
+                    handleSelectChange('statusEmprestimo', val)
+                  }
+                  options={statusEmpOpts}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Curso</label>
+                <CustomSelect
+                  value={filtros.idCurso || ''}
+                  onChange={(val) => handleSelectChange('idCurso', val)}
+                  options={cursosOpts}
+                />
+              </div>
             </div>
-            <div>
-              <label className={labelClass}>Matrícula do Aluno</label>
-              <input
-                type="text"
-                name="matriculaAluno"
-                placeholder="Ex: 12345"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SearchableSelect
+                label="Aluno (Nome ou Matrícula)"
                 value={filtros.matriculaAluno || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('matriculaAluno', val)}
+                options={alunosSelectOpts}
               />
-            </div>
-            <div>
-              <label className={labelClass}>Curso</label>
-              <select
-                name="idCurso"
-                value={filtros.idCurso || ''}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="">Todos</option>
-                {cursos.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>ISBN ou Tombo</label>
-              <input
-                type="text"
-                name="isbnOuTombo"
-                placeholder="Pesquisar..."
+              <SearchableSelect
+                label="Livro (Nome ou ISBN)"
                 value={filtros.isbnOuTombo || ''}
-                onChange={handleChange}
-                className={inputClass}
+                onChange={(val) => handleSelectChange('isbnOuTombo', val)}
+                options={livrosSelectOpts}
               />
             </div>
-          </div>
+          </>
         )}
 
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
@@ -465,21 +551,21 @@ export function RelatoriosPage() {
             />
             <ReportItem
               title="Relatório de Livros"
-              description="Catálogo de livros com filtros por gênero, autor, CDD, capa e data de inclusão."
+              description="Catálogo de livros com filtros por gênero, autor, editora, CDD, capa e data de lançamento."
               onGenerate={() =>
                 handleOpenModal('livros', 'Relatório de Livros')
               }
             />
             <ReportItem
               title="Relatório de Exemplares"
-              description="Inventário físico com filtros por status, tombo e data de inclusão."
+              description="Inventário físico com filtros por status, livro e data de inclusão."
               onGenerate={() =>
                 handleOpenModal('exemplares', 'Relatório de Exemplares')
               }
             />
             <ReportItem
               title="Relatório de Empréstimos"
-              description="Histórico de movimentações com filtros por período, status e aluno."
+              description="Histórico de movimentações com filtros por período, status, aluno e livro."
               onGenerate={() =>
                 handleOpenModal('emprestimos', 'Relatório de Empréstimos')
               }

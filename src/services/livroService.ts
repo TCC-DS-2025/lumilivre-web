@@ -53,6 +53,11 @@ export interface LivroPayload {
   imagem?: string;
 }
 
+export interface CddItem {
+  id: string;
+  nome: string;
+}
+
 export interface LivroDetalhado extends Omit<LivroPayload, 'generos'> {
   generos: Genero[];
 }
@@ -131,4 +136,9 @@ export const excluirLivroComExemplares = async (isbn: string) => {
 
 export const buscarLivroPorIsbn = async (isbn: string) => {
   return api.get<LivroDetalhado>(`/livros/${isbn}`);
+};
+
+export const buscarCdds = async (): Promise<CddItem[]> => {
+  const response = await api.get('/cdd');
+  return response.data;
 };

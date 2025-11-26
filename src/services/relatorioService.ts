@@ -13,6 +13,7 @@ export interface FiltrosRelatorio {
   // livros
   genero?: string;
   autor?: string;
+  editora?: string;
   cdd?: string;
   classificacaoEtaria?: string;
   tipoCapa?: string;
