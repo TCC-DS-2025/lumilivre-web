@@ -1,5 +1,8 @@
 import { type InputHTMLAttributes, type ElementType, useState } from 'react';
 
+import EyeIcon from '../assets/icons/eye.svg?react';
+import EyeCloseIcon from '../assets/icons/eye-close.svg?react';
+
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   icon?: ElementType;
@@ -14,18 +17,26 @@ export function InputFloatingLabel({
   className = '',
   onFocus,
   onBlur,
+  type,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const hasContent =
     props.value !== undefined && String(props.value).length > 0;
   const shouldFloatLabel = isFocused || hasContent;
+
+  const isPasswordType = type === 'password';
+  
+  const currentType = isPasswordType ? (showPassword ? 'text' : 'password') : type;
 
   return (
     <div className={`relative group ${className}`}>
       <input
         id={id}
-        className={`w-full pl-10 pr-4 py-3.5 bg-transparent border-2 rounded-lg outline-none text-gray-800 dark:text-gray-100
+        type={currentType}
+        className={`w-full pl-10 ${isPasswordType ? 'pr-10' : 'pr-4'} py-3.5 bg-transparent border-2 rounded-lg outline-none text-gray-800 dark:text-gray-100
           ${
             error
               ? 'border-red-500'
@@ -76,6 +87,21 @@ export function InputFloatingLabel({
             }
           `}
         />
+      )}
+
+      {isPasswordType && hasContent && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 focus:outline-none hover:opacity-80"
+          tabIndex={-1}
+        >
+          {showPassword ? (
+            <EyeCloseIcon className="w-5 h-5 text-lumi-label" />
+          ) : (
+            <EyeIcon className="w-5 h-5 text-lumi-label" />
+          )}
+        </button>
       )}
     </div>
   );
