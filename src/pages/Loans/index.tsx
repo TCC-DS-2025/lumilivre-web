@@ -90,7 +90,18 @@ export function EmprestimosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const sortParam = `${sortConfig.key},${sortConfig.direction}`;
+      const sortMap: Record<string, string> = {
+        status: 'statusEmprestimo',
+        tombo: 'exemplar.tombo',
+        livro: 'exemplar.livro.nome',
+        aluno: 'aluno.nomeCompleto',
+        emprestimo: 'dataEmprestimo',
+        devolucao: 'dataDevolucao',
+      };
+
+      const backendKey = sortMap[sortConfig.key] || sortConfig.key;
+      const sortParam = `${backendKey},${sortConfig.direction}`;
+
       let data: Page<EmprestimoListagemDTO>;
 
       if (hasActiveFilters) {
