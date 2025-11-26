@@ -4,6 +4,7 @@ import {
   useEffect,
   useContext,
   type ReactNode,
+  useCallback,
 } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -33,44 +34,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const parsedUser: User = JSON.parse(storedUser);
-        setUser(parsedUser);
+  const logout = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
+    navigate('/login');
+  }, [navigate]);
 
-        api.defaults.headers.common['Authorization'] =
-          `Bearer ${parsedUser.token}`;
+  useEffect(() => {
+    const carregarUsuarioStorage = () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const parsedUser: User = JSON.parse(storedUser);
+          setUser(parsedUser);
+          api.defaults.headers.common['Authorization'] =
+            `Bearer ${parsedUser.token}`;
+        }
+      } catch (error) {
+        console.error('Falha ao carregar dados do usuário', error);
+        logout();
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Falha ao carregar dados do usuário', error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    };
+
+    carregarUsuarioStorage();
+  }, [logout]);
+
+  useEffect(() => {
+    const interceptorId = api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 403 || error.response?.status === 401) {
+          if (user) {
+            console.warn('Sessão expirada ou inválida. Realizando logout...');
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      },
+    );
+
+    return () => {
+      api.interceptors.response.eject(interceptorId);
+    };
+  }, [user, logout]);
 
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-
     api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-
-    delete api.defaults.headers.common['Authorization'];
   };
 
   const logoutWithAnimation = () => {
     setIsLoggingOut(true);
-
     setTimeout(() => {
       logout();
-      navigate('/login');
       setIsLoggingOut(false);
     }, 300);
   };
