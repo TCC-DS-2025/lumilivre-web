@@ -148,66 +148,73 @@ export function SearchableSelect({
           )}
 
           <ArrowIcon
-            className={`w-5 h-5 transition-all duration-200 ${isOpen ? 'rotate-180' : ''} ${arrowColorClass}`}
+            className={`w-5 h-5 ${isOpen ? 'rotate-180' : ''} ${arrowColorClass}`}
           />
         </div>
       </button>
 
-      {isOpen && (
-        <div
-          style={{ maxHeight: `${listMaxHeight}px` }}
-          className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-xl animate-fade-in flex flex-col overflow-hidden"
-        >
-          <div className="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 shrink-0">
-            <div className="relative">
-              <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                className="w-full pl-8 pr-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-lumi-primary text-gray-800 dark:text-gray-100 placeholder-gray-400"
-                placeholder="Buscar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
+      <div
+        style={{ maxHeight: `${listMaxHeight}px` }}
+        className={`
+          absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-xl flex flex-col overflow-hidden origin-top
+          ${
+            isOpen
+              ? 'opacity-100 scale-y-100 translate-y-0'
+              : 'opacity-0 scale-y-0 -translate-y-2 pointer-events-none'
+          }
+        `}
+      >
+        <div className="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 shrink-0">
+          <div className="relative">
+            <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="w-full pl-8 pr-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-lumi-primary text-gray-800 dark:text-gray-100 placeholder-gray-400"
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              tabIndex={isOpen ? 0 : -1}
+            />
           </div>
-
-          <ul className="flex-1 overflow-y-auto custom-scrollbar py-1">
-            {isLoading ? (
-              <li className="px-4 py-3 text-sm text-gray-500 text-center">
-                Carregando...
-              </li>
-            ) : filteredOptions.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center italic">
-                Nenhum resultado encontrado.
-              </li>
-            ) : (
-              filteredOptions.map((option) => {
-                const isSelected = String(value) === String(option.value);
-                return (
-                  <li key={option.value}>
-                    <button
-                      type="button"
-                      onClick={() => handleSelect(option.value)}
-                      className={`
-                        w-full text-left px-4 py-2 text-sm
-                        ${
-                          isSelected
-                            ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
-                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }
-                      `}
-                    >
-                      {option.label}
-                    </button>
-                  </li>
-                );
-              })
-            )}
-          </ul>
         </div>
-      )}
+
+        <ul className="flex-1 overflow-y-auto custom-scrollbar py-1">
+          {isLoading ? (
+            <li className="px-4 py-3 text-sm text-gray-500 text-center">
+              Carregando...
+            </li>
+          ) : filteredOptions.length === 0 ? (
+            <li className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center italic">
+              Nenhum resultado encontrado.
+            </li>
+          ) : (
+            filteredOptions.map((option) => {
+              const isSelected = String(value) === String(option.value);
+              return (
+                <li key={option.value}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelect(option.value)}
+                    tabIndex={isOpen ? 0 : -1}
+                    className={`
+                      w-full text-left px-4 py-2 text-sm
+                      ${
+                        isSelected
+                          ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
+                          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }
+                    `}
+                  >
+                    {option.label}
+                  </button>
+                </li>
+              );
+            })
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
