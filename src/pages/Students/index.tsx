@@ -93,12 +93,23 @@ export function AlunosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      let paginaDeAlunos;
+      const mapSortKey: Record<string, string> = {
+        penalidadeStatus: 'penalidade',
+        cursoNome: 'curso.nome',
+        nascimentoDate: 'dataNascimento',
+        matricula: 'matricula',
+        nomeCompleto: 'nomeCompleto',
+      };
+
+      const sortKeyBackend = mapSortKey[sortConfig.key] || sortConfig.key;
+
       const params = {
         page: currentPage - 1,
         size: itemsPerPage,
-        sort: `${sortConfig.key},${sortConfig.direction}`,
+        sort: `${sortKeyBackend},${sortConfig.direction}`,
       };
+
+      let paginaDeAlunos;
 
       if (hasActiveFilters) {
         paginaDeAlunos = await buscarAlunosAvancado({
@@ -120,7 +131,6 @@ export function AlunosPage() {
         return;
       }
 
-      // garante que o status é válido
       const toStatusPenalidade = (status: string | null): StatusPenalidade => {
         if (status === null) {
           return 'sem-penalidade';
@@ -131,14 +141,14 @@ export function AlunosPage() {
           case 'suspensao':
           case 'bloqueio':
           case 'banimento':
-            return lowerStatus;
+            return lowerStatus as StatusPenalidade;
           default:
-            return 'sem-penalidade'; // fallback seguro
+            return 'sem-penalidade';
         }
       };
 
       const alunosDaApi = paginaDeAlunos.content.map((dto) => ({
-        ...dto, // ListaAluno
+        ...dto,
         nascimentoDate: new Date(dto.dataNascimento),
         penalidadeStatus: toStatusPenalidade(dto.penalidade),
       }));
