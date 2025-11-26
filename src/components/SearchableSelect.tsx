@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useLayoutEffect,
+} from 'react';
 
 import ArrowIcon from '../assets/icons/arrow-drop.svg?react';
 import SearchIcon from '../assets/icons/search.svg?react';
@@ -32,6 +38,8 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [listMaxHeight, setListMaxHeight] = useState<number>(260);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +65,21 @@ export function SearchableSelect({
     }
   }, [isOpen]);
 
+  useLayoutEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const margin = 16;
+      const defaultMaxHeight = 260;
+
+      const availableSpace = viewportHeight - rect.bottom - margin;
+
+      setListMaxHeight(
+        Math.max(150, Math.min(availableSpace, defaultMaxHeight)),
+      );
+    }
+  }, [isOpen]);
+
   const selectedOption = useMemo(() => {
     return options.find((opt) => String(opt.value) === String(value));
   }, [options, value]);
@@ -78,6 +101,13 @@ export function SearchableSelect({
     e.stopPropagation();
     onChange('');
   };
+
+  const hasValue = value !== '' && value !== null && value !== undefined;
+
+  const arrowColorClass =
+    isOpen || (hasValue && !disabled)
+      ? 'text-lumi-label opacity-100'
+      : 'text-gray-400 opacity-70';
 
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
@@ -111,21 +141,24 @@ export function SearchableSelect({
             <div
               role="button"
               onClick={handleClear}
-              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500 transition-colors"
+              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500"
             >
               <CloseIcon className="w-4 h-4" />
             </div>
           )}
 
           <ArrowIcon
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            className={`w-5 h-5 transition-all duration-200 ${isOpen ? 'rotate-180' : ''} ${arrowColorClass}`}
           />
         </div>
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-xl animate-fade-in overflow-hidden">
-          <div className="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+        <div
+          style={{ maxHeight: `${listMaxHeight}px` }}
+          className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-xl animate-fade-in flex flex-col overflow-hidden"
+        >
+          <div className="p-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 shrink-0">
             <div className="relative">
               <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -140,7 +173,7 @@ export function SearchableSelect({
             </div>
           </div>
 
-          <ul className="max-h-60 overflow-y-auto custom-scrollbar py-1">
+          <ul className="flex-1 overflow-y-auto custom-scrollbar py-1">
             {isLoading ? (
               <li className="px-4 py-3 text-sm text-gray-500 text-center">
                 Carregando...
