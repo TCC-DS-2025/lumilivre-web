@@ -399,13 +399,13 @@ export function ClassificacaoPage() {
                 Top Alunos com Mais Empréstimos
               </h3>
 
-              {/* Filtros - Layout fixo horizontal */}
+              {/* Filtros */}
               <div className="flex gap-3 items-center bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 w-auto">
                 <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wide mr-1">
                   <FilterIcon className="w-4 h-4" />
                   Filtrar:
                 </div>
-                <div className="w-48">
+                <div className="w-44">
                   <CustomSelect
                     value={filtroCurso}
                     onChange={setFiltroCurso}
@@ -414,7 +414,7 @@ export function ClassificacaoPage() {
                     invertArrow={true}
                   />
                 </div>
-                <div className="w-40">
+                <div className="w-44">
                   <CustomSelect
                     value={filtroModulo}
                     onChange={setFiltroModulo}
