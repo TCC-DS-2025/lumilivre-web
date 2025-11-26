@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
+import { CustomDatePicker } from '../CustomDatePicker';
 
-import { buscarCursos, type Curso } from '../../services/cursoService';
+import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
 
 interface StudentFilterProps {
@@ -20,6 +21,11 @@ interface StudentFilterProps {
   onClear: () => void;
 }
 
+interface Option {
+  label: string;
+  value: string | number;
+}
+
 export function StudentFilter({
   isOpen,
   onClose,
@@ -28,18 +34,11 @@ export function StudentFilter({
   onApply,
   onClear,
 }: StudentFilterProps) {
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [modulos, setModulos] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cursoOptions, setCursoOptions] = useState<Option[]>([]);
+  const [moduloOptions, setModuloOptions] = useState<Option[]>([]);
 
-  useEffect(() => {
-    Promise.all([buscarCursos(), buscarModulos()])
-      .then(([pageCursos, listaModulos]) => {
-        setCursos(pageCursos.content);
-        setModulos(listaModulos);
-      })
-      .catch(console.error);
-  }, []);
-
+  // Opções estáticas
   const penalidadeOptions = [
     { label: 'Todos', value: '' },
     { label: 'Advertência', value: 'ADVERTENCIA' },
@@ -56,20 +55,30 @@ export function StudentFilter({
     { label: 'Integral', value: 'INTEGRAL' },
   ];
 
-  const cursoOptions = [
-    { label: 'Todos', value: '' },
-    ...cursos.map((c) => ({ label: c.nome, value: c.nome })),
-  ];
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoading(true);
+      Promise.all([buscarCursos(), buscarModulos()])
+        .then(([pageCursos, listaModulos]) => {
+          // Mapear Cursos
+          setCursoOptions([
+            { label: 'Todos', value: '' },
+            ...pageCursos.content.map((c) => ({ label: c.nome, value: c.nome })),
+          ]);
 
-  const moduloOptions = [
-    { label: 'Todos', value: '' },
-    ...modulos.map((m) => ({ label: m, value: m })),
-  ];
+          // Mapear Módulos
+          setModuloOptions([
+            { label: 'Todos', value: '' },
+            ...listaModulos.map((m) => ({ label: m, value: m })),
+          ]);
+        })
+        .catch(console.error)
+        .finally(() => setIsLoading(false));
+    }
+  }, [isOpen]);
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
-  const inputStyles =
-    'w-full p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none h-[42px]';
 
   return (
     <FilterPanel
@@ -77,65 +86,71 @@ export function StudentFilter({
       onClose={onClose}
       onApply={onApply}
       onClear={onClear}
+      width="w-[600px]"
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className={labelStyles}>Status de Penalidade</label>
-          <CustomSelect
-            value={filters.penalidade}
-            onChange={(val) => onFilterChange('penalidade', val)}
-            options={penalidadeOptions}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">
+          Carregando filtros...
         </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className={labelStyles}>Status de Penalidade</label>
+              <CustomSelect
+                value={filters.penalidade}
+                onChange={(val) => onFilterChange('penalidade', val)}
+                options={penalidadeOptions}
+                placeholder="Selecione"
+                invertArrow={true}
+              />
+            </div>
 
-        <div className="md:col-span-2">
-          <label className={labelStyles}>Data de Nascimento</label>
-          <input
-            name="dataNascimento"
-            type="date"
-            value={filters.dataNascimento}
-            onChange={(e) => onFilterChange('dataNascimento', e.target.value)}
-            className={inputStyles}
-          />
-        </div>
-      </div>
+            <div className="md:col-span-2">
+              <CustomDatePicker
+                label="Data de Nascimento"
+                value={filters.dataNascimento}
+                onChange={(e) => onFilterChange('dataNascimento', e.target.value)}
+              />
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className={labelStyles}>Curso</label>
-          <CustomSelect
-            value={filters.cursoNome}
-            onChange={(val) => onFilterChange('cursoNome', val)}
-            options={cursoOptions}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className={labelStyles}>Curso</label>
+              <CustomSelect
+                value={filters.cursoNome}
+                onChange={(val) => onFilterChange('cursoNome', val)}
+                options={cursoOptions}
+                placeholder="Selecione"
+                invertArrow={true}
+              />
+            </div>
 
-        <div>
-          <label className={labelStyles}>Turno</label>
-          <CustomSelect
-            value={filters.turno}
-            onChange={(val) => onFilterChange('turno', val)}
-            options={turnoOptions}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
-        </div>
+            <div>
+              <label className={labelStyles}>Turno</label>
+              <CustomSelect
+                value={filters.turno}
+                onChange={(val) => onFilterChange('turno', val)}
+                options={turnoOptions}
+                placeholder="Selecione"
+                invertArrow={true}
+              />
+            </div>
 
-        <div>
-          <label className={labelStyles}>Módulo</label>
-          <CustomSelect
-            value={filters.modulo}
-            onChange={(val) => onFilterChange('modulo', val)}
-            options={moduloOptions}
-            placeholder="Selecione"
-            invertArrow={true}
-          />
+            <div>
+              <label className={labelStyles}>Módulo</label>
+              <CustomSelect
+                value={filters.modulo}
+                onChange={(val) => onFilterChange('modulo', val)}
+                options={moduloOptions}
+                placeholder="Selecione"
+                invertArrow={true}
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </FilterPanel>
   );
 }
