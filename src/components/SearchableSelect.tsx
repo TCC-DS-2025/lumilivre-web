@@ -38,7 +38,7 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [listMaxHeight, setListMaxHeight] = useState<number>(260);
+  const [listMaxHeight, setListMaxHeight] = useState<number>(240);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -70,7 +70,7 @@ export function SearchableSelect({
       const rect = containerRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const margin = 16;
-      const defaultMaxHeight = 260;
+      const defaultMaxHeight = 240;
 
       const availableSpace = viewportHeight - rect.bottom - margin;
 
@@ -105,9 +105,7 @@ export function SearchableSelect({
   const hasValue = value !== '' && value !== null && value !== undefined;
 
   const arrowColorClass =
-    isOpen || (hasValue && !disabled)
-      ? 'text-lumi-label opacity-100'
-      : 'text-gray-400 opacity-70';
+    isOpen || (hasValue && !disabled) ? 'text-lumi-label' : 'text-gray-400';
 
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
@@ -121,7 +119,7 @@ export function SearchableSelect({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`
-          relative w-full flex items-center justify-between px-3 py-2 text-left border rounded-md
+          flex items-center justify-between w-full px-3 py-2 text-sm border rounded-md
           ${
             disabled
               ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed text-gray-400 border-gray-200 dark:border-gray-600'
@@ -130,26 +128,35 @@ export function SearchableSelect({
           ${isOpen ? 'ring-2 ring-lumi-primary border-lumi-primary' : ''}
         `}
       >
-        <span
-          className={`truncate pr-6 ${!selectedOption ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}
-        >
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <div className="flex items-center gap-2 truncate">
+          <span
+            className={`truncate ${
+              !selectedOption
+                ? 'text-gray-500 dark:text-gray-400'
+                : 'text-gray-700 dark:text-gray-200'
+            }`}
+          >
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
 
-        <div className="absolute right-2 flex items-center gap-1">
+        <div className="flex items-center gap-1 ml-2">
           {value && !disabled && (
             <div
               role="button"
               onClick={handleClear}
-              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500"
+              className="p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500 flex items-center justify-center"
+              title="Limpar seleção"
             >
               <CloseIcon className="w-4 h-4" />
             </div>
           )}
 
-          <ArrowIcon
-            className={`w-5 h-5 ${isOpen ? 'rotate-180' : ''} ${arrowColorClass}`}
-          />
+          <span className={`text-[10px] flex items-center ${arrowColorClass}`}>
+            <ArrowIcon
+              className={`w-4 h-4 fill-current ${isOpen ? 'rotate-180' : ''}`}
+            />
+          </span>
         </div>
       </button>
 
