@@ -3,12 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../contexts/AuthContext';
 import { ThemeToggle } from '../../../components/ThemeToggle';
+import { InputFloatingLabel } from '../../../components/InputFloatingLabel'; // Importe o novo componente
 import { login as apiLogin } from '../../../services/authService';
+
 import Logo from '../../../assets/icons/logo.svg';
+import UserIcon from '../../../assets/icons/users.svg?react';
+import LockIcon from '../../../assets/icons/lock.svg?react';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExiting, setIsExiting] = useState(false);
@@ -32,7 +37,6 @@ export function LoginPage() {
       };
 
       setAuthUser(userToStore);
-
       setIsExiting(true);
 
       setTimeout(() => {
@@ -51,89 +55,81 @@ export function LoginPage() {
   return (
     <main
       className={`
-        bg-gray-100 dark:bg-dark-background min-h-screen flex items-center justify-center p-4 relative select-none
+        bg-gray-50 dark:bg-dark-background min-h-screen flex items-center justify-center p-6 relative select-none overflow-hidden
         ${isExiting ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}
       `}
     >
-      <div className="w-full max-w-sm mx-auto">
+      <div className="w-full max-w-sm mx-auto flex flex-col justify-center">
         <div className="text-center mb-5">
           <img
             src={Logo}
             alt="LumiLivre Logo"
-            className="w-48 h-48 mx-auto pointer-events-none"
+            className="h-[200px] w-auto mx-auto pointer-events-none -mb-1"
           />
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+          <h1 className="text-[32px] font-bold text-gray-800 dark:text-gray-100">
             LumiLivre
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
-          <div>
-            <label
-              htmlFor="usuario"
-              className="block text-sm font-medium text-lumi-label mb-1 pl-3"
-            >
-              Usuário
-            </label>
-            <input
-              id="usuario"
-              type="text"
-              value={usuario}
-              onChange={(e) => setUsuario(e.target.value)}
-              placeholder="Digite seu usuário"
-              className="w-full p-3 bg-white dark:bg-dark-card rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
-              required
-              disabled={isExiting}
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+          <InputFloatingLabel
+            id="usuario"
+            type="text"
+            label="Email"
+            value={usuario}
+            onChange={(e) => setUsuario(e.target.value)}
+            icon={UserIcon}
+            disabled={isExiting}
+            required
+          />
 
-          <div>
-            <label
-              htmlFor="senha"
-              className="block text-sm font-medium text-lumi-label mb-1 pl-3"
-            >
-              Senha
-            </label>
-            <input
-              id="senha"
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="Digite sua senha"
-              className="w-full p-3 bg-white dark:bg-gray-800 rounded-md shadow-md text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none transform hover:scale-105 hover:bg-gray-300 dark:hover:bg-gray-600"
-              required
-              disabled={isExiting}
-            />
-          </div>
+          <InputFloatingLabel
+            id="senha"
+            type="password"
+            label="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            icon={LockIcon}
+            disabled={isExiting}
+            required
+          />
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-md text-center">
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-center text-sm animate-fade-in">
               {error}
             </div>
           )}
 
-          <div className="pt-2">
+          <div className="space-y-3 pt-2">
             <button
               type="submit"
               disabled={isLoading || isExiting}
-              className="mt-2 w-full bg-lumi-primary hover:bg-lumi-primary-hover text-white font-bold py-3 px-4 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+              className="w-full bg-lumi-primary hover:bg-lumi-primary-hover active:bg-purple-900 text-white text-[17px] font-bold py-3.5 px-4 border-2 border-transparent rounded-lg shadow-md transform hover:scale-[1.02] active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none tracking-wide"
             >
-              {isLoading || isExiting ? 'Entrando...' : 'ENTRAR'}
+              {isLoading || isExiting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ENTRANDO...
+                </span>
+              ) : (
+                'ENTRAR'
+              )}
             </button>
           </div>
         </form>
 
-        <div className="text-center mt-3">
+        <div className="text-center mt-4">
           <Link
             to="/esqueci-a-senha"
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline"
+            className="text-gray-500 dark:text-gray-400 hover:text-lumi-primary dark:hover:text-lumi-label text-sm font-medium"
           >
             Esqueceu sua senha?
           </Link>
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-5">
+      <div className="absolute bottom-6 left-6">
         <ThemeToggle />
       </div>
     </main>
