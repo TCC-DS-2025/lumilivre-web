@@ -8,6 +8,7 @@ import { Modal } from '../../components/Modal';
 import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemple';
 import { DetalhesLivroModal } from '../../components/details/ModalBookDetails';
+import { ModalExemplarDetails } from '../../components/details/ModalExempleDetails';
 import { BookFilter } from '../../components/filters/BookFilter';
 import BackIcon from '../../assets/icons/arrow-left.svg?react';
 
@@ -19,7 +20,6 @@ import {
 } from '../../services/livroService';
 import {
   buscarExemplaresPorLivroId,
-  excluirExemplar,
 } from '../../services/exemplarService';
 import {
   buscarEmprestimosAtivosEAtrasados,
@@ -59,6 +59,9 @@ export function LivrosPage() {
   const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [livroSelecionado, setLivroSelecionado] =
     useState<LivroAgrupado | null>(null);
+  const [isDetalhesExemplarOpen, setIsDetalhesExemplarOpen] = useState(false);
+  const [exemplarSelecionado, setExemplarSelecionado] =
+    useState<ListaLivro | null>(null);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterParams, setFilterParams] = useState({
@@ -222,7 +225,12 @@ export function LivrosPage() {
     setIsDetalhesOpen(true);
   }, []);
 
-  const handleFecharDetalhes = (foiAtualizado?: boolean) => {
+  const handleAbrirDetalhesExemplar = useCallback((exemplar: ListaLivro) => {
+    setExemplarSelecionado(exemplar);
+    setIsDetalhesExemplarOpen(true);
+  }, []);
+
+  const handleFecharDetalhesLivro = (foiAtualizado?: boolean) => {
     setIsDetalhesOpen(false);
     setLivroSelecionado(null);
     if (foiAtualizado) {
@@ -230,26 +238,13 @@ export function LivrosPage() {
     }
   };
 
-  const handleExcluirExemplar = useCallback(
-    async (tombo: string) => {
-      if (
-        window.confirm(
-          `Tem certeza que deseja excluir o exemplar de tombo "${tombo}"?`,
-        )
-      ) {
-        try {
-          await excluirExemplar(tombo);
-          alert('Exemplar excluído com sucesso!');
-          fetchDados();
-        } catch (error: any) {
-          alert(
-            `Erro ao excluir exemplar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-          );
-        }
-      }
-    },
-    [fetchDados],
-  );
+  const handleFecharDetalhesExemplar = (foiAtualizado?: boolean) => {
+    setIsDetalhesExemplarOpen(false);
+    setExemplarSelecionado(null);
+    if (foiAtualizado) {
+      fetchDados();
+    }
+  };
 
   const StatusIndicator = ({ status }: { status: string }) => {
     const statusInfo = {
@@ -396,7 +391,7 @@ export function LivrosPage() {
       {
         key: 'localizacao_fisica',
         header: 'Localização',
-        width: '30%',
+        width: '25%',
         render: (item) => (
           <span className="dark:text-gray-300">{item.localizacao_fisica}</span>
         ),
@@ -415,16 +410,18 @@ export function LivrosPage() {
         width: '15%',
         isSortable: false,
         render: (item) => (
-          <button
-            onClick={() => handleExcluirExemplar(item.tomboExemplar)}
-            className="bg-red-600 text-white text-xs font-bold py-1 px-3 rounded hover:bg-red-700 hover:scale-105 shadow-md"
-          >
-            EXCLUIR
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={() => handleAbrirDetalhesExemplar(item)}
+              className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none"
+            >
+              DETALHES
+            </button>
+          </div>
         ),
       },
     ],
-    [handleExcluirExemplar],
+    [handleAbrirDetalhesExemplar],
   );
 
   return (
@@ -489,7 +486,7 @@ export function LivrosPage() {
                 onClick={() => handleAbrirDetalhes(selectedBook!)}
                 className="bg-lumi-label text-white text-xs font-bold py-1 px-3 mr-4 rounded hover:bg-opacity-75 hover:scale-105 shadow-md"
               >
-                DETALHES
+                DETALHES LIVRO
               </button>
             </div>
           )}
@@ -520,8 +517,14 @@ export function LivrosPage() {
 
       <DetalhesLivroModal
         isOpen={isDetalhesOpen}
-        onClose={handleFecharDetalhes}
+        onClose={handleFecharDetalhesLivro}
         livro={livroSelecionado}
+      />
+
+      <ModalExemplarDetails
+        isOpen={isDetalhesExemplarOpen}
+        onClose={handleFecharDetalhesExemplar}
+        exemplar={exemplarSelecionado}
       />
 
       <div

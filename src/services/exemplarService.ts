@@ -8,6 +8,11 @@ export interface ExemplarPayload {
   localizacao_fisica: string;
 }
 
+export interface ExemplarUpdatePayload {
+  tombo: string;
+  localizacao_fisica: string;
+}
+
 export const buscarExemplaresPorLivroId = async (
   livroId: number,
 ): Promise<ListaLivro[]> => {
@@ -17,6 +22,14 @@ export const buscarExemplaresPorLivroId = async (
 
 export const cadastrarExemplar = async (payload: ExemplarPayload) => {
   const response = await api.post('/livros/exemplares/cadastrar', payload);
+  return response.data;
+};
+
+export const atualizarExemplar = async (
+  tomboAtual: string,
+  payload: ExemplarUpdatePayload,
+) => {
+  const response = await api.put(`/livros/exemplares/atualizar/${tomboAtual}`, payload);
   return response.data;
 };
 
