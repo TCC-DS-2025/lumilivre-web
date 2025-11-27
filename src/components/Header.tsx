@@ -25,7 +25,7 @@ export function Header({
 
   const LogoContent = (
     <div className="flex items-center gap-3">
-      <LogoIcon className="h-10 w-10 shrink-0" />
+      <LogoIcon className="h-10 w-10 shrink-0 text-lumi-primary" />
       <span className="hidden sm:block text-xl font-bold text-gray-800 dark:text-white">
         LumiLivre
       </span>

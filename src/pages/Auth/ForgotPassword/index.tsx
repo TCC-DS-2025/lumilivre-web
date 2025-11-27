@@ -5,7 +5,7 @@ import { requestPasswordReset } from '../../../services/authService';
 import { InputFloatingLabel } from '../../../components/InputFloatingLabel';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 
-import Logo from '../../../assets/icons/logo.svg';
+import LogoIcon from '../../../assets/icons/logo.svg?react';
 import UserIcon from '../../../assets/icons/users.svg?react';
 
 export function EsqueciSenhaPage() {
@@ -43,11 +43,7 @@ export function EsqueciSenhaPage() {
     <main className="bg-gray-50 dark:bg-dark-background min-h-screen flex items-center justify-center p-6 relative select-none overflow-hidden">
       <div className="w-full max-w-sm mx-auto flex flex-col justify-center">
         <div className="text-center mb-5">
-          <img
-            src={Logo}
-            alt="LumiLivre Logo"
-            className="h-[200px] w-auto mx-auto pointer-events-none -mb-1"
-          />
+          <LogoIcon className="h-[200px] w-auto mx-auto pointer-events-none -mb-1 text-lumi-primary" />
           <h1 className="text-[32px] font-bold text-gray-800 dark:text-gray-100">
             Esqueci a Senha
           </h1>
