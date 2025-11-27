@@ -59,8 +59,18 @@ export const buscarEmprestimosPaginado = async (
 };
 
 export const getContagemAtrasados = async (): Promise<number> => {
-  const response = await api.get('/emprestimos/buscar/apenas-atrasados');
-  return response.data.length || 0;
+  try {
+    const response = await api.get('/emprestimos/buscar/apenas-atrasados');
+
+    if (response.status === 204 || !response.data) {
+      return 0;
+    }
+
+    return response.data.length;
+  } catch (error) {
+    console.error('Erro ao buscar contagem de atrasados:', error);
+    return 0;
+  }
 };
 
 export const getContagemEmprestimosTotais = async (): Promise<number> => {
