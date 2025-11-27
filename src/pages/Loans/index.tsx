@@ -133,7 +133,10 @@ export function EmprestimosPage() {
 
             if (item.statusEmprestimo === 'CONCLUIDO') {
               status = 'concluido';
-            } else if (item.statusEmprestimo === 'ATRASADO') {
+            } else if (
+              item.statusEmprestimo === 'ATRASADO' ||
+              dataDevolucao.getTime() < hoje.getTime()
+            ) {
               status = 'atrasado';
             } else if (dataDevolucao.getTime() === hoje.getTime()) {
               status = 'vence-hoje';

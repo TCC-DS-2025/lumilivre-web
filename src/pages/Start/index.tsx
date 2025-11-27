@@ -216,12 +216,14 @@ export function DashboardPage() {
           const processados = lista.map((e) => {
             const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
 
+            dataDevolucao.setHours(0, 0, 0, 0);
+
             let statusVencimento: EmprestimoVencer['statusVencimento'] =
               'ativo';
 
             if (e.statusEmprestimo === 'ATRASADO') {
               statusVencimento = 'atrasado';
-            } else if (dataDevolucao < hoje) {
+            } else if (dataDevolucao.getTime() < hoje.getTime()) {
               statusVencimento = 'atrasado';
             } else if (dataDevolucao.getTime() === hoje.getTime()) {
               statusVencimento = 'vence-hoje';
