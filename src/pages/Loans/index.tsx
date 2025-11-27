@@ -330,20 +330,20 @@ export function EmprestimosPage() {
         showFilterButton={true}
         isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+        // Filtro Avançado
+        filterComponent={
+          <LoanFilter
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            filters={filterParams}
+            onFilterChange={(field, value) =>
+              setFilterParams((prev) => ({ ...prev, [field]: value }))
+            }
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}
+          />
+        }
       />
-
-      <div className="relative z-20">
-        <LoanFilter
-          isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen(false)}
-          filters={filterParams}
-          onFilterChange={(field, value) =>
-            setFilterParams((prev) => ({ ...prev, [field]: value }))
-          }
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-        />
-      </div>
 
       <div
         ref={tableContainerRef}

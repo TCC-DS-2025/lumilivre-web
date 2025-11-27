@@ -431,7 +431,7 @@ export function LivrosPage() {
     <div className="flex flex-col h-full">
       <div
         key={isExemplarView ? 'header-exemplares' : 'header-livros'}
-        className={`shrink-0 ${
+        className={`shrink-0 relative z-40 ${
           isExemplarView ? 'animate-slide-in-right' : 'animate-slide-in-left'
         }`}
       >
@@ -450,6 +450,19 @@ export function LivrosPage() {
           showFilterButton={!isExemplarView}
           isFilterOpen={isFilterOpen}
           onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+          // Filtro Avançado
+          filterComponent={
+            <BookFilter
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              filters={filterParams}
+              onFilterChange={(field, value) =>
+                setFilterParams((prev) => ({ ...prev, [field]: value }))
+              }
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+            />
+          }
         >
           {isExemplarView && selectedBook && (
             <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -481,20 +494,6 @@ export function LivrosPage() {
             </div>
           )}
         </ActionHeader>
-      </div>
-
-      {/* Filtro Avançado */}
-      <div className="relative z-20">
-        <BookFilter
-          isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen(false)}
-          filters={filterParams}
-          onFilterChange={(field, value) =>
-            setFilterParams((prev) => ({ ...prev, [field]: value }))
-          }
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-        />
       </div>
 
       <Modal

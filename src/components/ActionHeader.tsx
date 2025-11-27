@@ -16,6 +16,7 @@ interface ActionHeaderProps {
   isFilterOpen?: boolean;
   children?: ReactNode;
   inputWidth?: string;
+  filterComponent?: ReactNode;
 }
 
 export function ActionHeader({
@@ -30,9 +31,10 @@ export function ActionHeader({
   isFilterOpen = false,
   children,
   inputWidth = 'w-[500px]',
+  filterComponent,
 }: ActionHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-6 shrink-0">
+    <div className="flex items-center justify-between mb-6 shrink-0 relative z-40">
       <div className="flex items-center space-x-3">
         {children}
 
@@ -59,7 +61,7 @@ export function ActionHeader({
 
         {/* Filtro */}
         {showFilterButton && (
-          <div className="relative">
+          <div className="relative z-50">
             <button
               id="filter-toggle-button"
               onClick={onFilterToggle}
@@ -74,6 +76,8 @@ export function ActionHeader({
                 }`}
               />
             </button>
+
+            {filterComponent}
           </div>
         )}
       </div>

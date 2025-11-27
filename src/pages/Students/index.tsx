@@ -328,20 +328,20 @@ export function AlunosPage() {
         showFilterButton={true}
         isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+        // Filtro Avançado
+        filterComponent={
+          <StudentFilter
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            filters={filterParams}
+            onFilterChange={(field, value) =>
+              setFilterParams((prev) => ({ ...prev, [field]: value }))
+            }
+            onApply={handleApplyFilters}
+            onClear={handleClearFilters}
+          />
+        }
       />
-
-      <div className="relative z-20">
-        <StudentFilter
-          isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen(false)}
-          filters={filterParams}
-          onFilterChange={(field, value) =>
-            setFilterParams((prev) => ({ ...prev, [field]: value }))
-          }
-          onApply={handleApplyFilters}
-          onClear={handleClearFilters}
-        />
-      </div>
 
       <Modal
         isOpen={isModalOpen}
