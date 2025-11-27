@@ -4,6 +4,8 @@ import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { LoanFilter } from '../../components/filters/LoanFilter';
+import { NovoEmprestimo } from '../../components/forms/NewLoan';
+import { Modal } from '../../components/Modal';
 
 import {
   buscarEmprestimosPaginado,
@@ -57,6 +59,8 @@ export function EmprestimosPage() {
 
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // FILTRO
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -323,9 +327,7 @@ export function EmprestimosPage() {
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleBusca}
         searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
-        onAddNew={() => {
-          alert('Funcionalidade de cadastro a ser implementada.');
-        }}
+        onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO EMPRÉSTIMO"
         showFilterButton={true}
         isFilterOpen={isFilterOpen}
@@ -344,6 +346,17 @@ export function EmprestimosPage() {
           />
         }
       />
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Novo Empréstimo"
+      >
+        <NovoEmprestimo
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={fetchEmprestimos}
+        />
+      </Modal>
 
       <div
         ref={tableContainerRef}

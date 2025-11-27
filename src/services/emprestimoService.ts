@@ -36,6 +36,13 @@ export interface EmprestimoFilterParams {
   sort?: string;
 }
 
+export interface EmprestimoPayload {
+  aluno_matricula: string;
+  exemplar_tombo: string;
+  data_emprestimo: string; // Formato: dd/MM/yyyy HH:mm:ss
+  data_devolucao: string; // Formato: dd/MM/yyyy HH:mm:ss
+}
+
 export const buscarEmprestimosPaginado = async (
   texto: string,
   page: number,
@@ -108,5 +115,10 @@ export const buscarEmprestimosAvancado = async (
   params: EmprestimoFilterParams,
 ): Promise<Page<EmprestimoListagemDTO>> => {
   const response = await api.get('/emprestimos/buscar/avancado', { params });
+  return response.data;
+};
+
+export const cadastrarEmprestimo = async (payload: EmprestimoPayload) => {
+  const response = await api.post('/emprestimos/cadastrar', payload);
   return response.data;
 };
