@@ -4,17 +4,24 @@ import {
   cadastrarLivro,
   uploadCapaLivro,
   buscarEnum,
+  buscarCdds,
+  buscarLivrosParaAdmin,
   type LivroPayload,
 } from '../../services/livroService';
+import { buscarGeneros } from '../../services/generoService';
 import { buscarLivroPorIsbn } from '../../services/googleBooksService';
-import { buscarGeneros, type Genero } from '../../services/generoService';
-import { TagInput } from './TagInput';
+
+import { CustomSelect } from '../CustomSelect';
+import { SearchableSelect } from '../SearchableSelect';
+import { CustomDatePicker } from '../CustomDatePicker';
 
 import uploadIconUrl from '../../assets/icons/upload.svg';
+import closeIcon from '../../assets/icons/close.svg';
+import addIcon from '../../assets/icons/add.svg';
 
-interface EnumOption {
-  nome: string;
-  status: string;
+interface Option {
+  label: string;
+  value: string | number;
 }
 
 interface NewBookProps {
@@ -32,80 +39,131 @@ const estadoInicialFormulario: Partial<LivroPayload> = {
   classificacao_etaria: '',
   tipo_capa: '',
   generos: [],
-  autor: [],
+  autor: [], 
   sinopse: '',
   edicao: '',
   volume: 0,
 };
 
 export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
-  const [formData, setFormData] = useState<Partial<LivroPayload>>(
-    estadoInicialFormulario,
-  );
+  const [formData, setFormData] = useState<Partial<LivroPayload>>(estadoInicialFormulario);
+  
+  // Estados de controle de UI
   const [capaFile, setCapaFile] = useState<File | null>(null);
   const [imagemPreview, setImagemPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBuscandoIsbn, setIsBuscandoIsbn] = useState(false);
 
-  const [, setTodosGeneros] = useState<Genero[]>([]); // todosGeneros
-  const [cddOptions, setCddOptions] = useState<EnumOption[]>([]);
-  const [classificacaoOptions, setClassificacaoOptions] = useState<
-    EnumOption[]
-  >([]);
-  const [tipoCapaOptions, setTipoCapaOptions] = useState<EnumOption[]>([]);
+  // Estados para alternar entre Select e Input
+  const [isNovoAutor, setIsNovoAutor] = useState(false);
+  const [isNovaEditora, setIsNovaEditora] = useState(false);
+  const [isNovoGenero, setIsNovoGenero] = useState(false);
+  const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
+  // Opções para os Selects
+  const [cddOptions, setCddOptions] = useState<Option[]>([]);
+  const [classificacaoOptions, setClassificacaoOptions] = useState<Option[]>([]);
+  const [tipoCapaOptions, setTipoCapaOptions] = useState<Option[]>([]);
+  const [autoresOptions, setAutoresOptions] = useState<Option[]>([]);
+  const [editorasOptions, setEditorasOptions] = useState<Option[]>([]);
+  const [generosOptions, setGenerosOptions] = useState<Option[]>([]);
+
+  // Carregamento de dados
   useEffect(() => {
-    const carregarDadosIniciais = async () => {
+    const carregarDados = async () => {
       try {
-        const [cdd, classificacao, tipoCapa, generosApi] = await Promise.all([
-          buscarEnum('CDD'),
+        const [
+          cddData, 
+          classificacaoData, 
+          tipoCapaData, 
+          generosData,
+          livrosData
+        ] = await Promise.all([
+          buscarCdds(),
           buscarEnum('CLASSIFICACAO_ETARIA'),
           buscarEnum('TIPO_CAPA'),
           buscarGeneros(),
+          buscarLivrosParaAdmin('', 0, 1000)
         ]);
-        setCddOptions(cdd);
-        setClassificacaoOptions(classificacao);
-        setTipoCapaOptions(tipoCapa);
-        setTodosGeneros(generosApi);
+
+        setCddOptions(cddData.map((c) => ({ label: `${c.id} - ${c.nome}`, value: c.id })));
+        setClassificacaoOptions(classificacaoData.map((c) => ({ label: c.status, value: c.nome })));
+        setTipoCapaOptions(tipoCapaData.map((c) => ({ label: c.status, value: c.nome })));
+        setGenerosOptions(generosData.map((g) => ({ label: g.nome, value: g.nome })));
+
+        const autoresUnicos = Array.from(new Set(livrosData.content.map(l => l.autor).filter(Boolean))).sort();
+        setAutoresOptions(autoresUnicos.map(a => ({ label: a, value: a })));
+
+        const editorasUnicas = Array.from(new Set(livrosData.content.map(l => l.editora).filter(Boolean))).sort();
+        setEditorasOptions(editorasUnicas.map(e => ({ label: e, value: e })));
+
       } catch (error) {
-        console.error('Erro ao carregar enums', error);
+        console.error('Erro ao carregar dados iniciais', error);
       }
     };
-    carregarDadosIniciais();
+    carregarDados();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
+  // Handlers
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAutorChange = (val: string) => {
+    setFormData(prev => ({ ...prev, autor: [val] }));
+  };
+
+  const handleAddGeneroSelect = (val: string) => {
+    setFormData(prev => {
+      const atuais = prev.generos || [];
+      if (!atuais.includes(val)) {
+        return { ...prev, generos: [...atuais, val] };
+      }
+      return prev;
+    });
+  };
+
+  const handleAddGeneroInput = () => {
+    if (novoGeneroInput.trim()) {
+      handleAddGeneroSelect(novoGeneroInput.trim());
+      setNovoGeneroInput('');
+      setIsNovoGenero(false);
+    }
+  };
+
+  const removeGenero = (g: string) => {
+    setFormData(prev => ({
+      ...prev,
+      generos: prev.generos?.filter(item => item !== g)
+    }));
+  };
+
+  // Busca ISBN
   const handleIsbnBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const isbn = e.target.value.replace(/-/g, '');
     if (isbn.length === 10 || isbn.length === 13) {
       setIsBuscandoIsbn(true);
-      setImagemPreview(null);
       try {
-        const dadosDoGoogle = await buscarLivroPorIsbn(isbn);
-        if (dadosDoGoogle) {
+        const dados = await buscarLivroPorIsbn(isbn);
+        if (dados) {
           setFormData((prev) => ({
             ...prev,
-            ...dadosDoGoogle,
-            autor: dadosDoGoogle.autor ? dadosDoGoogle.autor.split(', ') : [],
-            generos: dadosDoGoogle.generos || [],
+            ...dados,
+            autor: dados.autor ? [dados.autor] : [],
+            generos: dados.generos || [],
           }));
-          setImagemPreview(dadosDoGoogle.imagem);
-        } else {
-          alert(
-            'ISBN não encontrado. Por favor, preencha os campos manualmente.',
-          );
+          if (dados.imagem) setImagemPreview(dados.imagem);
+          
+          if (dados.autor) setIsNovoAutor(true);
+          if (dados.editora) setIsNovaEditora(true);
         }
       } catch (error) {
         console.error(error);
-        alert('Ocorreu um erro ao buscar as informações do livro.');
       } finally {
         setIsBuscandoIsbn(false);
       }
@@ -120,27 +178,14 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     }
   };
 
-  // const handleGenreToggle = (nomeGenero: string) => {
-  //   setFormData((prev) => {
-  //     const generosAtuais = prev.generos || [];
-  //     const isSelected = generosAtuais.includes(nomeGenero);
-  //     if (isSelected) {
-  //       return {
-  //         ...prev,
-  //         generos: generosAtuais.filter((g) => g !== nomeGenero),
-  //       };
-  //     } else {
-  //       return { ...prev, generos: [...generosAtuais, nomeGenero] };
-  //     }
-  //   });
-  // };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const payload: LivroPayload = {
+      const autoresString = Array.isArray(formData.autor) ? formData.autor.join(', ') : formData.autor || '';
+
+      const payload: any = {
         ...formData,
         isbn: formData.isbn!,
         nome: formData.nome!,
@@ -150,115 +195,98 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         editora: formData.editora!,
         classificacao_etaria: formData.classificacao_etaria!,
         tipo_capa: formData.tipo_capa!,
-        autor: formData.autor || [],
+        autor: autoresString,
         generos: formData.generos || [],
+        volume: Number(formData.volume) || 0,
       };
 
       await cadastrarLivro(payload);
 
-      if (capaFile) {
-        await uploadCapaLivro(formData.isbn!, capaFile);
+      if (capaFile && formData.isbn) {
+        await uploadCapaLivro(formData.isbn, capaFile);
       }
 
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Erro ao cadastrar livro:', error);
+      console.error('Erro ao cadastrar:', error);
+      alert(error.response?.data?.mensagem || 'Erro ao cadastrar livro.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none select-none';
-  const labelStyles =
-    'block text-sm font-medium text-gray-700 dark:text-white mb-1';
-  const highlightedInputStyles =
-    'w-full p-2 border-2 border-lumi-primary dark:border-lumi-label rounded-md bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary outline-none';
+  // Estilos
+  const labelStyles = 'block text-sm font-medium text-gray-700 dark:text-white mb-1 flex justify-between items-center';
+  const linkActionStyles = 'text-xs text-lumi-primary dark:text-lumi-label cursor-pointer hover:underline font-bold ml-2';
+  const inputStyles = 'w-full h-[38px] px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none text-sm';
+  const buttonClass = 'w-full bg-lumi-primary hover:bg-lumi-primary-hover active:bg-purple-900 text-white text-[17px] font-bold py-3.5 px-4 border-2 border-transparent rounded-lg shadow-md transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none tracking-wide';
 
   return (
-    <div className="flex flex-col h-full max-h-[75vh]">
-      {' '}
-      <form
-        id="form-novo-livro"
-        onSubmit={handleSubmit}
-        className="overflow-y-auto p-4 pt-0 flex-grow space-y-6"
-      >
-        <div className="flex flex-col md:flex-row gap-6 -mt-4">
-          {/* COLUNA DA ESQUERDA: IMAGEM, EDICAO E VOL */}
-          <div className="w-full md:w-1/4 flex flex-col items-center space-y-4 pt-6">
-            <div className="w-[9.5rem] h-[13.5rem] bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg flex items-center justify-center overflow-hidden">
+    <div className="flex flex-col h-full max-h-[600px] overflow-hidden">
+      <form id="form-novo-livro" onSubmit={handleSubmit} className="overflow-y-auto overflow-x-hidden p-1 flex-grow pr-2 custom-scrollbar">
+        <div className="flex flex-col md:flex-row gap-6">
+          
+          <div className="w-full md:w-[28%] flex flex-col items-center space-y-4 pt-1">
+            <div className="w-[9.5rem] h-[14rem] bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg flex items-center justify-center overflow-hidden border border-gray-300 dark:border-gray-600 relative group shrink-0">
               {isBuscandoIsbn ? (
-                <span className="text-sm text-gray-500">Buscando...</span>
+                <div className="flex flex-col items-center">
+                  <div className="w-8 h-8 border-4 border-lumi-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <span className="text-xs text-gray-500">Buscando...</span>
+                </div>
               ) : imagemPreview ? (
-                <img
-                  src={imagemPreview}
-                  alt="Capa do livro"
-                  className="w-full h-full object-cover"
-                />
+                <img src={imagemPreview} alt="Capa" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-sm text-gray-500 text-center p-2">
-                  Capa do Livro
-                </span>
+                <span className="text-sm text-gray-500 text-center p-2">Capa do Livro</span>
               )}
-            </div>
-            <div>
-              <label
-                htmlFor="capaFile"
-                className="flex cursor-pointer items-center justify-center gap-1 mt-2 text-sm text-lumi-primary hover:opacity-75"
-              >
-                <img
-                  src={uploadIconUrl}
-                  alt="Upload de capa"
-                  className="h-5 w-5"
-                />
-                <span>Upload</span>
+              
+              <label htmlFor="capaFile" className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer">
+                <img src={uploadIconUrl} alt="Upload" className="h-8 w-8 invert mb-1" />
+                <span className="text-white text-xs font-bold">Alterar Capa</span>
               </label>
-              <input
-                id="capaFile"
-                name="capaFile"
-                type="file"
-                onChange={handleFileChange}
-                accept="image/*"
-                className="hidden"
-              />
+              <input id="capaFile" type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
             </div>
 
-            <div>
-              <label htmlFor="edicao" className={labelStyles}>
-                Edição
-              </label>
-              <input
-                id="edicao"
-                name="edicao"
-                type="text"
-                value={formData.edicao || ''}
-                onChange={handleChange}
-                className={inputStyles}
-              />
-            </div>
-            <div>
-              <label htmlFor="volume" className={labelStyles}>
-                Volume
-              </label>
-              <input
-                id="volume"
-                name="volume"
-                type="number"
-                value={formData.volume || ''}
-                onChange={handleChange}
-                className={inputStyles}
-              />
+            <div className="w-full space-y-3">
+              <div>
+                <label htmlFor="edicao" className={labelStyles}>Edição</label>
+                <input
+                  id="edicao"
+                  name="edicao"
+                  type="text"
+                  value={formData.edicao || ''}
+                  onChange={handleChange}
+                  className={inputStyles}
+                  placeholder="Ex: 1ª"
+                />
+              </div>
+              <div>
+                <label htmlFor="volume" className={labelStyles}>Volume</label>
+                <input
+                  id="volume"
+                  name="volume"
+                  type="number"
+                  value={formData.volume || ''}
+                  onChange={handleChange}
+                  className={inputStyles}
+                  placeholder="Ex: 1"
+                />
+              </div>
+                            <div className="col-span-6">
+                <CustomDatePicker
+                  label="Lançamento*"
+                  value={formData.data_lancamento || ''}
+                  onChange={(e) => handleSelectChange('data_lancamento', e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
-          {/* COLUNA DA DIREITA: CAMPOS PRINCIPAIS */}
-          <div className="w-full md:w-3/4 space-y-4 mt-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="isbn" className={labelStyles}>
-                  ISBN*
-                </label>
+          <div className="w-full md:w-[72%] space-y-4">
+            
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <label htmlFor="isbn" className={labelStyles}>ISBN*</label>
                 <input
                   id="isbn"
                   name="isbn"
@@ -267,14 +295,12 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   value={formData.isbn || ''}
                   onChange={handleChange}
                   onBlur={handleIsbnBlur}
-                  className={highlightedInputStyles}
-                  placeholder="Digite e saia do campo para buscar"
+                  className={`${inputStyles} border-lumi-primary/50 focus:border-lumi-primary`}
+                  placeholder="Buscar..."
                 />
               </div>
-              <div>
-                <label htmlFor="nome" className={labelStyles}>
-                  Nome do Livro*
-                </label>
+              <div className="col-span-8">
+                <label htmlFor="nome" className={labelStyles}>Título do Livro*</label>
                 <input
                   id="nome"
                   name="nome"
@@ -282,169 +308,171 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   required
                   value={formData.nome || ''}
                   onChange={handleChange}
-                  className={highlightedInputStyles}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TagInput
-                label="Autor(es)"
-                tags={formData.autor || []}
-                setTags={(newTags) =>
-                  setFormData((prev) => ({ ...prev, autor: newTags }))
-                }
-                placeholder="Digite o nome e pressione Enter"
-              />
-              <div>
-                <label htmlFor="editora" className={labelStyles}>
-                  Editora*
-                </label>
-                <input
-                  id="editora"
-                  name="editora"
-                  type="text"
-                  required
-                  value={formData.editora || ''}
-                  onChange={handleChange}
                   className={inputStyles}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="cdd" className={labelStyles}>
-                  CDD*
-                </label>
-                <select
-                  id="cdd"
-                  name="cdd"
-                  required
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-6">
+                <div className={labelStyles}>
+                  <span>Autor*</span>
+                  <span onClick={() => setIsNovoAutor(!isNovoAutor)} className={linkActionStyles}>
+                    {isNovoAutor ? 'Selecionar existente' : 'Novo?'}
+                  </span>
+                </div>
+                {isNovoAutor ? (
+                  <input
+                    type="text"
+                    value={formData.autor?.[0] || ''}
+                    onChange={(e) => handleAutorChange(e.target.value)}
+                    className={inputStyles}
+                    placeholder="Digite o nome do autor"
+                  />
+                ) : (
+                  <SearchableSelect
+                    value={formData.autor?.[0] || ''}
+                    onChange={handleAutorChange}
+                    options={autoresOptions}
+                    placeholder="Selecione o autor"
+                  />
+                )}
+              </div>
+              <div className="col-span-6">
+                <div className={labelStyles}>
+                  <span>Editora*</span>
+                  <span onClick={() => setIsNovaEditora(!isNovaEditora)} className={linkActionStyles}>
+                    {isNovaEditora ? 'Selecionar existente' : 'Nova?'}
+                  </span>
+                </div>
+                {isNovaEditora ? (
+                  <input
+                    name="editora"
+                    type="text"
+                    value={formData.editora || ''}
+                    onChange={handleChange}
+                    className={inputStyles}
+                    placeholder="Digite a editora"
+                  />
+                ) : (
+                  <SearchableSelect
+                    value={formData.editora || ''}
+                    onChange={(val) => handleSelectChange('editora', val)}
+                    options={editorasOptions}
+                    placeholder="Selecione a editora"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-12">
+                <div className={labelStyles}>
+                  <span>Gêneros*</span>
+                  <span onClick={() => setIsNovoGenero(!isNovoGenero)} className={linkActionStyles}>
+                    {isNovoGenero ? 'Selecionar existente' : 'Novo?'}
+                  </span>
+                </div>
+                
+                <div className="flex gap-2 mb-2">
+                  {isNovoGenero ? (
+                    <div className="flex w-full gap-2">
+                      <input
+                        type="text"
+                        value={novoGeneroInput}
+                        onChange={(e) => setNovoGeneroInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddGeneroInput())}
+                        className={inputStyles}
+                        placeholder="Digite e pressione Enter ou clique no +"
+                      />
+                      <button type="button" onClick={handleAddGeneroInput} className="bg-green-500 p-2 rounded-md hover:bg-green-600">
+                        <img src={addIcon} className="w-5 h-5 invert" alt="Adicionar" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <SearchableSelect
+                        value=""
+                        onChange={handleAddGeneroSelect}
+                        options={generosOptions}
+                        placeholder="Selecione para adicionar..."
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2 min-h-[32px]">
+                  {formData.generos?.map((g) => (
+                    <span key={g} className="flex items-center bg-lumi-primary/10 text-lumi-primary dark:text-lumi-label dark:bg-gray-700 px-2 py-1 rounded-md text-xs font-bold border border-lumi-primary/20">
+                      {g}
+                      <button type="button" onClick={() => removeGenero(g)} className="ml-1 hover:bg-red-200 rounded-full p-0.5">
+                        <img src={closeIcon} className="w-3 h-3 dark:invert" alt="Remover" />
+                      </button>
+                    </span>
+                  ))}
+                  {(!formData.generos || formData.generos.length === 0) && (
+                    <span className="text-xs text-gray-400 italic mt-1">Nenhum gênero selecionado</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <label className={labelStyles}>CDD*</label>
+                <SearchableSelect
                   value={formData.cdd || ''}
-                  onChange={handleChange}
-                  className={inputStyles}
-                >
-                  <option value="">Selecione...</option>
-                  {cddOptions.map((opt) => (
-                    <option key={opt.nome} value={opt.nome}>
-                      {opt.status}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => handleSelectChange('cdd', val)}
+                  options={cddOptions}
+                  placeholder="Buscar..."
+                />
               </div>
-              <TagInput
-                label="Gêneros"
-                tags={formData.generos || []}
-                setTags={(newTags) =>
-                  setFormData((prev) => ({ ...prev, generos: newTags }))
-                }
-                placeholder="Digite o gênero e pressione Enter"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="classificacao_etaria" className={labelStyles}>
-                  Classificação*
-                </label>
-                <select
-                  id="classificacao_etaria"
-                  name="classificacao_etaria"
-                  required
+              <div className="col-span-4">
+                <label className={labelStyles}>Classificação*</label>
+                <CustomSelect
                   value={formData.classificacao_etaria || ''}
-                  onChange={handleChange}
-                  className={inputStyles}
-                >
-                  <option value="">Selecione...</option>
-                  {classificacaoOptions.map((opt) => (
-                    <option key={opt.nome} value={opt.nome}>
-                      {opt.status}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => handleSelectChange('classificacao_etaria', val)}
+                  options={classificacaoOptions}
+                  placeholder="Selecione"
+                />
               </div>
-              <div>
-                <label htmlFor="tipo_capa" className={labelStyles}>
-                  Tipo de Capa*
-                </label>
-                <select
-                  id="tipo_capa"
-                  name="tipo_capa"
-                  required
+              <div className="col-span-4">
+                <label className={labelStyles}>Capa*</label>
+                <CustomSelect
                   value={formData.tipo_capa || ''}
-                  onChange={handleChange}
-                  className={inputStyles}
-                >
-                  <option value="">Selecione...</option>
-                  {tipoCapaOptions.map((opt) => (
-                    <option key={opt.nome} value={opt.nome}>
-                      {opt.status}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => handleSelectChange('tipo_capa', val)}
+                  options={tipoCapaOptions}
+                  placeholder="Selecione"
+                />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="data_lancamento" className={labelStyles}>
-                  Lançamento*
-                </label>
-                <input
-                  id="data_lancamento"
-                  name="data_lancamento"
-                  type="date"
-                  required
-                  value={formData.data_lancamento || ''}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
-              </div>
-              <div>
-                <label htmlFor="numero_paginas" className={labelStyles}>
-                  Páginas*
-                </label>
-                <input
-                  id="numero_paginas"
-                  name="numero_paginas"
-                  type="number"
-                  required
-                  value={formData.numero_paginas || ''}
-                  onChange={handleChange}
-                  className={inputStyles}
-                />
-              </div>
+            <div>
+              <label htmlFor="sinopse" className={labelStyles}>Sinopse</label>
+              <textarea
+                id="sinopse"
+                name="sinopse"
+                value={formData.sinopse || ''}
+                onChange={handleChange}
+                className={`${inputStyles} h-auto min-h-[80px] py-2 resize-none`}
+                rows={3}
+              ></textarea>
             </div>
+
           </div>
         </div>
-
-        <div>
-          <label htmlFor="sinopse" className={labelStyles}>
-            Sinopse
-          </label>
-          <textarea
-            id="sinopse"
-            name="sinopse"
-            value={formData.sinopse || ''}
-            onChange={handleChange}
-            className={inputStyles}
-            rows={4}
-          ></textarea>
-        </div>
       </form>
-      <button
-        type="submit"
-        form="form-novo-livro"
-        disabled={isLoading || isBuscandoIsbn}
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md disabled:bg-gray-400"
-      >
-        {isLoading
-          ? 'Salvando...'
-          : isBuscandoIsbn
-            ? 'Buscando dados...'
-            : 'SALVAR'}
-      </button>
+
+      <div className="pt-3 mt-2 border-t border-gray-200 dark:border-gray-700 shrink-0">
+        <button
+          type="submit"
+          form="form-novo-livro"
+          disabled={isLoading || isBuscandoIsbn}
+          className={buttonClass}
+        >
+          {isLoading ? 'SALVANDO...' : isBuscandoIsbn ? 'BUSCANDO DADOS...' : 'CADASTRAR LIVRO'}
+        </button>
+      </div>
     </div>
   );
 }
