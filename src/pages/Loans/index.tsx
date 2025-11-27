@@ -4,8 +4,9 @@ import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { LoanFilter } from '../../components/filters/LoanFilter';
-import { NovoEmprestimo } from '../../components/forms/NewLoan';
 import { Modal } from '../../components/Modal';
+import { NovoEmprestimo } from '../../components/forms/NewLoan';
+import { ModalLoanDetails } from '../../components/details/ModalLoanDetails';
 
 import {
   buscarEmprestimosPaginado,
@@ -31,13 +32,17 @@ const emprestimosLegend = [
 
 interface EmprestimoDisplay {
   id: string;
+  rawId: number;
   status: StatusEmprestimoDisplay;
   livro: string;
   tombo: string;
   aluno: string;
+  matriculaAluno: string;
   curso: string;
   emprestimo: Date;
   devolucao: Date;
+  rawDataEmprestimo: string;
+  rawDataDevolucao: string;
 }
 
 export function EmprestimosPage() {
@@ -61,6 +66,15 @@ export function EmprestimosPage() {
   const [filtroAtivo, setFiltroAtivo] = useState('');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
+  const [emprestimoSelecionado, setEmprestimoSelecionado] = useState<{
+    id: number;
+    alunoMatricula: string;
+    livroIsbn: string;
+    exemplarTombo: string;
+    dataEmprestimo: string;
+    dataDevolucao: string;
+  } | null>(null);
 
   // FILTRO
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -150,13 +164,17 @@ export function EmprestimosPage() {
 
             return {
               id: `${item.livroTombo}-${index}`,
+              rawId: item.id,
               status: status,
               livro: item.livroNome,
               tombo: item.livroTombo,
               aluno: item.nomeAluno,
+              matriculaAluno: item.matriculaAluno,
               curso: item.curso || '-',
               emprestimo: new Date(item.dataEmprestimo),
               devolucao: new Date(item.dataDevolucao),
+              rawDataEmprestimo: item.dataEmprestimo,
+              rawDataDevolucao: item.dataDevolucao,
             };
           },
         );
@@ -214,6 +232,26 @@ export function EmprestimosPage() {
     });
     setActiveFilters({});
     setIsFilterOpen(false);
+  };
+
+  const handleAbrirDetalhes = (item: EmprestimoDisplay) => {
+    setEmprestimoSelecionado({
+      id: item.rawId,
+      alunoMatricula: item.matriculaAluno,
+      livroIsbn: '',
+      exemplarTombo: item.tombo,
+      dataEmprestimo: item.rawDataEmprestimo,
+      dataDevolucao: item.rawDataDevolucao,
+    });
+    setIsDetalhesOpen(true);
+  };
+
+  const handleFecharDetalhes = (foiAtualizado?: boolean) => {
+    setIsDetalhesOpen(false);
+    setEmprestimoSelecionado(null);
+    if (foiAtualizado) {
+      fetchEmprestimos();
+    }
   };
 
   const requestSort = (key: string) => {
@@ -312,8 +350,11 @@ export function EmprestimosPage() {
       header: 'Ações',
       width: '10%',
       isSortable: false,
-      render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
+      render: (item) => (
+        <button
+          onClick={() => handleAbrirDetalhes(item)}
+          className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none"
+        >
           DETALHES
         </button>
       ),
@@ -357,6 +398,12 @@ export function EmprestimosPage() {
           onSuccess={fetchEmprestimos}
         />
       </Modal>
+
+      <ModalLoanDetails
+        isOpen={isDetalhesOpen}
+        onClose={handleFecharDetalhes}
+        emprestimo={emprestimoSelecionado}
+      />
 
       <div
         ref={tableContainerRef}

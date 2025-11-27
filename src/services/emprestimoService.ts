@@ -2,10 +2,12 @@ import api from './api';
 import type { Page } from '../types';
 
 export interface EmprestimoListagemDTO {
+  id: number;
   statusEmprestimo: 'ATIVO' | 'ATRASADO' | 'CONCLUIDO';
   livroNome: string;
   livroTombo: string;
   nomeAluno: string;
+  matriculaAluno: string;
   curso: string;
   dataEmprestimo: string;
   dataDevolucao: string;
@@ -17,7 +19,7 @@ export interface EmprestimoAtivoDTO {
   alunoNome: string;
   alunoMatricula: string;
   tombo: string;
-  dataDevolucao: string; // O backend envia 'yyyy-MM-dd'
+  dataDevolucao: string;
   statusEmprestimo: 'ATIVO' | 'ATRASADO' | 'CONCLUIDO';
 }
 
@@ -31,17 +33,23 @@ export interface EmprestimoFilterParams {
   statusEmprestimo?: string;
   dataEmprestimo?: string;
   dataDevolucao?: string;
+  tombo?: string;
+  livroNome?: string;
+  alunoNome?: string;
   page?: number;
   size?: number;
   sort?: string;
 }
 
 export interface EmprestimoPayload {
+  id?: number;
   aluno_matricula: string;
   exemplar_tombo: string;
-  data_emprestimo: string; // Formato: dd/MM/yyyy HH:mm:ss
-  data_devolucao: string; // Formato: dd/MM/yyyy HH:mm:ss
+  data_emprestimo: string;
+  data_devolucao: string;
 }
+
+// --- BUSCAS ---
 
 export const buscarEmprestimosPaginado = async (
   texto: string,
@@ -65,14 +73,19 @@ export const buscarEmprestimosPaginado = async (
   return response.data;
 };
 
+export const buscarEmprestimosAvancado = async (
+  params: EmprestimoFilterParams,
+): Promise<Page<EmprestimoListagemDTO>> => {
+  const response = await api.get('/emprestimos/buscar/avancado', { params });
+  return response.data;
+};
+
 export const getContagemAtrasados = async (): Promise<number> => {
   try {
     const response = await api.get('/emprestimos/buscar/apenas-atrasados');
-
     if (response.status === 204 || !response.data) {
       return 0;
     }
-
     return response.data.length;
   } catch (error) {
     console.error('Erro ao buscar contagem de atrasados:', error);
@@ -111,14 +124,39 @@ export const buscarRanking = async (
   return response.data || [];
 };
 
-export const buscarEmprestimosAvancado = async (
-  params: EmprestimoFilterParams,
-): Promise<Page<EmprestimoListagemDTO>> => {
-  const response = await api.get('/emprestimos/buscar/avancado', { params });
+// --- HISTÓRICO DO ALUNO ---
+
+export const buscarHistoricoAluno = async (matricula: string) => {
+  const response = await api.get(`/emprestimos/aluno/${matricula}/historico`);
   return response.data;
 };
 
+export const buscarEmprestimosAtivosAluno = async (matricula: string) => {
+  const response = await api.get(`/emprestimos/aluno/${matricula}`);
+  return response.data;
+};
+
+// --- AÇÕES DE ESCRITA ---
+
 export const cadastrarEmprestimo = async (payload: EmprestimoPayload) => {
   const response = await api.post('/emprestimos/cadastrar', payload);
+  return response.data;
+};
+
+export const atualizarEmprestimo = async (
+  id: number,
+  payload: EmprestimoPayload,
+) => {
+  const response = await api.put(`/emprestimos/atualizar/${id}`, payload);
+  return response.data;
+};
+
+export const concluirEmprestimo = async (id: number) => {
+  const response = await api.put(`/emprestimos/concluir/${id}`);
+  return response.data;
+};
+
+export const excluirEmprestimo = async (id: number) => {
+  const response = await api.delete(`/emprestimos/excluir/${id}`);
   return response.data;
 };
