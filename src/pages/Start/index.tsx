@@ -213,32 +213,33 @@ export function DashboardPage() {
           const hoje = new Date();
           hoje.setHours(0, 0, 0, 0);
 
-          const processados = lista.map((e) => {
-            const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
+          const processados = lista
+            .map((e) => {
+              const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
+              dataDevolucao.setHours(0, 0, 0, 0);
 
-            dataDevolucao.setHours(0, 0, 0, 0);
+              let statusVencimento: EmprestimoVencer['statusVencimento'] =
+                'ativo';
 
-            let statusVencimento: EmprestimoVencer['statusVencimento'] =
-              'ativo';
+              if (e.statusEmprestimo === 'ATRASADO') {
+                statusVencimento = 'atrasado';
+              } else if (dataDevolucao.getTime() < hoje.getTime()) {
+                statusVencimento = 'atrasado';
+              } else if (dataDevolucao.getTime() === hoje.getTime()) {
+                statusVencimento = 'vence-hoje';
+              }
 
-            if (e.statusEmprestimo === 'ATRASADO') {
-              statusVencimento = 'atrasado';
-            } else if (dataDevolucao.getTime() < hoje.getTime()) {
-              statusVencimento = 'atrasado';
-            } else if (dataDevolucao.getTime() === hoje.getTime()) {
-              statusVencimento = 'vence-hoje';
-            }
-
-            return {
-              id: e.id,
-              livro: e.livroNome,
-              isbn: '-',
-              aluno: e.alunoNome,
-              retirada: '-',
-              devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
-              statusVencimento,
-            };
-          });
+              return {
+                id: e.id,
+                livro: e.livroNome,
+                isbn: '-',
+                aluno: e.alunoNome,
+                retirada: '-',
+                devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
+                statusVencimento,
+              };
+            })
+            .filter((item) => item.statusVencimento !== 'ativo');
 
           setEmprestimosState({
             data: processados,
@@ -394,7 +395,7 @@ export function DashboardPage() {
         />
 
         <StatCard
-          to="/emprestimos"
+          to="/emprestimos?filtro=atrasados"
           Icon={AlertIcon}
           title="PENDÊNCIAS"
           value={statsState.data?.atrasados ?? 0}
@@ -408,7 +409,6 @@ export function DashboardPage() {
         ref={dashboardContainerRef}
         className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0"
       >
-        {/* Solicitações de Empréstimo */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0 will-change-transform">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
             Solicitações de Empréstimo
@@ -449,10 +449,9 @@ export function DashboardPage() {
           />
         </div>
 
-        {/* Empréstimos Ativos */}
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex flex-col min-h-0 will-change-transform">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 shrink-0 select-none">
-            Empréstimos Ativos
+            Empréstimos Atrasados e a Vencer
           </h3>
 
           <DataTable

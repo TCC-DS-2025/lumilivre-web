@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -26,7 +27,7 @@ type StatusEmprestimoDisplay =
 const emprestimosLegend = [
   { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
   { status: 'vence-hoje', label: 'Vence Hoje', color: 'bg-yellow-500' },
-  { status: 'atrasado', label: 'Atrasado', color: 'bg-red-500' },
+  { status: 'atrasado', label: 'Vencido', color: 'bg-red-500' },
   { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
 ];
 
@@ -87,6 +88,25 @@ export function EmprestimosPage() {
     alunoNome: '',
   });
   const [activeFilters, setActiveFilters] = useState({});
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const filtroUrl = searchParams.get('filtro');
+
+    if (filtroUrl === 'atrasados') {
+      const filtroAtrasado = {
+        statusEmprestimo: 'ATRASADO',
+        dataEmprestimo: '',
+        dataDevolucao: '',
+        tombo: '',
+        livroNome: '',
+        alunoNome: '',
+      };
+
+      setFilterParams(filtroAtrasado);
+      setActiveFilters(filtroAtrasado);
+    }
+  }, [searchParams]);
 
   const hasActiveFilters = useMemo(() => {
     return Object.values(activeFilters).some((val) => val !== '');

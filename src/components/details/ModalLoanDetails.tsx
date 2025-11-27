@@ -7,14 +7,12 @@ import { CustomDatePicker } from '../CustomDatePicker';
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
 import { buscarLivrosParaAdmin } from '../../services/livroService';
 import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
-import { cadastrarEmprestimo } from '../../services/emprestimoService';
 
 interface Option {
   label: string;
   value: string | number;
 }
 
-// Interface baseada no que é exibido na lista, mas idealmente viria completa do backend
 interface EmprestimoDados {
   id: string | number;
   alunoMatricula: string;
@@ -22,8 +20,8 @@ interface EmprestimoDados {
   livroIsbn: string;
   livroNome?: string;
   exemplarTombo: string;
-  dataEmprestimo: string; // ISO ou formatada
-  dataDevolucao: string; // ISO ou formatada
+  dataEmprestimo: string;
+  dataDevolucao: string; 
 }
 
 interface ModalLoanDetailsProps {
@@ -43,7 +41,7 @@ export function ModalLoanDetails({
 
   // Estados dos dados
   const [alunoMatricula, setAlunoMatricula] = useState('');
-  const [livroId, setLivroId] = useState(''); // Usando ISBN ou ID conforme lógica do NewLoan
+  const [livroId, setLivroId] = useState(''); 
   const [exemplarTombo, setExemplarTombo] = useState('');
   const [dataEmprestimo, setDataEmprestimo] = useState('');
   const [dataDevolucao, setDataDevolucao] = useState('');
@@ -53,7 +51,6 @@ export function ModalLoanDetails({
   const [livrosOptions, setLivrosOptions] = useState<Option[]>([]);
   const [exemplaresOptions, setExemplaresOptions] = useState<Option[]>([]);
 
-  // 1. Carregar dados iniciais (Alunos e Livros) - Igual ao NewLoan
   useEffect(() => {
     if (isOpen) {
       const carregarListas = async () => {
@@ -73,7 +70,7 @@ export function ModalLoanDetails({
           setLivrosOptions(
             livrosRes.content.map((l) => ({
               label: `${l.nome} (ISBN: ${l.isbn})`,
-              value: l.isbn, // Ou l.id dependendo da sua lógica de backend
+              value: l.isbn,
             })),
           );
         } catch (error) {
@@ -84,15 +81,12 @@ export function ModalLoanDetails({
     }
   }, [isOpen]);
 
-  // 2. Povoar o formulário quando o empréstimo é selecionado
   useEffect(() => {
     if (emprestimo && isOpen) {
       setAlunoMatricula(emprestimo.alunoMatricula || '');
       setLivroId(emprestimo.livroIsbn || '');
       setExemplarTombo(emprestimo.exemplarTombo || '');
 
-      // Tratamento de datas para o formato do CustomDatePicker (yyyy-MM-dd)
-      // Assumindo que vem ISO ou Date object, ajuste conforme seu objeto real
       const formatarData = (data: string | Date) => {
         if (!data) return '';
         const d = new Date(data);
@@ -102,11 +96,10 @@ export function ModalLoanDetails({
       setDataEmprestimo(formatarData(emprestimo.dataEmprestimo));
       setDataDevolucao(formatarData(emprestimo.dataDevolucao));
 
-      setIsEditMode(false); // Sempre começa em modo visualização
+      setIsEditMode(false); 
     }
   }, [emprestimo, isOpen]);
 
-  // 3. Carregar Exemplares quando o Livro muda - Igual ao NewLoan
   useEffect(() => {
     if (!livroId) {
       setExemplaresOptions([]);
@@ -116,16 +109,8 @@ export function ModalLoanDetails({
     const carregarExemplares = async () => {
       setIsLoadingExemplares(true);
       try {
-        // Nota: NewLoan usa buscarExemplaresPorLivroId que pede number,
-        // mas aqui estamos lidando com ISBN as vezes.
-        // Se precisar converter ISBN para ID, precisaria de uma busca extra ou ajustar o value do select.
-        // Vou assumir que você tem o ID ou que a função aceita o que está no value.
-
-        // Se o value for ISBN, talvez precise buscar o livro antes para pegar o ID numérico
-        // Para manter simples e igual ao NewLoan, assumo que a lógica de ID está correta.
         const lista = await buscarExemplaresPorLivroId(Number(livroId) || 0);
 
-        // No modo edição, queremos ver o exemplar ATUAL também, mesmo que não esteja "DISPONIVEL"
         const disponiveisOuAtual = lista.filter(
           (ex) =>
             ex.status === 'DISPONIVEL' || ex.tomboExemplar === exemplarTombo,
@@ -146,7 +131,7 @@ export function ModalLoanDetails({
     };
 
     carregarExemplares();
-  }, [livroId, exemplarTombo]); // Adicionado exemplarTombo para garantir que ele apareça na lista
+  }, [livroId, exemplarTombo]);
 
   const handleSalvar = async () => {
     if (
@@ -180,8 +165,6 @@ export function ModalLoanDetails({
 
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
-  const inputStyles =
-    'w-full h-[38px] px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none text-sm';
   const disabledInputStyles =
     'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center';
 
@@ -195,7 +178,7 @@ export function ModalLoanDetails({
     >
       <div className="flex flex-col h-full max-h-[600px] overflow-hidden">
         <div className="overflow-y-auto p-1 flex-grow custom-scrollbar pr-2 space-y-6">
-          {/* Grid de Datas - Idêntico ao NewLoan */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {isEditMode ? (
               <CustomDatePicker
@@ -232,7 +215,6 @@ export function ModalLoanDetails({
             )}
           </div>
 
-          {/* Aluno */}
           <div>
             <label className={labelStyles}>Aluno*</label>
             {isEditMode ? (
@@ -255,7 +237,6 @@ export function ModalLoanDetails({
             )}
           </div>
 
-          {/* Livro */}
           <div>
             <label className={labelStyles}>Livro*</label>
             {isEditMode ? (
@@ -263,7 +244,7 @@ export function ModalLoanDetails({
                 value={livroId}
                 onChange={(val) => {
                   setLivroId(val);
-                  setExemplarTombo(''); // Limpa exemplar se mudar o livro
+                  setExemplarTombo('');
                 }}
                 options={livrosOptions}
                 placeholder="Busque pelo título ou ISBN..."
@@ -281,7 +262,6 @@ export function ModalLoanDetails({
             )}
           </div>
 
-          {/* Exemplar */}
           <div>
             <label className={labelStyles}>Exemplar*</label>
             {isEditMode ? (
@@ -308,9 +288,7 @@ export function ModalLoanDetails({
           </div>
         </div>
 
-        {/* Footer com Botões - Padrão dos Modais de Detalhes */}
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
-          {/* Botão de Ação Secundária (Ex: Devolver ou Cancelar Edição) */}
           {isEditMode ? (
             <button
               onClick={() => setIsEditMode(false)}
@@ -321,7 +299,7 @@ export function ModalLoanDetails({
           ) : (
             <button
               onClick={() => {
-                /* Lógica de Devolução se necessário */
+                /* Lógica de Devolução */
               }}
               className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-md"
             >
@@ -329,7 +307,6 @@ export function ModalLoanDetails({
             </button>
           )}
 
-          {/* Botão Principal */}
           {isEditMode ? (
             <button
               onClick={handleSalvar}
