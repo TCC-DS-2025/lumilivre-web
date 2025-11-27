@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
+import { ModalLoanDetails } from '../../components/details/ModalLoanDetails';
 import { formatarNome } from '../../utils/formatters';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
@@ -38,8 +39,11 @@ interface EmprestimoVencer {
   livro: string;
   isbn: string;
   aluno: string;
+  alunoMatricula: string;
+  tombo: string;
   retirada: string;
   devolucao: string;
+  rawDevolucao: string;
   statusVencimento: 'atrasado' | 'vence-hoje' | 'ativo';
 }
 
@@ -86,6 +90,16 @@ export function DashboardPage() {
 
   const [emprestimoPage, setEmprestimoPage] = useState(1);
   const [emprestimoPerPage, setEmprestimoPerPage] = useState(10);
+
+  const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState<{
+    id: number;
+    alunoMatricula: string;
+    livroIsbn: string;
+    exemplarTombo: string;
+    dataEmprestimo: string;
+    dataDevolucao: string;
+  } | null>(null);
 
   useEffect(() => {
     setSolicitacaoPerPage(dynamicPageSize);
@@ -164,99 +178,123 @@ export function DashboardPage() {
     setEmprestimoSort({ key, direction });
   };
 
+  // Handlers do Modal
+  const handleAbrirDetalhesEmprestimo = (item: EmprestimoVencer) => {
+    setSelectedLoan({
+      id: item.id,
+      alunoMatricula: item.alunoMatricula,
+      exemplarTombo: item.tombo,
+      dataDevolucao: item.rawDevolucao,
+      livroIsbn: '',
+      dataEmprestimo: '',
+    });
+    setIsLoanModalOpen(true);
+  };
+
+  const handleFecharDetalhesEmprestimo = (foiAtualizado?: boolean) => {
+    setIsLoanModalOpen(false);
+    setSelectedLoan(null);
+    if (foiAtualizado) {
+      carregarDados();
+    }
+  };
+
+  const carregarDados = async () => {
+    getContagemLivros()
+      .then((livros) =>
+        Promise.all([
+          livros,
+          getContagemAlunos(),
+          getContagemEmprestimosTotais(),
+          getContagemAtrasados(),
+        ]),
+      )
+      .then(([livros, alunos, emprestimosAtivos, atrasados]) => {
+        setStatsState({
+          data: { livros, alunos, emprestimosAtivos, atrasados },
+          isLoading: false,
+          error: null,
+        });
+      })
+      .catch(() => {
+        setStatsState({ data: null as any, isLoading: false, error: 'Erro' });
+      });
+
+    buscarSolicitacoesPendentes()
+      .then((lista) => {
+        const processadas = lista.map((s) => ({
+          id: s.id,
+          aluno: s.alunoNome,
+          livro: s.livroNome,
+          solicitacao: new Date(s.dataSolicitacao),
+        }));
+        setSolicitacoesState({
+          data: processadas,
+          isLoading: false,
+          error: null,
+        });
+      })
+      .catch(() => {
+        setSolicitacoesState({
+          data: [],
+          isLoading: false,
+          error: 'Erro ao carregar solicitações.',
+        });
+      });
+
+    buscarEmprestimosAtivosEAtrasados()
+      .then((lista) => {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        const processados = lista
+          .map((e) => {
+            const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
+            dataDevolucao.setHours(0, 0, 0, 0);
+
+            let statusVencimento: EmprestimoVencer['statusVencimento'] =
+              'ativo';
+
+            if (e.statusEmprestimo === 'ATRASADO') {
+              statusVencimento = 'atrasado';
+            } else if (dataDevolucao.getTime() < hoje.getTime()) {
+              statusVencimento = 'atrasado';
+            } else if (dataDevolucao.getTime() === hoje.getTime()) {
+              statusVencimento = 'vence-hoje';
+            }
+
+            return {
+              id: e.id,
+              livro: e.livroNome,
+              isbn: '-',
+              aluno: e.alunoNome,
+              alunoMatricula: e.alunoMatricula,
+              tombo: e.tombo,
+              rawDevolucao: e.dataDevolucao,
+              retirada: '-',
+              devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
+              statusVencimento,
+            };
+          })
+          .filter((item) => item.statusVencimento !== 'ativo');
+
+        setEmprestimosState({
+          data: processados,
+          isLoading: false,
+          error: null,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        setEmprestimosState({
+          data: [],
+          isLoading: false,
+          error: 'Erro ao carregar empréstimos.',
+        });
+      });
+  };
+
   useEffect(() => {
-    const carregarDados = async () => {
-      getContagemLivros()
-        .then((livros) =>
-          Promise.all([
-            livros,
-            getContagemAlunos(),
-            getContagemEmprestimosTotais(),
-            getContagemAtrasados(),
-          ]),
-        )
-        .then(([livros, alunos, emprestimosAtivos, atrasados]) => {
-          setStatsState({
-            data: { livros, alunos, emprestimosAtivos, atrasados },
-            isLoading: false,
-            error: null,
-          });
-        })
-        .catch(() => {
-          setStatsState({ data: null as any, isLoading: false, error: 'Erro' });
-        });
-
-      buscarSolicitacoesPendentes()
-        .then((lista) => {
-          const processadas = lista.map((s) => ({
-            id: s.id,
-            aluno: s.alunoNome,
-            livro: s.livroNome,
-            solicitacao: new Date(s.dataSolicitacao),
-          }));
-          setSolicitacoesState({
-            data: processadas,
-            isLoading: false,
-            error: null,
-          });
-        })
-        .catch(() => {
-          setSolicitacoesState({
-            data: [],
-            isLoading: false,
-            error: 'Erro ao carregar solicitações.',
-          });
-        });
-
-      buscarEmprestimosAtivosEAtrasados()
-        .then((lista) => {
-          const hoje = new Date();
-          hoje.setHours(0, 0, 0, 0);
-
-          const processados = lista
-            .map((e) => {
-              const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
-              dataDevolucao.setHours(0, 0, 0, 0);
-
-              let statusVencimento: EmprestimoVencer['statusVencimento'] =
-                'ativo';
-
-              if (e.statusEmprestimo === 'ATRASADO') {
-                statusVencimento = 'atrasado';
-              } else if (dataDevolucao.getTime() < hoje.getTime()) {
-                statusVencimento = 'atrasado';
-              } else if (dataDevolucao.getTime() === hoje.getTime()) {
-                statusVencimento = 'vence-hoje';
-              }
-
-              return {
-                id: e.id,
-                livro: e.livroNome,
-                isbn: '-',
-                aluno: e.alunoNome,
-                retirada: '-',
-                devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
-                statusVencimento,
-              };
-            })
-            .filter((item) => item.statusVencimento !== 'ativo');
-
-          setEmprestimosState({
-            data: processados,
-            isLoading: false,
-            error: null,
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          setEmprestimosState({
-            data: [],
-            isLoading: false,
-            error: 'Erro ao carregar empréstimos.',
-          });
-        });
-    };
-
     carregarDados();
   }, []);
 
@@ -351,8 +389,11 @@ export function DashboardPage() {
       header: 'Ações',
       width: '20%',
       isSortable: false,
-      render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
+      render: (item) => (
+        <button
+          onClick={() => handleAbrirDetalhesEmprestimo(item)}
+          className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none"
+        >
           Detalhes
         </button>
       ),
@@ -366,6 +407,12 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full will-change-transform">
+      <ModalLoanDetails
+        isOpen={isLoanModalOpen}
+        onClose={handleFecharDetalhesEmprestimo}
+        emprestimo={selectedLoan}
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
         <StatCard
           to="/livros"

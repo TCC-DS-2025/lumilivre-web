@@ -187,43 +187,45 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
           />
         </div>
 
-        <div>
-          <label className={labelStyles}>Aluno*</label>
-          <SearchableSelect
-            value={alunoMatricula}
-            onChange={setAlunoMatricula}
-            options={alunosOptions}
-            placeholder="Busque pelo nome ou matrícula..."
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className={labelStyles}>Aluno*</label>
+            <SearchableSelect
+              value={alunoMatricula}
+              onChange={setAlunoMatricula}
+              options={alunosOptions}
+              placeholder="Busque pelo nome ou matrícula..."
+            />
+          </div>
 
-        <div>
-          <label className={labelStyles}>Livro*</label>
-          <SearchableSelect
-            value={livroId}
-            onChange={(val) => {
-              setLivroId(val);
-              setExemplarTombo('');
-            }}
-            options={livrosOptions}
-            placeholder="Busque pelo título ou ISBN..."
-          />
-        </div>
+          <div>
+            <label className={labelStyles}>Livro*</label>
+            <SearchableSelect
+              value={livroId}
+              onChange={(val) => {
+                setLivroId(val);
+                setExemplarTombo('');
+              }}
+              options={livrosOptions}
+              placeholder="Busque pelo título ou ISBN..."
+            />
+          </div>
 
-        <div>
-          <label className={labelStyles}>Exemplar Disponível*</label>
-          <SearchableSelect
-            value={exemplarTombo}
-            onChange={setExemplarTombo}
-            options={exemplaresOptions}
-            placeholder={
-              !livroId
-                ? 'Selecione um livro primeiro'
-                : 'Selecione o exemplar...'
-            }
-            disabled={!livroId || isLoadingExemplares}
-            isLoading={isLoadingExemplares}
-          />
+          <div>
+            <label className={labelStyles}>Exemplar Disponível*</label>
+            <SearchableSelect
+              value={exemplarTombo}
+              onChange={setExemplarTombo}
+              options={exemplaresOptions}
+              placeholder={
+                !livroId
+                  ? 'Selecione um livro primeiro'
+                  : 'Selecione o exemplar...'
+              }
+              disabled={!livroId || isLoadingExemplares}
+              isLoading={isLoadingExemplares}
+            />
+          </div>
         </div>
       </form>
 

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 import CloseIcon from '../assets/icons/close.svg?react';
 
@@ -34,9 +35,9 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center select-none
+      className={`fixed inset-0 z-[9999] flex items-center justify-center select-none
         ${isAnimatingOut ? 'animate-fade-out' : 'animate-fade-in'}
       `}
     >
@@ -68,6 +69,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
         <div className="p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

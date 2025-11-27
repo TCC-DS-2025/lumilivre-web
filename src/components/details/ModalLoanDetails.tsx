@@ -21,7 +21,7 @@ interface EmprestimoDados {
   livroNome?: string;
   exemplarTombo: string;
   dataEmprestimo: string;
-  dataDevolucao: string; 
+  dataDevolucao: string;
 }
 
 interface ModalLoanDetailsProps {
@@ -41,7 +41,7 @@ export function ModalLoanDetails({
 
   // Estados dos dados
   const [alunoMatricula, setAlunoMatricula] = useState('');
-  const [livroId, setLivroId] = useState(''); 
+  const [livroId, setLivroId] = useState('');
   const [exemplarTombo, setExemplarTombo] = useState('');
   const [dataEmprestimo, setDataEmprestimo] = useState('');
   const [dataDevolucao, setDataDevolucao] = useState('');
@@ -96,7 +96,7 @@ export function ModalLoanDetails({
       setDataEmprestimo(formatarData(emprestimo.dataEmprestimo));
       setDataDevolucao(formatarData(emprestimo.dataDevolucao));
 
-      setIsEditMode(false); 
+      setIsEditMode(false);
     }
   }, [emprestimo, isOpen]);
 
@@ -178,7 +178,6 @@ export function ModalLoanDetails({
     >
       <div className="flex flex-col h-full max-h-[600px] overflow-hidden">
         <div className="overflow-y-auto p-1 flex-grow custom-scrollbar pr-2 space-y-6">
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {isEditMode ? (
               <CustomDatePicker
@@ -215,76 +214,78 @@ export function ModalLoanDetails({
             )}
           </div>
 
-          <div>
-            <label className={labelStyles}>Aluno*</label>
-            {isEditMode ? (
-              <SearchableSelect
-                value={alunoMatricula}
-                onChange={setAlunoMatricula}
-                options={alunosOptions}
-                placeholder="Busque pelo nome ou matrícula..."
-              />
-            ) : (
-              <input
-                type="text"
-                value={
-                  alunosOptions.find((a) => a.value === alunoMatricula)
-                    ?.label || alunoMatricula
-                }
-                disabled
-                className={disabledInputStyles}
-              />
-            )}
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className={labelStyles}>Aluno*</label>
+              {isEditMode ? (
+                <SearchableSelect
+                  value={alunoMatricula}
+                  onChange={setAlunoMatricula}
+                  options={alunosOptions}
+                  placeholder="Busque pelo nome ou matrícula..."
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={
+                    alunosOptions.find((a) => a.value === alunoMatricula)
+                      ?.label || alunoMatricula
+                  }
+                  disabled
+                  className={disabledInputStyles}
+                />
+              )}
+            </div>
 
-          <div>
-            <label className={labelStyles}>Livro*</label>
-            {isEditMode ? (
-              <SearchableSelect
-                value={livroId}
-                onChange={(val) => {
-                  setLivroId(val);
-                  setExemplarTombo('');
-                }}
-                options={livrosOptions}
-                placeholder="Busque pelo título ou ISBN..."
-              />
-            ) : (
-              <input
-                type="text"
-                value={
-                  livrosOptions.find((l) => l.value === livroId)?.label ||
-                  livroId
-                }
-                disabled
-                className={disabledInputStyles}
-              />
-            )}
-          </div>
+            <div>
+              <label className={labelStyles}>Livro*</label>
+              {isEditMode ? (
+                <SearchableSelect
+                  value={livroId}
+                  onChange={(val) => {
+                    setLivroId(val);
+                    setExemplarTombo('');
+                  }}
+                  options={livrosOptions}
+                  placeholder="Busque pelo título ou ISBN..."
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={
+                    livrosOptions.find((l) => l.value === livroId)?.label ||
+                    livroId
+                  }
+                  disabled
+                  className={disabledInputStyles}
+                />
+              )}
+            </div>
 
-          <div>
-            <label className={labelStyles}>Exemplar*</label>
-            {isEditMode ? (
-              <SearchableSelect
-                value={exemplarTombo}
-                onChange={setExemplarTombo}
-                options={exemplaresOptions}
-                placeholder={
-                  !livroId
-                    ? 'Selecione um livro primeiro'
-                    : 'Selecione o exemplar...'
-                }
-                disabled={!livroId || isLoadingExemplares}
-                isLoading={isLoadingExemplares}
-              />
-            ) : (
-              <input
-                type="text"
-                value={exemplarTombo}
-                disabled
-                className={disabledInputStyles}
-              />
-            )}
+            <div>
+              <label className={labelStyles}>Exemplar*</label>
+              {isEditMode ? (
+                <SearchableSelect
+                  value={exemplarTombo}
+                  onChange={setExemplarTombo}
+                  options={exemplaresOptions}
+                  placeholder={
+                    !livroId
+                      ? 'Selecione um livro primeiro'
+                      : 'Selecione o exemplar...'
+                  }
+                  disabled={!livroId || isLoadingExemplares}
+                  isLoading={isLoadingExemplares}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={exemplarTombo}
+                  disabled
+                  className={disabledInputStyles}
+                />
+              )}
+            </div>
           </div>
         </div>
 
