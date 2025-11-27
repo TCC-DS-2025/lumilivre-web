@@ -103,7 +103,7 @@ export function ModalExemplarDetails({
     >
       <div className="flex flex-col h-full">
         {exemplar.status !== 'DISPONIVEL' && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/10 p-3 mb-2 rounded-md border border-yellow-100 dark:border-yellow-800/30">
+          <div className="bg-yellow-50 dark:bg-yellow-900/10 p-3 mb-4 rounded-md border border-yellow-100 dark:border-yellow-800/30">
             <label className="block text-xs font-bold text-yellow-700 dark:text-yellow-500 uppercase mb-1">
               Emprestado para
             </label>

@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '../Modal';
-import addIconUrl from '../../assets/icons/add.svg';
 
-import { cadastrarAluno } from '../../services/alunoService';
+import { cadastrarAluno, type AlunoPayload } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
 import {
   buscarCursos,
@@ -11,9 +9,12 @@ import {
 } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
 
-interface Curso {
-  id: number;
-  nome: string;
+import { CustomSelect } from '../CustomSelect';
+import { CustomDatePicker } from '../CustomDatePicker';
+
+interface Option {
+  label: string;
+  value: string | number;
 }
 
 interface FormData {
@@ -35,36 +36,23 @@ interface FormData {
   complemento: string;
 }
 
-const FormInput = ({
-  label,
-  id,
-  required = false,
-  ...props
-}: {
-  label: string;
-  id: string;
-  required?: boolean;
-} & React.InputHTMLAttributes<HTMLInputElement>) => {
-  const labelStyles =
-    'block text-sm font-medium text-gray-700 dark:text-white mb-1';
-  const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none';
-
-  return (
-    <div>
-      <label htmlFor={id} className={labelStyles}>
-        {label}
-        {required && '*'}
-      </label>
-      <input
-        id={id}
-        name={id}
-        {...props}
-        className={inputStyles}
-        required={required}
-      />
-    </div>
-  );
+const estadoInicial: FormData = {
+  matricula: '',
+  nomeCompleto: '',
+  cpf: '',
+  celular: '',
+  dataNascimento: '',
+  email: '',
+  cursoId: '',
+  turno: '',
+  modulo: '',
+  cep: '',
+  logradouro: '',
+  bairro: '',
+  localidade: '',
+  uf: '',
+  numero_casa: '',
+  complemento: '',
 };
 
 export function NovoAluno({
@@ -74,33 +62,27 @@ export function NovoAluno({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [isNovoCursoModuloModalOpen, setIsNovoCursoModuloModalOpen] =
-    useState(false);
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [novoCursoNome, setNovoCursoNome] = useState('');
-  const [modulos, setModulos] = useState<string[]>([]);
-  const [novoModuloNome, setNovoModuloNome] = useState('');
-
+  const [formData, setFormData] = useState<FormData>(estadoInicial);
+  const [isLoading, setIsLoading] = useState(false);
   const [isCepLoading, setIsCepLoading] = useState(false);
 
-  const [formData, setFormData] = useState<FormData>({
-    matricula: '',
-    nomeCompleto: '',
-    cpf: '',
-    celular: '',
-    dataNascimento: '',
-    email: '',
-    cursoId: '',
-    turno: '',
-    modulo: '',
-    cep: '',
-    logradouro: '',
-    bairro: '',
-    localidade: '',
-    uf: '',
-    numero_casa: '',
-    complemento: '',
-  });
+  const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
+  const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
+
+  const turnoOptions: Option[] = [
+    { label: 'Manhã', value: 'MANHA' },
+    { label: 'Tarde', value: 'TARDE' },
+    { label: 'Noite', value: 'NOITE' },
+    { label: 'Integral', value: 'INTEGRAL' },
+  ];
+
+  const [isNovoCurso, setIsNovoCurso] = useState(false);
+  const [isNovoTurno, setIsNovoTurno] = useState(false);
+  const [isNovoModulo, setIsNovoModulo] = useState(false);
+
+  const [novoCursoInput, setNovoCursoInput] = useState('');
+  const [novoTurnoInput, setNovoTurnoInput] = useState('');
+  const [novoModuloInput, setNovoModuloInput] = useState('');
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -109,59 +91,38 @@ export function NovoAluno({
           buscarCursos(),
           buscarModulos(),
         ]);
-        setCursos(cursosDaApi.content);
-        setModulos(modulosResponse);
+
+        setCursosOptions(
+          cursosDaApi.content.map((c) => ({ label: c.nome, value: c.id })),
+        );
+
+        setModulosOptions(modulosResponse.map((m) => ({ label: m, value: m })));
       } catch (error) {
-        console.warn('Cursos ou módulos indisponíveis na api', error);
+        console.warn('Erro ao carregar cursos ou módulos', error);
       }
     };
     carregarDados();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // envia os dados de cadastro do aluno para a api
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const dataParaApi = {
-      matricula: formData.matricula,
-      nomeCompleto: formData.nomeCompleto,
-      cpf: formData.cpf.replace(/\D/g, ''),
-      celular: formData.celular.replace(/\D/g, ''),
-      dataNascimento: formData.dataNascimento,
-      email: formData.email,
-      cursoId: Number(formData.cursoId),
-      cep: formData.cep,
-      numero_casa: Number(formData.numero_casa),
-      complemento: formData.complemento,
-    };
-
-    try {
-      await cadastrarAluno(dataParaApi);
-      onSuccess();
-      onClose();
-    } catch (error: any) {
-      console.error('Erro ao cadastrar aluno:', error);
-      alert(
-        `Falha no cadastro: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-      );
-    }
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // logica para o preenchimento dos campos de endereço pelo cep
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCep = e.target.value.replace(/\D/g, '');
-    setFormData((prev) => ({ ...prev, cep: newCep }));
+    const rawValue = e.target.value;
+    setFormData((prev) => ({ ...prev, cep: rawValue }));
 
-    if (newCep.length === 8) {
+    const cleanCep = rawValue.replace(/\D/g, '');
+
+    if (cleanCep.length === 8) {
       setIsCepLoading(true);
       try {
-        const endereco = await buscarEnderecoPorCep(newCep);
+        const endereco = await buscarEnderecoPorCep(cleanCep);
         setFormData((prev) => ({
           ...prev,
           logradouro: endereco.logradouro,
@@ -177,391 +138,380 @@ export function NovoAluno({
     }
   };
 
-  // envia os dados de cadastro do curso para a api
-  const handleCriarCurso = async () => {
-    if (!novoCursoNome || !formData.turno || !formData.modulo) {
-      alert(
-        'Para criar um novo curso, preencha o nome do curso, e selecione um turno e um módulo no formulário principal.',
-      );
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     try {
-      const payload: CursoPayload = {
-        nome: novoCursoNome,
-        turno: formData.turno,
-        modulo: formData.modulo,
-      };
-      const novoCurso = await cadastrarCurso(payload);
-      setCursos((prevCursos) => [...prevCursos, novoCurso]);
-      setFormData((prevData) => ({
-        ...prevData,
-        cursoId: String(novoCurso.id),
-      }));
-      setNovoCursoNome('');
-      setIsNovoCursoModuloModalOpen(false);
-    } catch (error) {
-      console.error('Erro ao criar curso:', error);
+      let finalCursoId = Number(formData.cursoId);
+      const finalTurno = isNovoTurno ? novoTurnoInput : formData.turno;
+      const finalModulo = isNovoModulo ? novoModuloInput : formData.modulo;
+
+      if (isNovoCurso) {
+        if (!novoCursoInput || !finalTurno || !finalModulo) {
+          alert('Para criar um novo curso, preencha o Nome, Turno e Módulo.');
+          setIsLoading(false);
+          return;
+        }
+
+        const cursoPayload: CursoPayload = {
+          nome: novoCursoInput,
+          turno: finalTurno,
+          modulo: finalModulo,
+        };
+
+        const novoCurso = await cadastrarCurso(cursoPayload);
+        finalCursoId = novoCurso.id;
+      }
+
+      const dataParaApi: AlunoPayload = {
+        matricula: formData.matricula,
+        nomeCompleto: formData.nomeCompleto,
+        cpf: formData.cpf.replace(/\D/g, ''),
+        celular: formData.celular.replace(/\D/g, ''),
+        dataNascimento: formData.dataNascimento,
+        email: formData.email,
+        cursoId: finalCursoId,
+        turno: finalTurno,
+        modulo: finalModulo,
+        cep: formData.cep.replace(/\D/g, ''),
+        logradouro: formData.logradouro,
+        bairro: formData.bairro,
+        localidade: formData.localidade,
+        uf: formData.uf,
+        numero_casa: Number(formData.numero_casa) || 0,
+        complemento: formData.complemento,
+      } as any;
+
+      await cadastrarAluno(dataParaApi);
+      onSuccess();
+      onClose();
+    } catch (error: any) {
+      console.error('Erro ao cadastrar:', error);
+      alert(
+        `Falha no cadastro: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleCriarModulo = async () => {
-    if (!novoModuloNome.trim() || modulos.includes(novoModuloNome.trim())) {
-      setNovoModuloNome('');
-      return;
-    }
-
-    const novoModulo = novoModuloNome.trim();
-
-    setModulos((prev) => [...prev, novoModulo].sort());
-
-    setFormData((prev) => ({ ...prev, modulo: novoModulo }));
-
-    setNovoModuloNome('');
-    setIsNovoCursoModuloModalOpen(false);
-  };
-
+  // Estilos
   const labelStyles =
-    'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 dark:text-white';
+    'block text-sm font-medium text-gray-700 dark:text-white mb-1 flex justify-between items-center';
+  const linkActionStyles =
+    'text-xs text-lumi-primary dark:text-lumi-label cursor-pointer hover:underline font-bold ml-2';
   const inputStyles =
-    'w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none select-none';
+    'w-full h-[38px] px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none text-sm';
+  const disabledInputStyles =
+    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center';
+  const buttonClass =
+    'w-full bg-lumi-primary hover:bg-lumi-primary-hover active:bg-purple-900 text-white text-[17px] font-bold py-3.5 px-4 border-2 border-transparent rounded-lg shadow-md transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none tracking-wide';
 
   return (
     <div className="flex flex-col h-full max-h-[70vh]">
-      <div className="overflow-y-auto p-2 pt-0 flex-grow">
+      <div className="overflow-y-auto p-1 flex-grow custom-scrollbar pr-2">
         <form
           id="form-novo-aluno"
           onSubmit={handleSubmit}
-          className="space-y-6"
+          className="space-y-4"
         >
-          {/* campos dados pessoais */}
-          <section>
-            <div className="space-y-4">
-              <FormInput
-                label="Nome Completo"
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="nomeCompleto" className={labelStyles}>
+                Nome Completo*
+              </label>
+              <input
                 id="nomeCompleto"
+                name="nomeCompleto"
                 type="text"
                 value={formData.nomeCompleto}
                 onChange={handleChange}
+                className={inputStyles}
                 required
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput
-                  label="Matrícula"
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="matricula" className={labelStyles}>
+                  Matrícula*
+                </label>
+                <input
                   id="matricula"
+                  name="matricula"
                   type="text"
                   value={formData.matricula}
                   onChange={handleChange}
-                  placeholder="24777"
+                  placeholder="Ex: 24777"
+                  className={inputStyles}
                   required
                 />
-                <FormInput
-                  label="CPF"
+              </div>
+              <div>
+                <label htmlFor="cpf" className={labelStyles}>
+                  CPF*
+                </label>
+                <input
                   id="cpf"
+                  name="cpf"
                   type="text"
                   value={formData.cpf}
                   onChange={handleChange}
                   placeholder="000.000.000-00"
+                  className={inputStyles}
                   required
                 />
-                <FormInput
-                  label="Celular"
+              </div>
+              <div>
+                <label htmlFor="celular" className={labelStyles}>
+                  Celular
+                </label>
+                <input
                   id="celular"
+                  name="celular"
                   type="text"
                   value={formData.celular}
                   onChange={handleChange}
                   placeholder="(00) 00000-0000"
+                  className={inputStyles}
                 />
-                <FormInput
-                  label="Data de Nascimento"
-                  id="dataNascimento"
-                  type="date"
-                  value={formData.dataNascimento}
-                  onChange={handleChange}
-                />
-                <div className="md:col-span-2">
-                  <label htmlFor="email" className={labelStyles}>
-                    E-mail*
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="exemplo@etec.gov.sp.com.br"
-                    className={inputStyles}
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_0.5fr_auto] gap-2 items-end">
-                    <div>
-                      <label htmlFor="cursoId" className={labelStyles}>
-                        Curso*
-                      </label>
-                      <select
-                        id="cursoId"
-                        name="cursoId"
-                        value={formData.cursoId}
-                        onChange={handleChange}
-                        className={inputStyles}
-                        required
-                      >
-                        <option value="">Selecione</option>
-                        {cursos.map((curso) => (
-                          <option key={curso.id} value={curso.id}>
-                            {curso.nome}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="turno" className={labelStyles}>
-                        Turno*
-                      </label>
-                      <select
-                        id="turno"
-                        name="turno"
-                        className={inputStyles}
-                        required
-                      >
-                        <option value="">Selecione</option>
-                        <option value="MANHA">Manhã</option>
-                        <option value="TARDE">Tarde</option>
-                        <option value="NOITE">Noite</option>
-                        <option value="INTEGRAL">Integral</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="modulo" className={labelStyles}>
-                        Módulo*
-                      </label>
-                      <select
-                        id="modulo"
-                        name="modulo"
-                        value={formData.modulo}
-                        onChange={handleChange}
-                        className={inputStyles}
-                        required
-                      >
-                        <option value="">Selecione</option>
-                        {modulos.map((mod) => (
-                          <option key={mod} value={mod}>
-                            {' '}
-                            {mod}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsNovoCursoModuloModalOpen(true)}
-                      className="p-2 mb-0.5 bg-gray-400 dark:bg-transparent rounded-md hover:opacity-75 transform hover:scale-110"
-                    >
-                      <img
-                        src={addIconUrl}
-                        alt="Adicionar Curso"
-                        className="w-6 h-6"
-                      />
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
-          </section>
 
-          {/* campos do endereço */}
-          <section className="pt-4 border-t dark:border-gray-700">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-              <div className="md:col-span-2">
-                <FormInput
-                  label="CEP"
-                  id="cep"
-                  type="text"
-                  value={formData.cep}
-                  onChange={handleCepChange}
-                  maxLength={8}
-                  placeholder="00000-000"
-                />
-              </div>
-              <div className="md:col-span-4">
-                <FormInput
-                  label="Logradouro"
-                  id="logradouro"
-                  type="text"
-                  value={formData.logradouro}
-                  onChange={handleChange}
-                  placeholder="Rua João Batista Soares"
-                  disabled={isCepLoading}
-                />
-              </div>
-              <div className="md:col-span-3">
-                <label htmlFor="bairro" className={labelStyles}>
-                  Bairro
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CustomDatePicker
+                label="Data de Nascimento"
+                value={formData.dataNascimento}
+                onChange={(e) =>
+                  handleSelectChange('dataNascimento', e.target.value)
+                }
+              />
+              <div>
+                <label htmlFor="email" className={labelStyles}>
+                  E-mail*
                 </label>
                 <input
-                  id="bairro"
-                  name="bairro"
-                  type="text"
-                  value={formData.bairro}
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
                   onChange={handleChange}
-                  placeholder="Centro"
-                  disabled={isCepLoading}
-                  className={`${inputStyles} disabled:bg-gray-100 dark:disabled:bg-gray-700`}
-                />
-              </div>
-              <div className="md:col-span-3">
-                <label htmlFor="localidade" className={labelStyles}>
-                  Cidade
-                </label>
-                <input
-                  id="localidade"
-                  name="localidade"
-                  type="text"
-                  value={formData.localidade}
-                  onChange={handleChange}
-                  placeholder="Barueri"
-                  disabled={isCepLoading}
-                  className={`${inputStyles} disabled:bg-gray-100 dark:disabled:bg-gray-700`}
-                />
-              </div>
-              <div className="md:col-span-1">
-                <label htmlFor="uf" className={labelStyles}>
-                  UF
-                </label>
-                <input
-                  id="uf"
-                  name="uf"
-                  type="text"
-                  value={formData.uf}
-                  onChange={handleChange}
-                  placeholder="SP"
-                  disabled={isCepLoading}
-                  className={`${inputStyles} disabled:bg-gray-100 dark:disabled:bg-gray-700`}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="numero_casa" className={labelStyles}>
-                  Número
-                </label>
-                <input
-                  id="numero_casa"
-                  name="numero_casa"
-                  type="number"
-                  value={formData.numero_casa}
-                  onChange={handleChange}
-                  placeholder="123"
+                  placeholder="exemplo@etec.sp.gov.br"
                   className={inputStyles}
-                />
-              </div>
-              <div className="md:col-span-3">
-                <label htmlFor="complemento" className={labelStyles}>
-                  Complemento
-                </label>
-                <input
-                  id="complemento"
-                  name="complemento"
-                  type="text"
-                  value={formData.complemento}
-                  onChange={handleChange}
-                  placeholder="Apto, Bloco, etc."
-                  className={inputStyles}
+                  required
                 />
               </div>
             </div>
-          </section>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <div className={labelStyles}>
+                <span>Curso*</span>
+                <span
+                  onClick={() => setIsNovoCurso(!isNovoCurso)}
+                  className={linkActionStyles}
+                >
+                  {isNovoCurso ? 'Selecionar existente' : 'Novo?'}
+                </span>
+              </div>
+              {isNovoCurso ? (
+                <input
+                  type="text"
+                  value={novoCursoInput}
+                  onChange={(e) => setNovoCursoInput(e.target.value)}
+                  className={inputStyles}
+                  placeholder="Digite o novo curso"
+                />
+              ) : (
+                <CustomSelect
+                  value={formData.cursoId}
+                  onChange={(val) => handleSelectChange('cursoId', val)}
+                  options={cursosOptions}
+                />
+              )}
+            </div>
+
+            <div>
+              <div className={labelStyles}>
+                <span>Turno*</span>
+                <span
+                  onClick={() => setIsNovoTurno(!isNovoTurno)}
+                  className={linkActionStyles}
+                >
+                  {isNovoTurno ? 'Selecionar existente' : 'Novo?'}
+                </span>
+              </div>
+              {isNovoTurno ? (
+                <input
+                  type="text"
+                  value={novoTurnoInput}
+                  onChange={(e) => setNovoTurnoInput(e.target.value)}
+                  className={inputStyles}
+                  placeholder="Digite o novo turno"
+                />
+              ) : (
+                <CustomSelect
+                  value={formData.turno}
+                  onChange={(val) => handleSelectChange('turno', val)}
+                  options={turnoOptions}
+                />
+              )}
+            </div>
+
+            <div>
+              <div className={labelStyles}>
+                <span>Módulo*</span>
+                <span
+                  onClick={() => setIsNovoModulo(!isNovoModulo)}
+                  className={linkActionStyles}
+                >
+                  {isNovoModulo ? 'Selecionar existente' : 'Novo?'}
+                </span>
+              </div>
+              {isNovoModulo ? (
+                <input
+                  type="text"
+                  value={novoModuloInput}
+                  onChange={(e) => setNovoModuloInput(e.target.value)}
+                  className={inputStyles}
+                  placeholder="Digite o novo módulo"
+                />
+              ) : (
+                <CustomSelect
+                  value={formData.modulo}
+                  onChange={(val) => handleSelectChange('modulo', val)}
+                  options={modulosOptions}
+                />
+              )}
+            </div>
+          </div>
+
+          <hr className="border-gray-200 dark:border-gray-700 my-2" />
+
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-4 md:col-span-3">
+              <label htmlFor="cep" className={labelStyles}>
+                CEP
+              </label>
+              <input
+                id="cep"
+                name="cep"
+                type="text"
+                value={formData.cep}
+                onChange={handleCepChange}
+                maxLength={9}
+                placeholder="00000-000"
+                className={inputStyles}
+              />
+            </div>
+            <div className="col-span-8 md:col-span-9">
+              <label htmlFor="logradouro" className={labelStyles}>
+                Logradouro
+              </label>
+              <input
+                id="logradouro"
+                name="logradouro"
+                type="text"
+                value={formData.logradouro}
+                onChange={handleChange}
+                disabled={isCepLoading}
+                className={isCepLoading ? disabledInputStyles : inputStyles}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-5">
+              <label htmlFor="bairro" className={labelStyles}>
+                Bairro
+              </label>
+              <input
+                id="bairro"
+                name="bairro"
+                type="text"
+                value={formData.bairro}
+                onChange={handleChange}
+                disabled={isCepLoading}
+                className={isCepLoading ? disabledInputStyles : inputStyles}
+              />
+            </div>
+            <div className="col-span-5">
+              <label htmlFor="localidade" className={labelStyles}>
+                Cidade
+              </label>
+              <input
+                id="localidade"
+                name="localidade"
+                type="text"
+                value={formData.localidade}
+                onChange={handleChange}
+                disabled={isCepLoading}
+                className={isCepLoading ? disabledInputStyles : inputStyles}
+              />
+            </div>
+            <div className="col-span-2">
+              <label htmlFor="uf" className={labelStyles}>
+                UF
+              </label>
+              <input
+                id="uf"
+                name="uf"
+                type="text"
+                value={formData.uf}
+                onChange={handleChange}
+                disabled={isCepLoading}
+                className={isCepLoading ? disabledInputStyles : inputStyles}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-4">
+              <label htmlFor="numero_casa" className={labelStyles}>
+                Número
+              </label>
+              <input
+                id="numero_casa"
+                name="numero_casa"
+                type="number"
+                value={formData.numero_casa}
+                onChange={handleChange}
+                className={inputStyles}
+              />
+            </div>
+            <div className="col-span-8">
+              <label htmlFor="complemento" className={labelStyles}>
+                Complemento
+              </label>
+              <input
+                id="complemento"
+                name="complemento"
+                type="text"
+                value={formData.complemento}
+                onChange={handleChange}
+                className={inputStyles}
+              />
+            </div>
+          </div>
         </form>
       </div>
 
-      {/* modal para criação de curso, turno e módulo */}
-      <Modal
-        isOpen={isNovoCursoModuloModalOpen}
-        onClose={() => setIsNovoCursoModuloModalOpen(false)}
-        title="Gerenciamento de Cursos"
-      >
-        <div className="space-y-6">
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400 -mt-2">
-            Não encontrou nas listas de seleção o que precisa? Cadastre por aqui
-            seu Curso, Turno e ou Módulo, os mesmo ficarão disponíveis
-            imediatamente.
-          </p>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="novoCursoNome"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Novo Curso
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                id="novoCursoNome"
-                type="text"
-                placeholder="Ex: Logística"
-                value={novoCursoNome}
-                onChange={(e) => setNovoCursoNome(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleCriarCurso}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center justify-center gap-x-2">
-                  <img
-                    src={addIconUrl}
-                    alt="Icone de adicionar"
-                    className="w-6 h-6"
-                  />
-                  <span>CRIAR</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="novoModuloNome"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Novo Módulo
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                id="novoModuloNome"
-                type="text"
-                placeholder="Ex: 4º Módulo"
-                value={novoModuloNome}
-                onChange={(e) => setNovoModuloNome(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-lumi-primary outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleCriarModulo}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow-md transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center justify-center gap-x-2">
-                  <img
-                    src={addIconUrl}
-                    alt="Icone de adicionar"
-                    className="w-6 h-6"
-                  />
-                  <span>CRIAR</span>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Modal>
-
-      <button
-        type="submit"
-        form="form-novo-aluno"
-        disabled={isCepLoading}
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-md shadow-md disabled:bg-gray-400"
-      >
-        {isCepLoading ? 'Buscando CEP...' : 'SALVAR'}
-      </button>
+      <div className="pt-3 mt-2 border-t border-gray-200 dark:border-gray-700 shrink-0">
+        <button
+          type="submit"
+          form="form-novo-aluno"
+          disabled={isLoading || isCepLoading}
+          className={buttonClass}
+        >
+          {isLoading
+            ? 'SALVANDO...'
+            : isCepLoading
+              ? 'BUSCANDO CEP...'
+              : 'CADASTRAR ALUNO'}
+        </button>
+      </div>
     </div>
   );
 }
