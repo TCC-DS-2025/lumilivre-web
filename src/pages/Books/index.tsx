@@ -6,7 +6,7 @@ import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoLivro } from '../../components/forms/NewBook';
-import { NovoExemplar } from '../../components/forms/NewExemplar';
+import { NovoExemplar } from '../../components/forms/NewExemple';
 import { DetalhesLivroModal } from '../../components/details/ModalBookDetails';
 import { BookFilter } from '../../components/filters/BookFilter';
 import BackIcon from '../../assets/icons/arrow-left.svg?react';
