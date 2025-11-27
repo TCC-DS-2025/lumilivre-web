@@ -7,7 +7,7 @@ import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoLivro } from '../../components/forms/NewBook';
 import { NovoExemplar } from '../../components/forms/NewExemplar';
-import { DetalhesLivroModal } from '../../components/ModalBookDetails';
+import { DetalhesLivroModal } from '../../components/details/ModalBookDetails';
 import { BookFilter } from '../../components/filters/BookFilter';
 import BackIcon from '../../assets/icons/arrow-left.svg?react';
 
