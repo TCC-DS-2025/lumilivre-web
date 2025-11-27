@@ -7,6 +7,7 @@ export const getContagemAlunos = async (): Promise<number> => {
   });
   return response.data.totalElements || 0;
 };
+
 export interface ListaAluno {
   penalidade: string | null;
   matricula: string;
@@ -15,6 +16,9 @@ export interface ListaAluno {
   email: string;
   celular: string;
   cursoNome: string;
+  turnoNome?: string; 
+  moduloNome?: string;
+  cursoId?: number;
 }
 
 export const buscarAlunosParaAdmin = async (
@@ -37,9 +41,17 @@ export interface AlunoPayload {
   dataNascimento?: string;
   email: string;
   cursoId: number;
+  turnoId: number;
+  moduloId: number; 
   cep?: string;
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
   numero_casa?: number;
   complemento?: string;
+  turno?: string; 
+  modulo?: string; 
 }
 
 export const cadastrarAluno = async (alunoData: AlunoPayload) => {
@@ -49,10 +61,14 @@ export const cadastrarAluno = async (alunoData: AlunoPayload) => {
 
 interface AlunoFilterParams {
   penalidade?: string;
+  matricula?: string;
+  nome?: string;
   cursoNome?: string;
-  turno?: string;
-  modulo?: string;
+  turnoId?: number;
+  moduloId?: number;
   dataNascimento?: string;
+  email?: string;
+  celular?: string;
   page?: number;
   size?: number;
   sort?: string;
@@ -62,5 +78,23 @@ export const buscarAlunosAvancado = async (
   params: AlunoFilterParams,
 ): Promise<Page<ListaAluno>> => {
   const response = await api.get('/alunos/buscar/avancado', { params });
+  return response.data;
+};
+
+export const buscarAlunoPorMatricula = async (matricula: string) => {
+  const response = await api.get(`/alunos/${matricula}`);
+  return response.data;
+};
+
+export const atualizarAluno = async (
+  matricula: string,
+  alunoData: AlunoPayload,
+) => {
+  const response = await api.put(`/alunos/atualizar/${matricula}`, alunoData);
+  return response.data;
+};
+
+export const excluirAluno = async (matricula: string) => {
+  const response = await api.delete(`/alunos/excluir/${matricula}`);
   return response.data;
 };

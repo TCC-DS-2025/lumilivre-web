@@ -6,6 +6,7 @@ import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoAluno } from '../../components/forms/NewStudent';
 import { StudentFilter } from '../../components/filters/StudentFilter';
+import { ModalStudentDetails } from '../../components/details/ModalStudentDetails';
 import { formatarNome } from '../../utils/formatters';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
@@ -51,15 +52,18 @@ export function AlunosPage() {
   const [filterParams, setFilterParams] = useState({
     penalidade: '',
     cursoNome: '',
-    turno: '',
+    turno: '', 
     modulo: '',
     dataNascimento: '',
   });
   const [activeFilters, setActiveFilters] = useState({});
 
-  const hasActiveFilters = useMemo(() => {
-    return Object.values(activeFilters).some((value) => value !== '');
-  }, [activeFilters]);
+  // Estados para Modais
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false); 
+  const [alunoSelecionado, setAlunoSelecionado] = useState<ListaAluno | null>(
+    null,
+  );
 
   // organização das colunas
   const [sortConfig, setSortConfig] = useState<{
@@ -109,11 +113,22 @@ export function AlunosPage() {
         sort: `${sortKeyBackend},${sortConfig.direction}`,
       };
 
+      const filtrosAtuais = Object.values(activeFilters).some(
+        (value) => value !== '',
+      );
+
       let paginaDeAlunos;
 
-      if (hasActiveFilters) {
+      if (filtrosAtuais) {
+        // Cast para acessar propriedades específicas do filtro
+        const filtros = activeFilters as typeof filterParams;
+
         paginaDeAlunos = await buscarAlunosAvancado({
-          ...activeFilters,
+          penalidade: filtros.penalidade,
+          cursoNome: filtros.cursoNome,
+          turnoId: filtros.turno ? Number(filtros.turno) : undefined,
+          moduloId: filtros.modulo ? Number(filtros.modulo) : undefined,
+          dataNascimento: filtros.dataNascimento,
           ...params,
         });
       } else {
@@ -196,12 +211,24 @@ export function AlunosPage() {
     setFiltroAtivo(termoBusca);
   };
 
+  const handleAbrirDetalhes = (aluno: ListaAluno) => {
+    setAlunoSelecionado(aluno);
+    setIsDetalhesOpen(true);
+  };
+
+  const handleFecharDetalhes = (foiAtualizado?: boolean) => {
+    setIsDetalhesOpen(false);
+    setAlunoSelecionado(null);
+    if (foiAtualizado) {
+      fetchAlunos();
+    }
+  };
+
   const sortedAlunos = useMemo(() => {
     let sortableItems = [...alunos];
     sortableItems.sort((a, b) => {
       const key = sortConfig.key;
       if (key === 'nascimentoDate') {
-        // Use o campo de Data real
         return sortConfig.direction === 'asc'
           ? a[key].getTime() - b[key].getTime()
           : b[key].getTime() - a[key].getTime();
@@ -256,9 +283,6 @@ export function AlunosPage() {
     );
   };
 
-  // modal do popup de cadastro
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   // colunas para a tabela
   const columns: ColumnDef<AlunoDisplay>[] = [
     {
@@ -308,8 +332,11 @@ export function AlunosPage() {
       header: 'Ações',
       width: '10%',
       isSortable: false,
-      render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
+      render: (item) => (
+        <button
+          onClick={() => handleAbrirDetalhes(item)}
+          className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none"
+        >
           DETALHES
         </button>
       ),
@@ -353,6 +380,12 @@ export function AlunosPage() {
           onSuccess={handleCadastroSucesso}
         />
       </Modal>
+
+      <ModalStudentDetails
+        isOpen={isDetalhesOpen}
+        onClose={handleFecharDetalhes}
+        aluno={alunoSelecionado}
+      />
 
       <div
         ref={tableContainerRef}

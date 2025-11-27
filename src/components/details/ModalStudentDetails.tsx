@@ -1,0 +1,591 @@
+import { useState, useEffect } from 'react';
+
+import { Modal } from '../Modal';
+import { CustomSelect } from '../CustomSelect';
+import { CustomDatePicker } from '../CustomDatePicker';
+import { LoadingIcon } from '../LoadingIcon';
+
+import {
+  atualizarAluno,
+  excluirAluno,
+  buscarAlunoPorMatricula,
+  type AlunoPayload,
+  type ListaAluno,
+} from '../../services/alunoService';
+import { buscarEnderecoPorCep } from '../../services/cepService';
+import { buscarCursos } from '../../services/cursoService';
+import { buscarModulos } from '../../services/moduloService';
+import { buscarTurnos } from '../../services/turnoService';
+
+interface Option {
+  label: string;
+  value: string | number;
+}
+
+interface ModalStudentDetailsProps {
+  aluno: ListaAluno | null;
+  isOpen: boolean;
+  onClose: (foiAtualizado?: boolean) => void;
+}
+
+interface AlunoDetalhado extends AlunoPayload {
+  penalidade?: string;
+  cursoNome?: string;
+  turnoNome?: string;
+  moduloNome?: string;
+}
+
+export function ModalStudentDetails({
+  aluno,
+  isOpen,
+  onClose,
+}: ModalStudentDetailsProps) {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCepLoading, setIsCepLoading] = useState(false);
+
+  const [formData, setFormData] = useState<Partial<AlunoDetalhado>>({});
+
+  const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
+  const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
+  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
+
+  useEffect(() => {
+    const carregarTudo = async () => {
+      if (!isOpen || !aluno) return;
+
+      setIsLoading(true);
+      try {
+        const [cursosRes, modulosRes, turnosRes] = await Promise.all([
+          buscarCursos(),
+          buscarModulos(),
+          buscarTurnos(),
+        ]);
+
+        const opcoesCursos = cursosRes.content.map((c) => ({
+          label: c.nome,
+          value: c.id,
+        }));
+
+        const opcoesModulos = modulosRes.map((m, index) => ({
+          label: m,
+          value: index + 1,
+        }));
+
+        const opcoesTurnos = turnosRes.map((t) => ({
+          label: t.nome,
+          value: t.id,
+        }));
+
+        setCursosOptions(opcoesCursos);
+        setModulosOptions(opcoesModulos);
+        setTurnoOptions(opcoesTurnos);
+
+        const alunoRes = await buscarAlunoPorMatricula(aluno.matricula);
+
+        if (alunoRes.success && alunoRes.data) {
+          const dados = alunoRes.data;
+
+          let cursoIdFinal = dados.cursoId;
+          if (!cursoIdFinal && dados.cursoNome) {
+            const found = opcoesCursos.find((c) => c.label === dados.cursoNome);
+            if (found) cursoIdFinal = Number(found.value);
+          }
+
+          let turnoIdFinal = dados.turnoId;
+          if (!turnoIdFinal && dados.turnoNome) {
+            const found = opcoesTurnos.find(
+              (t) => t.label.toUpperCase() === dados.turnoNome?.toUpperCase(),
+            );
+            if (found) turnoIdFinal = Number(found.value);
+          }
+
+          let moduloIdFinal = dados.moduloId;
+          if (!moduloIdFinal && dados.moduloNome) {
+            const found = opcoesModulos.find(
+              (m) => m.label === dados.moduloNome,
+            );
+            if (found) moduloIdFinal = Number(found.value);
+          }
+
+          setFormData({
+            ...dados,
+            cursoId: cursoIdFinal,
+            turno: turnoIdFinal ? String(turnoIdFinal) : '',
+            modulo: moduloIdFinal ? String(moduloIdFinal) : '',
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do modal:', error);
+        alert('Erro ao carregar dados. Tente novamente.');
+        onClose();
+      } finally {
+        setIsLoading(false);
+        setIsEditMode(false);
+      }
+    };
+
+    carregarTudo();
+  }, [isOpen, aluno]);
+
+  if (!isOpen || !aluno) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (field: string, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    setFormData((prev) => ({ ...prev, cep: rawValue }));
+
+    const cleanCep = rawValue.replace(/\D/g, '');
+
+    if (cleanCep.length === 8) {
+      setIsCepLoading(true);
+      try {
+        const endereco = await buscarEnderecoPorCep(cleanCep);
+        setFormData((prev) => ({
+          ...prev,
+          logradouro: endereco.logradouro,
+          bairro: endereco.bairro,
+          localidade: endereco.localidade,
+          uf: endereco.uf,
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar CEP', error);
+      } finally {
+        setIsCepLoading(false);
+      }
+    }
+  };
+
+  const handleSalvar = async () => {
+    setIsLoading(true);
+    try {
+      const cursoIdNumber = Number(formData.cursoId);
+      const turnoIdNumber = Number(formData.turno);
+      const moduloIdNumber = Number(formData.modulo);
+
+      if (!cursoIdNumber || !turnoIdNumber || !moduloIdNumber) {
+        alert(
+          'Por favor, verifique se Curso, Turno e Módulo estão selecionados.',
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      const payload: AlunoPayload = {
+        matricula: formData.matricula!,
+        nomeCompleto: formData.nomeCompleto!,
+        cpf: (formData.cpf || '').replace(/\D/g, ''),
+        celular: (formData.celular || '').replace(/\D/g, ''),
+        dataNascimento: formData.dataNascimento,
+        email: formData.email!,
+        cursoId: cursoIdNumber,
+        turnoId: turnoIdNumber,
+        moduloId: moduloIdNumber,
+        cep: (formData.cep || '').replace(/\D/g, ''),
+        logradouro: formData.logradouro,
+        bairro: formData.bairro,
+        localidade: formData.localidade,
+        uf: formData.uf,
+        numero_casa: Number(formData.numero_casa) || 0,
+        complemento: formData.complemento,
+      };
+
+      await atualizarAluno(aluno.matricula, payload);
+      alert('Aluno atualizado com sucesso!');
+      onClose(true);
+    } catch (error: any) {
+      console.error('Erro ao atualizar:', error);
+      alert(
+        `Erro ao atualizar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleExcluir = async () => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja excluir o aluno ${aluno.nomeCompleto}?`,
+      )
+    ) {
+      setIsLoading(true);
+      try {
+        await excluirAluno(aluno.matricula);
+        alert('Aluno excluído com sucesso!');
+        onClose(true);
+      } catch (error: any) {
+        alert(
+          `Erro ao excluir: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const labelStyles =
+    'block text-sm font-medium text-gray-700 dark:text-white mb-1 flex justify-between items-center';
+  const inputStyles =
+    'w-full h-[38px] px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none text-sm';
+  const disabledInputStyles =
+    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center';
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={() => onClose(false)}
+      title={isEditMode ? 'Editar Aluno' : 'Detalhes do Aluno'}
+    >
+      <div className="flex flex-col h-full max-h-[70vh]">
+        {isLoading && !formData.matricula ? (
+          <LoadingIcon />
+        ) : (
+          <div className="overflow-y-auto p-1 flex-grow custom-scrollbar pr-2 space-y-4">
+            {formData.penalidade && formData.penalidade !== 'REGISTRO' && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-md mb-2">
+                <p className="text-red-700 dark:text-red-400 text-sm font-bold">
+                  Status: {formData.penalidade}
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="nomeCompleto" className={labelStyles}>
+                  Nome Completo
+                </label>
+                <input
+                  id="nomeCompleto"
+                  name="nomeCompleto"
+                  type="text"
+                  value={formData.nomeCompleto || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode}
+                  className={isEditMode ? inputStyles : disabledInputStyles}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="matricula" className={labelStyles}>
+                    Matrícula
+                  </label>
+                  <input
+                    id="matricula"
+                    name="matricula"
+                    type="text"
+                    value={formData.matricula || ''}
+                    disabled
+                    className={disabledInputStyles}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="cpf" className={labelStyles}>
+                    CPF
+                  </label>
+                  <input
+                    id="cpf"
+                    name="cpf"
+                    type="text"
+                    value={formData.cpf || ''}
+                    onChange={handleChange}
+                    disabled={!isEditMode}
+                    className={isEditMode ? inputStyles : disabledInputStyles}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="celular" className={labelStyles}>
+                    Celular
+                  </label>
+                  <input
+                    id="celular"
+                    name="celular"
+                    type="text"
+                    value={formData.celular || ''}
+                    onChange={handleChange}
+                    disabled={!isEditMode}
+                    className={isEditMode ? inputStyles : disabledInputStyles}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {isEditMode ? (
+                  <CustomDatePicker
+                    label="Data de Nascimento"
+                    value={formData.dataNascimento || ''}
+                    onChange={(e) =>
+                      handleSelectChange('dataNascimento', e.target.value)
+                    }
+                  />
+                ) : (
+                  <div>
+                    <label className={labelStyles}>Data de Nascimento</label>
+                    <div className={disabledInputStyles}>
+                      {formData.dataNascimento
+                        ? new Date(formData.dataNascimento).toLocaleDateString(
+                            'pt-BR',
+                          )
+                        : '-'}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="email" className={labelStyles}>
+                    E-mail
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email || ''}
+                    onChange={handleChange}
+                    disabled={!isEditMode}
+                    className={isEditMode ? inputStyles : disabledInputStyles}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className={labelStyles}>Curso</label>
+                {isEditMode ? (
+                  <CustomSelect
+                    value={formData.cursoId || ''}
+                    onChange={(val) => handleSelectChange('cursoId', val)}
+                    options={cursosOptions}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={
+                      cursosOptions.find(
+                        (c) => String(c.value) === String(formData.cursoId),
+                      )?.label ||
+                      formData.cursoId ||
+                      ''
+                    }
+                    disabled
+                    className={disabledInputStyles}
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className={labelStyles}>Turno</label>
+                {isEditMode ? (
+                  <CustomSelect
+                    value={formData.turno || ''}
+                    onChange={(val) => handleSelectChange('turno', val)}
+                    options={turnoOptions}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={
+                      turnoOptions.find(
+                        (t) => String(t.value) === String(formData.turno),
+                      )?.label ||
+                      formData.turno ||
+                      ''
+                    }
+                    disabled
+                    className={disabledInputStyles}
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className={labelStyles}>Módulo</label>
+                {isEditMode ? (
+                  <CustomSelect
+                    value={formData.modulo || ''}
+                    onChange={(val) => handleSelectChange('modulo', val)}
+                    options={modulosOptions}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={
+                      modulosOptions.find(
+                        (m) => String(m.value) === String(formData.modulo),
+                      )?.label ||
+                      formData.modulo ||
+                      ''
+                    }
+                    disabled
+                    className={disabledInputStyles}
+                  />
+                )}
+              </div>
+            </div>
+
+            <hr className="border-gray-200 dark:border-gray-700 my-2" />
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4 md:col-span-3">
+                <label htmlFor="cep" className={labelStyles}>
+                  CEP
+                </label>
+                <input
+                  id="cep"
+                  name="cep"
+                  type="text"
+                  value={formData.cep || ''}
+                  onChange={handleCepChange}
+                  maxLength={9}
+                  disabled={!isEditMode}
+                  className={isEditMode ? inputStyles : disabledInputStyles}
+                />
+              </div>
+              <div className="col-span-8 md:col-span-9">
+                <label htmlFor="logradouro" className={labelStyles}>
+                  Logradouro
+                </label>
+                <input
+                  id="logradouro"
+                  name="logradouro"
+                  type="text"
+                  value={formData.logradouro || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode || isCepLoading}
+                  className={
+                    !isEditMode || isCepLoading
+                      ? disabledInputStyles
+                      : inputStyles
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-5">
+                <label htmlFor="bairro" className={labelStyles}>
+                  Bairro
+                </label>
+                <input
+                  id="bairro"
+                  name="bairro"
+                  type="text"
+                  value={formData.bairro || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode || isCepLoading}
+                  className={
+                    !isEditMode || isCepLoading
+                      ? disabledInputStyles
+                      : inputStyles
+                  }
+                />
+              </div>
+              <div className="col-span-5">
+                <label htmlFor="localidade" className={labelStyles}>
+                  Cidade
+                </label>
+                <input
+                  id="localidade"
+                  name="localidade"
+                  type="text"
+                  value={formData.localidade || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode || isCepLoading}
+                  className={
+                    !isEditMode || isCepLoading
+                      ? disabledInputStyles
+                      : inputStyles
+                  }
+                />
+              </div>
+              <div className="col-span-2">
+                <label htmlFor="uf" className={labelStyles}>
+                  UF
+                </label>
+                <input
+                  id="uf"
+                  name="uf"
+                  type="text"
+                  value={formData.uf || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode || isCepLoading}
+                  className={
+                    !isEditMode || isCepLoading
+                      ? disabledInputStyles
+                      : inputStyles
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-4">
+                <label htmlFor="numero_casa" className={labelStyles}>
+                  Número
+                </label>
+                <input
+                  id="numero_casa"
+                  name="numero_casa"
+                  type="number"
+                  value={formData.numero_casa || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode}
+                  className={isEditMode ? inputStyles : disabledInputStyles}
+                />
+              </div>
+              <div className="col-span-8">
+                <label htmlFor="complemento" className={labelStyles}>
+                  Complemento
+                </label>
+                <input
+                  id="complemento"
+                  name="complemento"
+                  type="text"
+                  value={formData.complemento || ''}
+                  onChange={handleChange}
+                  disabled={!isEditMode}
+                  className={isEditMode ? inputStyles : disabledInputStyles}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
+          <button
+            onClick={handleExcluir}
+            disabled={isLoading || isEditMode}
+            className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md"
+          >
+            Excluir Aluno
+          </button>
+
+          {isEditMode ? (
+            <button
+              onClick={handleSalvar}
+              disabled={isLoading}
+              className="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 disabled:bg-gray-400 shadow-md"
+            >
+              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsEditMode(true)}
+              className="bg-lumi-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-lumi-primary-hover shadow-md"
+            >
+              Editar Cadastro
+            </button>
+          )}
+        </div>
+      </div>
+    </Modal>
+  );
+}
