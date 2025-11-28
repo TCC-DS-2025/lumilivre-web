@@ -100,6 +100,7 @@ export function DashboardPage() {
     id: number;
     alunoMatricula: string;
     livroIsbn: string;
+    livroNome?: string;
     exemplarTombo: string;
     dataEmprestimo: string;
     dataDevolucao: string;
@@ -134,13 +135,18 @@ export function DashboardPage() {
     const items = [...solicitacoesState.data];
     items.sort((a, b) => {
       const key = solicitacaoSort.key as keyof SolicitacaoDisplay;
+
       if (key === 'solicitacao') {
         return solicitacaoSort.direction === 'asc'
           ? a.solicitacao.getTime() - b.solicitacao.getTime()
           : b.solicitacao.getTime() - a.solicitacao.getTime();
       }
-      if (a[key] < b[key]) return solicitacaoSort.direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return solicitacaoSort.direction === 'asc' ? 1 : -1;
+
+      const valA = a[key] ?? '';
+      const valB = b[key] ?? '';
+
+      if (valA < valB) return solicitacaoSort.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return solicitacaoSort.direction === 'asc' ? 1 : -1;
       return 0;
     });
     return items;
@@ -198,8 +204,9 @@ export function DashboardPage() {
       alunoMatricula: item.alunoMatricula,
       exemplarTombo: item.tombo,
       dataDevolucao: item.rawDevolucao,
-      livroIsbn: '',
-      dataEmprestimo: '',
+      livroIsbn: item.isbn,
+      livroNome: item.livro,
+      dataEmprestimo: item.retirada,
     });
     setIsLoanModalOpen(true);
   };
@@ -284,7 +291,7 @@ export function DashboardPage() {
         hoje.setHours(0, 0, 0, 0);
 
         const processados = lista
-          .map((e) => {
+          .map((e: any) => {
             const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
             dataDevolucao.setHours(0, 0, 0, 0);
 
@@ -307,7 +314,7 @@ export function DashboardPage() {
               alunoMatricula: e.alunoMatricula,
               tombo: e.tombo,
               rawDevolucao: e.dataDevolucao,
-              retirada: '-',
+              retirada: e.dataEmprestimo || '-',
               devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
               statusVencimento,
             };

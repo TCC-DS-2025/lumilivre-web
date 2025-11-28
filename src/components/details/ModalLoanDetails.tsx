@@ -90,9 +90,6 @@ export function ModalLoanDetails({
   useEffect(() => {
     if (emprestimo && isOpen) {
       setAlunoMatricula(emprestimo.alunoMatricula || '');
-
-      setLivroId('');
-
       setExemplarTombo(emprestimo.exemplarTombo || '');
 
       const formatarData = (data: string | Date) => {
@@ -104,9 +101,33 @@ export function ModalLoanDetails({
       setDataEmprestimo(formatarData(emprestimo.dataEmprestimo));
       setDataDevolucao(formatarData(emprestimo.dataDevolucao));
 
+      if (livrosOptions.length > 0) {
+        let livroEncontrado = undefined;
+
+        if (emprestimo.livroIsbn && emprestimo.livroIsbn !== '-') {
+          livroEncontrado = livrosOptions.find((opt) =>
+            opt.label.includes(emprestimo.livroIsbn),
+          );
+        }
+
+        if (!livroEncontrado && emprestimo.livroNome) {
+          livroEncontrado = livrosOptions.find((opt) =>
+            opt.label
+              .toLowerCase()
+              .includes(emprestimo.livroNome!.toLowerCase()),
+          );
+        }
+
+        if (livroEncontrado) {
+          setLivroId(String(livroEncontrado.value));
+        } else {
+          setLivroId('');
+        }
+      }
+
       setIsEditMode(false);
     }
-  }, [emprestimo, isOpen]);
+  }, [emprestimo, isOpen, livrosOptions]);
 
   useEffect(() => {
     if (!livroId) {
@@ -225,7 +246,7 @@ export function ModalLoanDetails({
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
   const disabledInputStyles =
-    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 cursor-not-allowed select-none text-sm flex items-center truncate';
+    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center truncate';
 
   if (!isOpen || !emprestimo) return null;
 
@@ -287,7 +308,9 @@ export function ModalLoanDetails({
                   type="text"
                   value={
                     alunosOptions.find((a) => a.value === alunoMatricula)
-                      ?.label || alunoMatricula
+                      ?.label ||
+                    emprestimo.alunoNome ||
+                    alunoMatricula
                   }
                   disabled
                   className={disabledInputStyles}
