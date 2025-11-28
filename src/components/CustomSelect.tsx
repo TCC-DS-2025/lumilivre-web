@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 import ArrowIcon from '../assets/icons/arrow-drop.svg?react';
 
@@ -17,6 +18,7 @@ interface CustomSelectProps {
   direction?: 'up' | 'down';
   buttonClassName?: string;
   invertArrow?: boolean;
+  disabled?: boolean;
 }
 
 export function CustomSelect({
@@ -26,47 +28,132 @@ export function CustomSelect({
   placeholder = 'Selecione',
   className = '',
   icon,
-  direction = 'down',
   buttonClassName = 'px-3 py-2',
   invertArrow = false,
+  disabled = false,
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [listMaxHeight, setListMaxHeight] = useState<number>(240);
+
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = () => {
+    if (containerRef.current && isOpen) {
+      const rect = containerRef.current.getBoundingClientRect();
+
+      setCoords({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+    }
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const dropdownElement = document.getElementById(
+        `dropdown-portal-custom-${placeholder}`,
+      );
+
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(target) &&
+        dropdownElement &&
+        !dropdownElement.contains(target)
       ) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  useLayoutEffect(() => {
-    if (isOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const margin = 16;
-      const defaultMaxHeight = 240;
-
-      let availableSpace = 0;
-
-      if (direction === 'down') {
-        availableSpace = viewportHeight - rect.bottom - margin;
-      } else {
-        availableSpace = rect.top - margin;
-      }
-
-      setListMaxHeight(
-        Math.max(100, Math.min(availableSpace, defaultMaxHeight)),
-      );
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  }, [isOpen, direction]);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, placeholder]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const index = options.findIndex(
+        (opt) => String(opt.value) === String(value),
+      );
+      setHighlightedIndex(index >= 0 ? index : 0);
+    }
+  }, [isOpen, value, options]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return;
+
+    if (!isOpen) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === ' ') {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < options.length - 1 ? prev + 1 : prev,
+        );
+        scrollIntoView(highlightedIndex + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+        scrollIntoView(highlightedIndex - 1);
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (options[highlightedIndex]) {
+          handleSelect(options[highlightedIndex].value);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        buttonRef.current?.focus();
+        break;
+      case 'Tab':
+        setIsOpen(false);
+        break;
+    }
+  };
+
+  const scrollIntoView = (index: number) => {
+    if (listRef.current) {
+      const element = listRef.current.children[index] as HTMLElement;
+      if (element) {
+        element.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  };
+
+  const handleSelect = (val: string | number) => {
+    onChange(String(val));
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
 
   const selectedOption = options.find(
     (opt) => String(opt.value) === String(value),
@@ -87,19 +174,78 @@ export function CustomSelect({
       ? 'text-lumi-label opacity-100'
       : 'text-gray-500 dark:text-gray-400 opacity-70';
 
+  const renderDropdown = () => {
+    return createPortal(
+      <div
+        id={`dropdown-portal-custom-${placeholder}`}
+        style={{
+          position: 'fixed',
+          top: coords.top,
+          left: coords.left,
+          width: coords.width,
+          maxHeight: '240px',
+          zIndex: 9999,
+        }}
+        className={`
+          overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg origin-top ease-out
+          ${
+            isOpen
+              ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+          }
+        `}
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        {options.map((option, index) => {
+          const isSelected = String(value) === String(option.value);
+          const isHighlighted = index === highlightedIndex;
+
+          return (
+            <button
+              key={String(option.value)}
+              type="button"
+              onClick={() => handleSelect(option.value)}
+              onMouseEnter={() => setHighlightedIndex(index)}
+              className={`
+                w-full text-left px-3 py-2 text-sm truncate block
+                ${
+                  isSelected
+                    ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
+                    : 'text-gray-700 dark:text-gray-200'
+                }
+                ${
+                  isHighlighted && !isSelected
+                    ? 'bg-gray-100 dark:bg-gray-700'
+                    : ''
+                }
+              `}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>,
+      document.body,
+    );
+  };
+
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
+        disabled={disabled}
         className={`
-          flex items-center justify-between w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-lumi-primary
+          flex items-center justify-between w-full px-3 py-2 text-sm border rounded-md
           ${buttonClassName}
           ${
-            isOpen
-              ? 'bg-gray-100 dark:bg-gray-700'
-              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+            disabled
+              ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed border-gray-200 dark:border-gray-600 text-gray-400'
+              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-lumi-primary'
           }
+          ${isOpen ? 'ring-2 ring-lumi-primary border-lumi-primary' : ''}
         `}
       >
         <div className="flex items-center gap-2 truncate">
@@ -118,46 +264,7 @@ export function CustomSelect({
         </span>
       </button>
 
-      <div
-        style={{ maxHeight: `${listMaxHeight}px` }}
-        className={`
-          absolute left-0 w-full overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50 ease-out
-          ${
-            direction === 'up'
-              ? 'bottom-full mb-1 origin-bottom'
-              : 'top-full mt-1 origin-top'
-          }
-
-          ${
-            isOpen
-              ? 'opacity-100 scale-y-100 translate-y-0'
-              : `opacity-0 scale-y-0 pointer-events-none ${
-                  direction === 'up' ? 'translate-y-2' : '-translate-y-2'
-                }`
-          }
-        `}
-      >
-        {options.map((option) => (
-          <button
-            key={String(option.value)}
-            type="button"
-            onClick={() => {
-              onChange(String(option.value));
-              setIsOpen(false);
-            }}
-            className={`
-              w-full text-left px-3 py-2 text-sm duration-150 truncate
-              ${
-                String(value) === String(option.value)
-                  ? 'bg-lumi-primary/10 text-lumi-primary font-bold'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }
-            `}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      {renderDropdown()}
     </div>
   );
 }
