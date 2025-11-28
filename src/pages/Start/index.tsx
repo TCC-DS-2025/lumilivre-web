@@ -213,7 +213,6 @@ export function DashboardPage() {
 
   const handleFecharDetalhesEmprestimo = (foiAtualizado?: boolean) => {
     setIsLoanModalOpen(false);
-    setSelectedLoan(null);
     if (foiAtualizado) {
       carregarDados();
     }
@@ -233,7 +232,6 @@ export function DashboardPage() {
 
   const handleFecharDetalhesSolicitacao = (foiProcessado?: boolean) => {
     setIsRequestModalOpen(false);
-    setSelectedRequest(null);
     if (foiProcessado) {
       carregarDados();
     }
