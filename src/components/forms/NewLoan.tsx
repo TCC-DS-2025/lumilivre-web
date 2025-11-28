@@ -61,7 +61,7 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
         setLivrosOptions(
           livrosRes.content.map((l) => ({
             label: `${l.nome} (ISBN: ${l.isbn || 'S/N'})`,
-            value: l.id, 
+            value: l.id,
           })),
         );
       } catch (error) {
@@ -184,7 +184,6 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
               value={alunoMatricula}
               onChange={setAlunoMatricula}
               options={alunosOptions}
-              placeholder="Busque pelo nome ou matrícula..."
             />
           </div>
 
@@ -197,7 +196,6 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
                 setExemplarTombo('');
               }}
               options={livrosOptions}
-              placeholder="Busque pelo título ou ISBN..."
             />
           </div>
 
@@ -208,9 +206,7 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
               onChange={setExemplarTombo}
               options={exemplaresOptions}
               placeholder={
-                !livroId
-                  ? 'Selecione um livro primeiro'
-                  : 'Selecione o exemplar...'
+                !livroId ? 'Selecione um livro' : 'Selecione um exemplar'
               }
               disabled={!livroId || isLoadingExemplares}
               isLoading={isLoadingExemplares}

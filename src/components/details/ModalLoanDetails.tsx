@@ -5,8 +5,14 @@ import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
-import { buscarLivrosParaAdmin } from '../../services/livroService';
+import { buscarLivrosAgrupados } from '../../services/livroService';
 import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
+import {
+  atualizarEmprestimo,
+  concluirEmprestimo,
+  excluirEmprestimo,
+  type EmprestimoPayload,
+} from '../../services/emprestimoService';
 
 interface Option {
   label: string;
@@ -57,7 +63,7 @@ export function ModalLoanDetails({
         try {
           const [alunosRes, livrosRes] = await Promise.all([
             buscarAlunosParaAdmin('', 0, 1000),
-            buscarLivrosParaAdmin('', 0, 1000),
+            buscarLivrosAgrupados('', 0, 1000),
           ]);
 
           setAlunosOptions(
@@ -69,8 +75,8 @@ export function ModalLoanDetails({
 
           setLivrosOptions(
             livrosRes.content.map((l) => ({
-              label: `${l.nome} (ISBN: ${l.isbn})`,
-              value: l.isbn,
+              label: `${l.nome} (ISBN: ${l.isbn || 'S/N'})`,
+              value: l.id,
             })),
           );
         } catch (error) {
@@ -84,7 +90,9 @@ export function ModalLoanDetails({
   useEffect(() => {
     if (emprestimo && isOpen) {
       setAlunoMatricula(emprestimo.alunoMatricula || '');
-      setLivroId(emprestimo.livroIsbn || '');
+
+      setLivroId('');
+
       setExemplarTombo(emprestimo.exemplarTombo || '');
 
       const formatarData = (data: string | Date) => {
@@ -133,7 +141,17 @@ export function ModalLoanDetails({
     carregarExemplares();
   }, [livroId, exemplarTombo]);
 
+  const formatarDataParaBackend = (dataIso: string): string => {
+    if (!dataIso) return '';
+    const [ano, mes, dia] = dataIso.split('-');
+    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour12: false });
+    return `${dia}/${mes}/${ano} ${horaAtual}`;
+  };
+
+  // --- AÇÕES ---
+
   const handleSalvar = async () => {
+    if (!emprestimo) return;
     if (
       !alunoMatricula ||
       !exemplarTombo ||
@@ -146,14 +164,16 @@ export function ModalLoanDetails({
 
     setIsLoading(true);
     try {
-      // AQUI: Implementar a lógica de atualização.
-      // Como o NewLoan usa 'cadastrarEmprestimo', você precisaria de um 'atualizarEmprestimo'
-      // ou usar isso apenas para renovação (alterar data).
+      const payload: EmprestimoPayload = {
+        id: Number(emprestimo.id),
+        aluno_matricula: alunoMatricula,
+        exemplar_tombo: exemplarTombo,
+        data_emprestimo: formatarDataParaBackend(dataEmprestimo),
+        data_devolucao: formatarDataParaBackend(dataDevolucao),
+      };
 
-      // Exemplo fictício:
-      // await atualizarEmprestimo(emprestimo.id, { ...payload });
-
-      alert('Empréstimo atualizado com sucesso! (Simulação)');
+      await atualizarEmprestimo(Number(emprestimo.id), payload);
+      alert('Empréstimo atualizado com sucesso!');
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error);
@@ -163,10 +183,49 @@ export function ModalLoanDetails({
     }
   };
 
+  const handleDevolucao = async () => {
+    if (!emprestimo) return;
+    if (!window.confirm('Confirmar a devolução deste livro?')) return;
+
+    setIsLoading(true);
+    try {
+      await concluirEmprestimo(Number(emprestimo.id));
+      alert('Devolução registrada com sucesso!');
+      onClose(true);
+    } catch (error: any) {
+      console.error('Erro na devolução:', error);
+      alert(error.response?.data?.mensagem || 'Erro ao registrar devolução.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleExcluir = async () => {
+    if (!emprestimo) return;
+    if (
+      !window.confirm(
+        'Tem certeza que deseja EXCLUIR este registro de empréstimo? Essa ação não pode ser desfeita.',
+      )
+    )
+      return;
+
+    setIsLoading(true);
+    try {
+      await excluirEmprestimo(Number(emprestimo.id));
+      alert('Empréstimo excluído com sucesso!');
+      onClose(true);
+    } catch (error: any) {
+      console.error('Erro ao excluir:', error);
+      alert(error.response?.data?.mensagem || 'Erro ao excluir empréstimo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1';
   const disabledInputStyles =
-    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center';
+    'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 cursor-not-allowed select-none text-sm flex items-center truncate';
 
   if (!isOpen || !emprestimo) return null;
 
@@ -222,7 +281,6 @@ export function ModalLoanDetails({
                   value={alunoMatricula}
                   onChange={setAlunoMatricula}
                   options={alunosOptions}
-                  placeholder="Busque pelo nome ou matrícula..."
                 />
               ) : (
                 <input
@@ -247,15 +305,11 @@ export function ModalLoanDetails({
                     setExemplarTombo('');
                   }}
                   options={livrosOptions}
-                  placeholder="Busque pelo título ou ISBN..."
                 />
               ) : (
                 <input
                   type="text"
-                  value={
-                    livrosOptions.find((l) => l.value === livroId)?.label ||
-                    livroId
-                  }
+                  value={emprestimo.livroNome || emprestimo.livroIsbn}
                   disabled
                   className={disabledInputStyles}
                 />
@@ -270,9 +324,7 @@ export function ModalLoanDetails({
                   onChange={setExemplarTombo}
                   options={exemplaresOptions}
                   placeholder={
-                    !livroId
-                      ? 'Selecione um livro primeiro'
-                      : 'Selecione o exemplar...'
+                    !livroId ? 'Selecione um livro' : 'Selecione um exemplar'
                   }
                   disabled={!livroId || isLoadingExemplares}
                   isLoading={isLoadingExemplares}
@@ -290,40 +342,50 @@ export function ModalLoanDetails({
         </div>
 
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
-          {isEditMode ? (
-            <button
-              onClick={() => setIsEditMode(false)}
-              className="text-gray-600 dark:text-gray-400 font-bold py-2 px-4 hover:underline"
-            >
-              Cancelar
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                /* Lógica de Devolução */
-              }}
-              className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-md"
-            >
-              Registrar Devolução
-            </button>
-          )}
+          <button
+            onClick={handleExcluir}
+            disabled={isLoading || isEditMode}
+            className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md"
+          >
+            Excluir
+          </button>
 
-          {isEditMode ? (
-            <button
-              onClick={handleSalvar}
-              disabled={isLoading}
-              className="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 disabled:bg-gray-400 shadow-md"
-            >
-              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsEditMode(true)}
-              className="bg-lumi-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-lumi-primary-hover shadow-md"
-            >
-              Editar Empréstimo
-            </button>
-          )}
+          <div className="flex gap-3">
+            {isEditMode ? (
+              <>
+                <button
+                  onClick={() => setIsEditMode(false)}
+                  className="text-gray-600 dark:text-gray-400 font-bold py-2 px-4 hover:underline"
+                  disabled={isLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSalvar}
+                  disabled={isLoading}
+                  className="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 disabled:bg-gray-400 shadow-md"
+                >
+                  {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsEditMode(true)}
+                  className="bg-lumi-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-lumi-primary-hover shadow-md"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={handleDevolucao}
+                  disabled={isLoading}
+                  className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 shadow-md"
+                >
+                  {isLoading ? 'Processando...' : 'Registrar Devolução'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

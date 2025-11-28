@@ -63,7 +63,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             className="rounded-md"
             aria-label="Fechar modal"
           >
-            <CloseIcon className="w-8 h-8 text-lumi-primary hover:text-opacity-75" />
+            <CloseIcon className="w-8 h-8 mr-0.5 text-lumi-primary hover:text-opacity-75" />
           </button>
         </div>
 
