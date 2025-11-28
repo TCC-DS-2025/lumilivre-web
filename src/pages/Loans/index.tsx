@@ -35,17 +35,25 @@ interface EmprestimoDisplay {
   id: string;
   rawId: number;
   status: StatusEmprestimoDisplay;
-  isbn: string;
   livro: string;
+  isbn: string;
   tombo: string;
   aluno: string;
   matriculaAluno: string;
   curso: string;
-  emprestimo: Date;
-  devolucao: Date;
+  emprestimo: string; 
+  devolucao: string;
   rawDataEmprestimo: string;
   rawDataDevolucao: string;
 }
+
+const formatarDataIso = (dataIso: string): string => {
+  if (!dataIso) return '-';
+  const [dataPart] = dataIso.split('T');
+  if (!dataPart) return '-';
+  const [ano, mes, dia] = dataPart.split('-');
+  return `${dia}/${mes}/${ano}`;
+};
 
 export function EmprestimosPage() {
   const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
@@ -166,8 +174,8 @@ export function EmprestimosPage() {
 
         const emprestimosMapeados: EmprestimoDisplay[] = data.content.map(
           (item, index) => {
-            const dataDevolucao = new Date(item.dataDevolucao);
-            dataDevolucao.setHours(0, 0, 0, 0);
+            const dataDevolucaoObj = new Date(item.dataDevolucao);
+            dataDevolucaoObj.setHours(0, 0, 0, 0);
 
             let status: StatusEmprestimoDisplay;
 
@@ -175,10 +183,10 @@ export function EmprestimosPage() {
               status = 'concluido';
             } else if (
               item.statusEmprestimo === 'ATRASADO' ||
-              dataDevolucao.getTime() < hoje.getTime()
+              dataDevolucaoObj.getTime() < hoje.getTime()
             ) {
               status = 'atrasado';
-            } else if (dataDevolucao.getTime() === hoje.getTime()) {
+            } else if (dataDevolucaoObj.getTime() === hoje.getTime()) {
               status = 'vence-hoje';
             } else {
               status = 'ativo';
@@ -188,16 +196,20 @@ export function EmprestimosPage() {
               id: `${item.livroTombo}-${index}`,
               rawId: item.id,
               status: status,
-              isbn: '-',
               livro: item.livroNome,
+              isbn: '',
               tombo: item.livroTombo,
               aluno: item.nomeAluno,
               matriculaAluno: item.matriculaAluno,
               curso: item.curso || '-',
-              emprestimo: new Date(item.dataEmprestimo),
-              devolucao: new Date(item.dataDevolucao),
-              rawDataEmprestimo: item.dataEmprestimo,
-              rawDataDevolucao: item.dataDevolucao,
+              emprestimo: formatarDataIso(item.dataEmprestimo),
+              devolucao: formatarDataIso(item.dataDevolucao),
+              rawDataEmprestimo: item.dataEmprestimo
+                ? item.dataEmprestimo.split('T')[0]
+                : '',
+              rawDataDevolucao: item.dataDevolucao
+                ? item.dataDevolucao.split('T')[0]
+                : '',
             };
           },
         );
@@ -262,7 +274,7 @@ export function EmprestimosPage() {
       id: item.rawId,
       alunoMatricula: item.matriculaAluno,
       livroIsbn: item.isbn,
-      livroNome: item.livro, // Agora o TypeScript vai aceitar isso
+      livroNome: item.livro,
       exemplarTombo: item.tombo,
       dataEmprestimo: item.rawDataEmprestimo,
       dataDevolucao: item.rawDataDevolucao,
@@ -272,7 +284,6 @@ export function EmprestimosPage() {
 
   const handleFecharDetalhes = (foiAtualizado?: boolean) => {
     setIsDetalhesOpen(false);
-    setEmprestimoSelecionado(null);
     if (foiAtualizado) {
       fetchEmprestimos();
     }
@@ -355,7 +366,7 @@ export function EmprestimosPage() {
       width: '15%',
       render: (item) => (
         <span className="dark:text-gray-300">
-          {item.emprestimo.toLocaleDateString('pt-BR')}
+          {item.emprestimo}
         </span>
       ),
     },
@@ -365,7 +376,7 @@ export function EmprestimosPage() {
       width: '15%',
       render: (item) => (
         <span className="font-bold dark:text-white">
-          {item.devolucao.toLocaleDateString('pt-BR')}
+          {item.devolucao}
         </span>
       ),
     },

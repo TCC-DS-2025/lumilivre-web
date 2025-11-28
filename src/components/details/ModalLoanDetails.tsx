@@ -248,7 +248,7 @@ export function ModalLoanDetails({
   const disabledInputStyles =
     'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center truncate';
 
-  if (!isOpen || !emprestimo) return null;
+  if (!emprestimo) return null;
 
   return (
     <Modal
@@ -269,8 +269,8 @@ export function ModalLoanDetails({
               <div>
                 <label className={labelStyles}>Data do Empréstimo</label>
                 <div className={disabledInputStyles}>
-                  {dataEmprestimo
-                    ? new Date(dataEmprestimo).toLocaleDateString('pt-BR')
+                  {dataEmprestimo && dataEmprestimo.includes('-')
+                    ? dataEmprestimo.split('-').reverse().join('/')
                     : '-'}
                 </div>
               </div>
@@ -286,8 +286,8 @@ export function ModalLoanDetails({
               <div>
                 <label className={labelStyles}>Data de Devolução</label>
                 <div className={disabledInputStyles}>
-                  {dataDevolucao
-                    ? new Date(dataDevolucao).toLocaleDateString('pt-BR')
+                  {dataDevolucao && dataDevolucao.includes('-')
+                    ? dataDevolucao.split('-').reverse().join('/')
                     : '-'}
                 </div>
               </div>

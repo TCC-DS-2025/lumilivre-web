@@ -130,7 +130,7 @@ export function ModalLoanRequestDetails({
   const disabledInputStyles =
     'w-full h-[38px] px-3 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-none text-sm flex items-center truncate';
 
-  if (!isOpen || !solicitacao) return null;
+  if (!solicitacao) return null;
 
   return (
     <Modal
