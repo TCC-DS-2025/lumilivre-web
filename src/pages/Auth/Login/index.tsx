@@ -43,11 +43,21 @@ export function LoginPage() {
         navigate('/dashboard');
       }, 500);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data ||
-          'Usuário ou senha inválidos.',
-      );
+      console.error('Erro no login:', err);
+
+      let mensagemErro = 'Usuário ou senha inválidos.';
+
+      if (err.response?.data) {
+        if (typeof err.response.data.mensagem === 'string') {
+          mensagemErro = err.response.data.mensagem;
+        } else if (typeof err.response.data.message === 'string') {
+          mensagemErro = err.response.data.message;
+        } else if (typeof err.response.data === 'string') {
+          mensagemErro = err.response.data;
+        }
+      }
+
+      setError(mensagemErro);
       setIsLoading(false);
     }
   };

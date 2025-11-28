@@ -47,30 +47,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           const parsedUser: User = JSON.parse(storedUser);
-          setUser(parsedUser);
-          api.defaults.headers.common['Authorization'] =
-            `Bearer ${parsedUser.token}`;
+
+          if (parsedUser.token) {
+            setUser(parsedUser);
+            api.defaults.headers.common['Authorization'] =
+              `Bearer ${parsedUser.token}`;
+          } else {
+            localStorage.removeItem('user');
+          }
         }
       } catch (error) {
         console.error('Falha ao carregar dados do usuário', error);
-        logout();
+        localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
       }
     };
 
     carregarUsuarioStorage();
-  }, [logout]);
+  }, []);
 
   useEffect(() => {
     const interceptorId = api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 403 || error.response?.status === 401) {
-          if (user) {
-            console.warn('Sessão expirada ou inválida. Realizando logout...');
-            logout();
-          }
+        if (
+          (error.response?.status === 403 || error.response?.status === 401) &&
+          user
+        ) {
+          console.warn('Sessão expirada ou inválida. Realizando logout...');
+          logout();
         }
         return Promise.reject(error);
       },

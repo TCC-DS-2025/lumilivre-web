@@ -37,7 +37,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center select-none
+      className={`fixed inset-0 z-[999] flex items-center justify-center select-none
         ${isAnimatingOut ? 'animate-fade-out' : 'animate-fade-in'}
       `}
     >
