@@ -35,6 +35,7 @@ interface EmprestimoDisplay {
   id: string;
   rawId: number;
   status: StatusEmprestimoDisplay;
+  isbn: string;
   livro: string;
   tombo: string;
   aluno: string;
@@ -72,6 +73,7 @@ export function EmprestimosPage() {
     id: number;
     alunoMatricula: string;
     livroIsbn: string;
+    livroNome?: string;
     exemplarTombo: string;
     dataEmprestimo: string;
     dataDevolucao: string;
@@ -186,6 +188,7 @@ export function EmprestimosPage() {
               id: `${item.livroTombo}-${index}`,
               rawId: item.id,
               status: status,
+              isbn: '-',
               livro: item.livroNome,
               tombo: item.livroTombo,
               aluno: item.nomeAluno,
@@ -258,7 +261,8 @@ export function EmprestimosPage() {
     setEmprestimoSelecionado({
       id: item.rawId,
       alunoMatricula: item.matriculaAluno,
-      livroIsbn: '',
+      livroIsbn: item.isbn,
+      livroNome: item.livro, // Agora o TypeScript vai aceitar isso
       exemplarTombo: item.tombo,
       dataEmprestimo: item.rawDataEmprestimo,
       dataDevolucao: item.rawDataDevolucao,
