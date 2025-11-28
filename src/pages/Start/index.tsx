@@ -4,6 +4,7 @@ import { StatCard } from '../../components/StatCard';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
 import { TableFooter } from '../../components/TableFooter';
 import { ModalLoanDetails } from '../../components/details/ModalLoanDetails';
+import { ModalLoanRequestDetails } from '../../components/details/ModalLoanRequestDetails';
 import { formatarNome } from '../../utils/formatters';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
@@ -50,8 +51,11 @@ interface EmprestimoVencer {
 interface SolicitacaoDisplay {
   id: number;
   aluno: string;
+  alunoMatricula?: string;
   livro: string;
+  exemplarTombo?: string;
   solicitacao: Date;
+  rawDataSolicitacao: string;
 }
 
 export function DashboardPage() {
@@ -99,6 +103,15 @@ export function DashboardPage() {
     exemplarTombo: string;
     dataEmprestimo: string;
     dataDevolucao: string;
+  } | null>(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<{
+    id: number;
+    alunoNome: string;
+    alunoMatricula?: string;
+    livroNome: string;
+    exemplarTombo?: string;
+    dataSolicitacao: string;
   } | null>(null);
 
   useEffect(() => {
@@ -199,6 +212,26 @@ export function DashboardPage() {
     }
   };
 
+  const handleAbrirDetalhesSolicitacao = (item: SolicitacaoDisplay) => {
+    setSelectedRequest({
+      id: item.id,
+      alunoNome: item.aluno,
+      alunoMatricula: item.alunoMatricula,
+      livroNome: item.livro,
+      exemplarTombo: item.exemplarTombo,
+      dataSolicitacao: item.rawDataSolicitacao,
+    });
+    setIsRequestModalOpen(true);
+  };
+
+  const handleFecharDetalhesSolicitacao = (foiProcessado?: boolean) => {
+    setIsRequestModalOpen(false);
+    setSelectedRequest(null);
+    if (foiProcessado) {
+      carregarDados();
+    }
+  };
+
   const carregarDados = async () => {
     getContagemLivros()
       .then((livros) =>
@@ -225,8 +258,11 @@ export function DashboardPage() {
         const processadas = lista.map((s) => ({
           id: s.id,
           aluno: s.alunoNome,
+          alunoMatricula: s.alunoMatricula,
           livro: s.livroNome,
+          exemplarTombo: s.exemplarTombo,
           solicitacao: new Date(s.dataSolicitacao),
+          rawDataSolicitacao: s.dataSolicitacao,
         }));
         setSolicitacoesState({
           data: processadas,
@@ -347,8 +383,11 @@ export function DashboardPage() {
       header: 'Ações',
       width: '20%',
       isSortable: false,
-      render: () => (
-        <button className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none">
+      render: (item) => (
+        <button
+          onClick={() => handleAbrirDetalhesSolicitacao(item)}
+          className="bg-lumi-label text-white text-xs font-bold py-1 px-3 rounded hover:bg-opacity-75 hover:scale-105 shadow-md select-none"
+        >
           Detalhes
         </button>
       ),
@@ -411,6 +450,12 @@ export function DashboardPage() {
         isOpen={isLoanModalOpen}
         onClose={handleFecharDetalhesEmprestimo}
         emprestimo={selectedLoan}
+      />
+
+      <ModalLoanRequestDetails
+        isOpen={isRequestModalOpen}
+        onClose={handleFecharDetalhesSolicitacao}
+        solicitacao={selectedRequest}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 shrink-0">
