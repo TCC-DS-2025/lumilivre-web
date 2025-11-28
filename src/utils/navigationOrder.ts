@@ -1,8 +1,8 @@
 export const routeOrder = [
   '/dashboard',
-  '/emprestimos',
   '/livros',
   '/alunos',
+  '/emprestimos',
   '/classificacao',
   '/relatorios',
   '/configuracoes',

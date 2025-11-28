@@ -8,9 +8,9 @@ import { EsqueciSenhaPage } from './pages/Auth/ForgotPassword';
 import { MudarSenhaPage } from './pages/Auth/ChangePassword';
 
 import { DashboardPage } from './pages/Start';
-import { EmprestimosPage } from './pages/Loans';
 import { LivrosPage } from './pages/Books';
 import { AlunosPage } from './pages/Students';
+import { EmprestimosPage } from './pages/Loans';
 import { ClassificacaoPage } from './pages/Ranking';
 import { RelatoriosPage } from './pages/Reports';
 import { ConfiguracoesPage } from './pages/Settings';
@@ -36,17 +36,6 @@ function App() {
       />
 
       <Route
-        path="/emprestimos"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <EmprestimosPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/livros"
         element={
           <ProtectedRoute>
@@ -63,6 +52,17 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <AlunosPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/emprestimos"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <EmprestimosPage />
             </MainLayout>
           </ProtectedRoute>
         }

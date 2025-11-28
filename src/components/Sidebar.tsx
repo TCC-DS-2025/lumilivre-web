@@ -25,12 +25,6 @@ const navLinks = [
     ActiveIcon: HomeActiveIcon,
   },
   {
-    path: '/emprestimos',
-    label: 'Empréstimos',
-    Icon: LoansIcon,
-    ActiveIcon: LoansActiveIcon,
-  },
-  {
     path: '/livros',
     label: 'Livros',
     Icon: BookIcon,
@@ -41,6 +35,12 @@ const navLinks = [
     label: 'Alunos',
     Icon: UsersIcon,
     ActiveIcon: UsersActiveIcon,
+  },
+  {
+    path: '/emprestimos',
+    label: 'Empréstimos',
+    Icon: LoansIcon,
+    ActiveIcon: LoansActiveIcon,
   },
   {
     path: '/classificacao',
