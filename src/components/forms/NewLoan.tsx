@@ -5,7 +5,7 @@ import {
   type EmprestimoPayload,
 } from '../../services/emprestimoService';
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
-import { buscarLivrosParaAdmin } from '../../services/livroService';
+import { buscarLivrosAgrupados } from '../../services/livroService';
 import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
 
 import { SearchableSelect } from '../SearchableSelect';
@@ -25,7 +25,6 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExemplares, setIsLoadingExemplares] = useState(false);
 
-  // Estados dos dados
   const [alunoMatricula, setAlunoMatricula] = useState('');
   const [livroId, setLivroId] = useState('');
   const [exemplarTombo, setExemplarTombo] = useState('');
@@ -38,7 +37,6 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
   const [dataEmprestimo, setDataEmprestimo] = useState(hoje);
   const [dataDevolucao, setDataDevolucao] = useState(devolucaoStr);
 
-  // Opções para os Selects
   const [alunosOptions, setAlunosOptions] = useState<Option[]>([]);
   const [livrosOptions, setLivrosOptions] = useState<Option[]>([]);
   const [exemplaresOptions, setExemplaresOptions] = useState<Option[]>([]);
@@ -48,9 +46,10 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
       try {
         const [alunosRes, livrosRes] = await Promise.all([
           buscarAlunosParaAdmin('', 0, 1000),
-          buscarLivrosParaAdmin('', 0, 1000),
+          buscarLivrosAgrupados('', 0, 1000),
         ]);
 
+        // Mapeia Alunos
         setAlunosOptions(
           alunosRes.content.map((a) => ({
             label: `${a.nomeCompleto} (Mat: ${a.matricula})`,
@@ -58,20 +57,11 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
           })),
         );
 
+        // Mapeia Livros
         setLivrosOptions(
           livrosRes.content.map((l) => ({
-            label: `${l.nome} (ISBN: ${l.isbn})`,
-            value: l.isbn,
-          })),
-        );
-
-        const livrosAgrupadosRes = await import(
-          '../../services/livroService'
-        ).then((m) => m.buscarLivrosAgrupados('', 0, 1000));
-        setLivrosOptions(
-          livrosAgrupadosRes.content.map((l) => ({
-            label: `${l.nome} (ISBN: ${l.isbn})`,
-            value: l.id,
+            label: `${l.nome} (ISBN: ${l.isbn || 'S/N'})`,
+            value: l.id, 
           })),
         );
       } catch (error) {
@@ -103,7 +93,7 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
 
         setExemplaresOptions(
           disponiveis.map((ex) => ({
-            label: `Tombo: ${ex.tomboExemplar} - Local: ${ex.localizacao_fisica}`,
+            label: `${ex.tomboExemplar} - Local: ${ex.localizacao_fisica}`,
             value: ex.tomboExemplar,
           })),
         );
