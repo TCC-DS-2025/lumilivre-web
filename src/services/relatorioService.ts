@@ -3,26 +3,18 @@ import api from './api';
 export interface FiltrosRelatorio {
   dataInicio?: string;
   dataFim?: string;
-
-  // alunos
   idModulo?: number;
   idCurso?: number;
   idTurno?: number;
   penalidade?: string;
-
-  // livros
   genero?: string;
   autor?: string;
   editora?: string;
   cdd?: string;
   classificacaoEtaria?: string;
   tipoCapa?: string;
-
-  // exemplares
   statusLivro?: string;
   isbnOuTombo?: string;
-
-  // emprestimos
   statusEmprestimo?: string;
   matriculaAluno?: string;
 }
@@ -34,12 +26,17 @@ export const baixarRelatorioPDF = async (
   const params = new URLSearchParams();
 
   Object.entries(filtros).forEach(([key, value]) => {
-    if (value !== undefined && value !== '' && value !== null) {
-      if (key === 'statusLivro' || key === 'statusEmprestimo') {
-        params.append('status', String(value));
-      } else {
-        params.append(key, String(value));
-      }
+    // 1. Ignora valores nulos, undefined ou strings vazias
+    if (value === null || value === undefined || value === '') {
+      return;
+    }
+
+    // 2. Mapeia os campos de status para a chave genérica 'status' que o backend espera
+    if (key === 'statusLivro' || key === 'statusEmprestimo') {
+      params.append('status', String(value));
+    } else {
+      // 3. Adiciona todos os outros filtros (datas, ids, textos)
+      params.append(key, String(value));
     }
   });
 

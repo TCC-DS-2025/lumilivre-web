@@ -12,9 +12,7 @@ import {
   buscarLivrosParaAdmin,
 } from '../../services/livroService';
 import { buscarGeneros } from '../../services/generoService';
-import {
-  buscarAlunosParaAdmin,
-} from '../../services/alunoService';
+import { buscarAlunosParaAdmin } from '../../services/alunoService';
 
 import { Modal } from '../../components/Modal';
 import { LoadingIcon } from '../../components/LoadingIcon';
@@ -205,15 +203,25 @@ function ModalFiltrosRelatorio({
           if (['livros', 'exemplares', 'emprestimos'].includes(tipoRelatorio)) {
             promises.push(
               buscarLivrosParaAdmin('', 0, 1000).then((res) => {
+                const livrosUnicos = new Map();
 
-                const opts = res.content.map((l) => ({
-                  label: `${l.nome} (ISBN: ${l.isbn})`,
-                  value: l.isbn,
-                }));
+                res.content.forEach((l) => {
+                  if (l.isbn && !livrosUnicos.has(l.isbn)) {
+                    livrosUnicos.set(l.isbn, l.nome);
+                  }
+                });
+
+                const opts = Array.from(livrosUnicos.entries()).map(
+                  ([isbn, nome]) => ({
+                    label: `${nome} (ISBN: ${isbn})`,
+                    value: isbn,
+                  }),
+                );
+
                 setLivrosSelectOpts([{ label: 'Todos', value: '' }, ...opts]);
 
                 const autoresUnicos = Array.from(
-                  new Set(res.content.map((l) => l.autor)),
+                  new Set(res.content.map((l) => l.autor).filter(Boolean)),
                 ).sort();
                 setAutoresOpts([
                   { label: 'Todos', value: '' },
@@ -221,7 +229,7 @@ function ModalFiltrosRelatorio({
                 ]);
 
                 const editorasUnicas = Array.from(
-                  new Set(res.content.map((l) => l.editora)),
+                  new Set(res.content.map((l) => l.editora).filter(Boolean)),
                 ).sort();
                 setEditorasOpts([
                   { label: 'Todas', value: '' },
@@ -234,7 +242,6 @@ function ModalFiltrosRelatorio({
           if (tipoRelatorio === 'emprestimos') {
             promises.push(
               buscarAlunosParaAdmin('', 0, 1000).then((res) => {
-                
                 const opts = res.content.map((a) => ({
                   label: `${a.nomeCompleto} (Mat: ${a.matricula})`,
                   value: a.matricula,
@@ -272,8 +279,15 @@ function ModalFiltrosRelatorio({
     try {
       await baixarRelatorioPDF(tipoRelatorio, filtros);
       onClose();
-    } catch (error) {
-      alert('Erro ao gerar o relatório. Tente novamente.');
+    } catch (error: any) {
+      console.error(error);
+      if (error.response?.status === 404) {
+        alert('Nenhum registro encontrado para os filtros selecionados.');
+      } else {
+        alert(
+          'Erro ao gerar o relatório. Verifique se há dados para este período.',
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -392,7 +406,7 @@ function ModalFiltrosRelatorio({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SearchableSelect
                 label="Editora"
-                value={filtros.editora || ''} 
+                value={filtros.editora || ''}
                 onChange={(val) => handleSelectChange('editora', val)}
                 options={editorasOpts}
               />
