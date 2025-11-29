@@ -41,7 +41,7 @@ interface EmprestimoDisplay {
   aluno: string;
   matriculaAluno: string;
   curso: string;
-  emprestimo: string; 
+  emprestimo: string;
   devolucao: string;
   rawDataEmprestimo: string;
   rawDataDevolucao: string;
@@ -53,6 +53,20 @@ const formatarDataIso = (dataIso: string): string => {
   if (!dataPart) return '-';
   const [ano, mes, dia] = dataPart.split('-');
   return `${dia}/${mes}/${ano}`;
+};
+
+const cleanFilters = (filters: any) => {
+  const cleaned: any = {};
+  Object.keys(filters).forEach((key) => {
+    if (
+      filters[key] !== '' &&
+      filters[key] !== null &&
+      filters[key] !== undefined
+    ) {
+      cleaned[key] = filters[key];
+    }
+  });
+  return cleaned;
 };
 
 export function EmprestimosPage() {
@@ -67,9 +81,10 @@ export function EmprestimosPage() {
     key: string;
     direction: 'asc' | 'desc';
   }>({
-    key: 'dataDevolucao',
+    key: 'status',
     direction: 'asc',
   });
+
   const [currentPage, setCurrentPage] = useState(1);
 
   const [termoBusca, setTermoBusca] = useState('');
@@ -139,7 +154,7 @@ export function EmprestimosPage() {
     setError(null);
     try {
       const sortMap: Record<string, string> = {
-        status: 'statusEmprestimo',
+        status: 'status',
         tombo: 'exemplar.tombo',
         livro: 'exemplar.livro.nome',
         aluno: 'aluno.nomeCompleto',
@@ -153,8 +168,10 @@ export function EmprestimosPage() {
       let data: Page<EmprestimoListagemDTO>;
 
       if (hasActiveFilters) {
+        const filtrosLimpos = cleanFilters(activeFilters);
+
         data = await buscarEmprestimosAvancado({
-          ...activeFilters,
+          ...filtrosLimpos,
           page: currentPage - 1,
           size: itemsPerPage,
           sort: sortParam,
@@ -291,9 +308,13 @@ export function EmprestimosPage() {
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+
+    if (sortConfig.key === key) {
+      direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      direction = 'asc';
     }
+
     setSortConfig({ key, direction });
     setCurrentPage(1);
   };
@@ -365,9 +386,7 @@ export function EmprestimosPage() {
       header: 'Empréstimo',
       width: '15%',
       render: (item) => (
-        <span className="dark:text-gray-300">
-          {item.emprestimo}
-        </span>
+        <span className="dark:text-gray-300">{item.emprestimo}</span>
       ),
     },
     {
@@ -375,9 +394,7 @@ export function EmprestimosPage() {
       header: 'Devolução',
       width: '15%',
       render: (item) => (
-        <span className="font-bold dark:text-white">
-          {item.devolucao}
-        </span>
+        <span className="font-bold dark:text-white">{item.devolucao}</span>
       ),
     },
     {
