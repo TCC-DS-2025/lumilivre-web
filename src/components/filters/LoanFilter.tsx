@@ -84,13 +84,13 @@ export function LoanFilter({
 
           {/* Datas */}
           <CustomDatePicker
-            label="Data do Empréstimo"
+            label="Data do Empréstimo (A partir de)"
             value={filters.dataEmprestimo}
             onChange={(e) => onFilterChange('dataEmprestimo', e.target.value)}
           />
 
           <CustomDatePicker
-            label="Data de Devolução"
+            label="Data de Devolução (Até)"
             value={filters.dataDevolucao}
             onChange={(e) => onFilterChange('dataDevolucao', e.target.value)}
           />

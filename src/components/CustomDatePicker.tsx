@@ -286,6 +286,7 @@ export const CustomDatePicker = forwardRef<
 
     return createPortal(
       <div
+        id={`datepicker-portal-${label || 'date'}`}
         ref={calendarRef}
         style={style}
         className={`

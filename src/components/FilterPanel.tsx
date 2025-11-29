@@ -42,13 +42,17 @@ export function FilterPanel({
       const toggleButton = document.getElementById('filter-toggle-button');
 
       const isInsideDropdownPortal = target.closest('[id^="dropdown-portal-"]');
+      const isInsideDatePickerPortal = target.closest(
+        '[id^="datepicker-portal-"]',
+      );
 
       if (
         panelRef.current &&
         !panelRef.current.contains(target) &&
         toggleButton &&
         !toggleButton.contains(target) &&
-        !isInsideDropdownPortal
+        !isInsideDropdownPortal &&
+        !isInsideDatePickerPortal
       ) {
         onClose();
       }
