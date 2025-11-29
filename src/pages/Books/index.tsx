@@ -74,18 +74,29 @@ export function LivrosPage() {
   const [activeFilters, setActiveFilters] = useState({});
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const dynamicPageSize = useDynamicPageSize(tableContainerRef, {
-    rowHeight: 48,
-    footerHeight: 50,
-  });
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const dynamicPageSizeOptions = useMemo(
+    () => ({
+      rowHeight: 48,
+      footerHeight: 50,
+    }),
+    [],
+  );
+  const dynamicPageSize = useDynamicPageSize(
+    tableContainerRef,
+    dynamicPageSizeOptions,
+  );
+  const [itemsPerPage, setItemsPerPage] = useState(0);
 
   useEffect(() => {
-    setItemsPerPage(dynamicPageSize);
+    if (dynamicPageSize > 0) {
+      setItemsPerPage(dynamicPageSize);
+    }
   }, [dynamicPageSize]);
 
   // BUSCA DE DADOS
   const fetchDados = useCallback(async () => {
+    if (itemsPerPage === 0) return;
+
     setIsLoading(true);
     setError(null);
     try {

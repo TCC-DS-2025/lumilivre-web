@@ -151,8 +151,6 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
   };
 
   // Estilos
-  const labelStyles =
-    'block text-sm font-medium text-gray-700 dark:text-white mb-1';
   const buttonClass =
     'w-full bg-lumi-primary hover:bg-lumi-primary-hover active:bg-purple-900 text-white text-[17px] font-bold py-3.5 px-4 border-2 border-transparent rounded-lg shadow-md transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lumi-primary disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none tracking-wide';
 
@@ -179,8 +177,8 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className={labelStyles}>Aluno*</label>
             <SearchableSelect
+              label="Aluno*"
               value={alunoMatricula}
               onChange={setAlunoMatricula}
               options={alunosOptions}
@@ -188,8 +186,8 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
           </div>
 
           <div>
-            <label className={labelStyles}>Livro*</label>
             <SearchableSelect
+              label="Livro*"
               value={livroId}
               onChange={(val) => {
                 setLivroId(val);
@@ -200,8 +198,8 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
           </div>
 
           <div>
-            <label className={labelStyles}>Exemplar Disponível*</label>
             <SearchableSelect
+              label="Exemplar Disponível*"
               value={exemplarTombo}
               onChange={setExemplarTombo}
               options={exemplaresOptions}

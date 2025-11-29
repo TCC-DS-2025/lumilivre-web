@@ -120,7 +120,6 @@ export function AlunosPage() {
       let paginaDeAlunos;
 
       if (filtrosAtuais) {
-        // Cast para acessar propriedades específicas do filtro
         const filtros = activeFilters as typeof filterParams;
 
         paginaDeAlunos = await buscarAlunosAvancado({
