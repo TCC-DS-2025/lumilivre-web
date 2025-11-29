@@ -446,8 +446,8 @@ export function LivrosPage() {
           inputWidth={isExemplarView ? 'w-[300px]' : 'w-[500px]'}
           searchPlaceholder={
             isExemplarView
-              ? 'Pesquise pelo tombo'
-              : 'Pesquise pelo nome ou isbn'
+              ? 'Pesquise pelo tombo do exemplar'
+              : 'Pesquise pelo nome ou isbn do livro'
           }
           onAddNew={() => setIsModalOpen(true)}
           addNewButtonLabel={isExemplarView ? 'NOVO EXEMPLAR' : 'NOVO LIVRO'}

@@ -438,7 +438,7 @@ export function EmprestimosPage() {
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleBusca}
         onReset={handleResetSearch}
-        searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
+        searchPlaceholder="Pesquise pelo livro, aluno ou tombo do empréstimo"
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO EMPRÉSTIMO"
         showFilterButton={true}
