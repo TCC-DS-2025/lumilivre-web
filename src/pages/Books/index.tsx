@@ -18,9 +18,7 @@ import {
   type LivroAgrupado,
   type ListaLivro,
 } from '../../services/livroService';
-import {
-  buscarExemplaresPorLivroId,
-} from '../../services/exemplarService';
+import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
 import {
   buscarEmprestimosAtivosEAtrasados,
   type EmprestimoAtivoDTO,
@@ -201,7 +199,15 @@ export function LivrosPage() {
   };
 
   const handleSearchSubmit = () => {
+    if (!termoBusca.trim()) return;
+
     setTermoBuscaAtivo(termoBusca);
+    setCurrentPage(1);
+  };
+
+  const handleResetSearch = () => {
+    setTermoBusca('');
+    setTermoBuscaAtivo('');
     setCurrentPage(1);
   };
 
@@ -436,6 +442,7 @@ export function LivrosPage() {
           searchTerm={termoBusca}
           onSearchChange={setTermoBusca}
           onSearchSubmit={handleSearchSubmit}
+          onReset={handleResetSearch}
           inputWidth={isExemplarView ? 'w-[300px]' : 'w-[500px]'}
           searchPlaceholder={
             isExemplarView

@@ -82,7 +82,9 @@ export function EmprestimosPage() {
   };
 
   const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
-  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(null);
+  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -268,9 +270,16 @@ export function EmprestimosPage() {
   // HANDLERS
 
   const handleBusca = () => {
+    if (!termoBusca.trim()) return;
     setCurrentPage(1);
     setActiveFilters({});
     setFiltroAtivo(termoBusca);
+  };
+
+  const handleResetSearch = () => {
+    setTermoBusca('');
+    setFiltroAtivo('');
+    setCurrentPage(1);
   };
 
   const handleApplyFilters = () => {
@@ -428,6 +437,7 @@ export function EmprestimosPage() {
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleBusca}
+        onReset={handleResetSearch}
         searchPlaceholder="Pesquise pelo livro, aluno ou tombo"
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO EMPRÉSTIMO"

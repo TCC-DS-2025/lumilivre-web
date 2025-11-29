@@ -3,6 +3,7 @@ import { type ReactNode } from 'react';
 import SearchIcon from '../assets/icons/search.svg?react';
 import FilterIcon from '../assets/icons/filter.svg?react';
 import AddIcon from '../assets/icons/add.svg?react';
+import CloseIcon from '../assets/icons/close-sm.svg?react';
 
 interface ActionHeaderProps {
   searchTerm: string;
@@ -17,6 +18,7 @@ interface ActionHeaderProps {
   children?: ReactNode;
   inputWidth?: string;
   filterComponent?: ReactNode;
+  onReset?: () => void;
 }
 
 export function ActionHeader({
@@ -32,6 +34,7 @@ export function ActionHeader({
   children,
   inputWidth = 'w-[500px]',
   filterComponent,
+  onReset,
 }: ActionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6 shrink-0 relative z-40">
@@ -43,10 +46,11 @@ export function ActionHeader({
           <button
             onClick={onSearchSubmit}
             aria-label="Pesquisar"
-            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 group"
+            className="absolute inset-y-0 right-0 px-4 rounded-r-lg flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-700 group z-10"
           >
             <SearchIcon className="w-5 h-5 text-lumi-primary dark:text-lumi-label" />
           </button>
+
           <input
             type="text"
             placeholder={searchPlaceholder}
@@ -55,8 +59,18 @@ export function ActionHeader({
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSearchSubmit();
             }}
-            className={`pl-5 pr-14 py-2 ${inputWidth} rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md`}
+            className={`pl-5 pr-20 py-2 ${inputWidth} rounded-lg bg-white dark:bg-dark-card dark:text-white focus:ring-2 focus:ring-lumi-primary focus:border-lumi-primary outline-none shadow-md`}
           />
+
+          {searchTerm && onReset && (
+            <button
+              onClick={onReset}
+              className="absolute inset-y-0 right-14 px-2 flex items-center text-gray-400 hover:text-red-500 transition-colors"
+              title="Limpar pesquisa"
+            >
+              <CloseIcon className="w-4 h-4 fill-current" />
+            </button>
+          )}
         </div>
 
         {/* Filtro */}

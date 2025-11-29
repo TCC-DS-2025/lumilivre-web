@@ -52,15 +52,15 @@ export function AlunosPage() {
   const [filterParams, setFilterParams] = useState({
     penalidade: '',
     cursoNome: '',
-    turno: '', 
+    turno: '',
     modulo: '',
     dataNascimento: '',
   });
   const [activeFilters, setActiveFilters] = useState({});
 
   // Estados para Modais
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] = useState<ListaAluno | null>(
     null,
   );
@@ -206,9 +206,16 @@ export function AlunosPage() {
   };
 
   const handleBusca = () => {
+    if (!termoBusca.trim()) return;
     setCurrentPage(1);
     setActiveFilters({});
     setFiltroAtivo(termoBusca);
+  };
+
+  const handleResetSearch = () => {
+    setTermoBusca('');
+    setFiltroAtivo('');
+    setCurrentPage(1);
   };
 
   const handleAbrirDetalhes = (aluno: ListaAluno) => {
@@ -349,6 +356,7 @@ export function AlunosPage() {
         searchTerm={termoBusca}
         onSearchChange={setTermoBusca}
         onSearchSubmit={handleBusca}
+        onReset={handleResetSearch}
         searchPlaceholder="Pesquise pelo nome ou curso"
         onAddNew={() => setIsModalOpen(true)}
         addNewButtonLabel="NOVO ALUNO"
