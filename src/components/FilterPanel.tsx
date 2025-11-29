@@ -15,7 +15,7 @@ export function FilterPanel({
   onApply,
   onClear,
   onClose,
-  width = 'w-[700px]',
+  width = 'w-[600px]',
 }: FilterPanelProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);

@@ -76,7 +76,32 @@ export const buscarEmprestimosPaginado = async (
 export const buscarEmprestimosAvancado = async (
   params: EmprestimoFilterParams,
 ): Promise<Page<EmprestimoListagemDTO>> => {
-  const response = await api.get('/emprestimos/buscar/avancado', { params });
+  const paramsParaApi = {
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+    statusEmprestimo: params.statusEmprestimo,
+    tombo: params.tombo,
+    livroNome: params.livroNome,
+    alunoNome: params.alunoNome,
+    dataEmprestimo: params.dataEmprestimo,
+    dataDevolucao: params.dataDevolucao,
+  };
+
+  Object.keys(paramsParaApi).forEach((key) => {
+    const k = key as keyof typeof paramsParaApi;
+    if (
+      paramsParaApi[k] === '' ||
+      paramsParaApi[k] === undefined ||
+      paramsParaApi[k] === null
+    ) {
+      delete paramsParaApi[k];
+    }
+  });
+
+  const response = await api.get('/emprestimos/buscar/avancado', {
+    params: paramsParaApi,
+  });
   return response.data;
 };
 

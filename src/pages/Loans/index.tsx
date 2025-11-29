@@ -70,10 +70,19 @@ const cleanFilters = (filters: any) => {
 };
 
 export function EmprestimosPage() {
+  const [searchParams] = useSearchParams();
+
+  const filtroAtrasadosObj = {
+    statusEmprestimo: 'ATRASADO',
+    dataEmprestimo: '',
+    dataDevolucao: '',
+    tombo: '',
+    livroNome: '',
+    alunoNome: '',
+  };
+
   const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
-  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(
-    null,
-  );
+  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,7 +95,6 @@ export function EmprestimosPage() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
 
@@ -102,34 +110,35 @@ export function EmprestimosPage() {
     dataDevolucao: string;
   } | null>(null);
 
-  // FILTRO
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterParams, setFilterParams] = useState({
-    statusEmprestimo: '',
-    dataEmprestimo: '',
-    dataDevolucao: '',
-    tombo: '',
-    livroNome: '',
-    alunoNome: '',
+
+  const [filterParams, setFilterParams] = useState(() => {
+    if (searchParams.get('filtro') === 'atrasados') {
+      return filtroAtrasadosObj;
+    }
+    return {
+      statusEmprestimo: '',
+      dataEmprestimo: '',
+      dataDevolucao: '',
+      tombo: '',
+      livroNome: '',
+      alunoNome: '',
+    };
   });
-  const [activeFilters, setActiveFilters] = useState({});
-  const [searchParams] = useSearchParams();
+
+  const [activeFilters, setActiveFilters] = useState(() => {
+    if (searchParams.get('filtro') === 'atrasados') {
+      return filtroAtrasadosObj;
+    }
+    return {};
+  });
 
   useEffect(() => {
     const filtroUrl = searchParams.get('filtro');
 
     if (filtroUrl === 'atrasados') {
-      const filtroAtrasado = {
-        statusEmprestimo: 'ATRASADO',
-        dataEmprestimo: '',
-        dataDevolucao: '',
-        tombo: '',
-        livroNome: '',
-        alunoNome: '',
-      };
-
-      setFilterParams(filtroAtrasado);
-      setActiveFilters(filtroAtrasado);
+      setFilterParams(filtroAtrasadosObj);
+      setActiveFilters(filtroAtrasadosObj);
     }
   }, [searchParams]);
 
