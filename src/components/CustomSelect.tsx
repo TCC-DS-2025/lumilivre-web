@@ -252,7 +252,7 @@ export function CustomSelect({
           {icon && (
             <span className="text-gray-500 dark:text-gray-400">{icon}</span>
           )}
-          <span className="truncate">
+          <span className="truncate text-gray-700 dark:text-white">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>

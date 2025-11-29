@@ -55,25 +55,25 @@ export const CustomDatePicker = forwardRef<
     if (containerRef.current && isOpen) {
       const rect = containerRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const calendarHeight = 320;
+
+      const calendarHeight = 270;
       const margin = 4;
 
       const spaceBelow = viewportHeight - rect.bottom;
       const spaceAbove = rect.top;
 
-      // Decide se abre para cima ou para baixo
       let newDirection: 'down' | 'up' = 'down';
       let top = rect.bottom + margin;
 
       if (spaceBelow < calendarHeight && spaceAbove > calendarHeight) {
         newDirection = 'up';
-        top = rect.top - margin;
         top = rect.top - calendarHeight - margin;
       }
 
       setDirection(newDirection);
+
       setCoords({
-        top: newDirection === 'down' ? rect.bottom + margin : rect.top - margin,
+        top: top,
         left: rect.left,
       });
     }
@@ -275,6 +275,7 @@ export const CustomDatePicker = forwardRef<
       position: 'fixed',
       left: coords.left,
       zIndex: 9999,
+      top: coords.top,
     };
 
     if (direction === 'down') {
