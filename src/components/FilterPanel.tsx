@@ -38,14 +38,17 @@ export function FilterPanel({
     const handleClickOutside = (event: MouseEvent) => {
       if (!isOpen) return;
 
-      const target = event.target as Node;
+      const target = event.target as Element;
       const toggleButton = document.getElementById('filter-toggle-button');
+
+      const isInsideDropdownPortal = target.closest('[id^="dropdown-portal-"]');
 
       if (
         panelRef.current &&
         !panelRef.current.contains(target) &&
         toggleButton &&
-        !toggleButton.contains(target)
+        !toggleButton.contains(target) &&
+        !isInsideDropdownPortal
       ) {
         onClose();
       }

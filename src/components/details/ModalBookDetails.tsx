@@ -17,7 +17,7 @@ import { CustomSelect } from '../CustomSelect';
 import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 
-import uploadIconUrl from '../../assets/icons/upload.svg';
+import uploadIconUrl from '../../assets/icons/download.svg';
 import closeIcon from '../../assets/icons/close.svg';
 import addIcon from '../../assets/icons/add.svg';
 

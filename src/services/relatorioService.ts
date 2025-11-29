@@ -22,20 +22,18 @@ export interface FiltrosRelatorio {
 export const baixarRelatorioPDF = async (
   tipo: 'emprestimos' | 'alunos' | 'livros' | 'exemplares',
   filtros: FiltrosRelatorio,
+  signal?: AbortSignal,
 ) => {
   const params = new URLSearchParams();
 
   Object.entries(filtros).forEach(([key, value]) => {
-    // 1. Ignora valores nulos, undefined ou strings vazias
     if (value === null || value === undefined || value === '') {
       return;
     }
 
-    // 2. Mapeia os campos de status para a chave genérica 'status' que o backend espera
     if (key === 'statusLivro' || key === 'statusEmprestimo') {
       params.append('status', String(value));
     } else {
-      // 3. Adiciona todos os outros filtros (datas, ids, textos)
       params.append(key, String(value));
     }
   });
@@ -44,6 +42,7 @@ export const baixarRelatorioPDF = async (
     const response = await api.get(`/relatorios/${tipo}`, {
       params: params,
       responseType: 'blob',
+      signal: signal,
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -65,6 +64,9 @@ export const baixarRelatorioPDF = async (
     link.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
+    if (error instanceof Error && error.name === 'CanceledError') {
+      throw error;
+    }
     console.error('Erro ao baixar relatório:', error);
     throw error;
   }

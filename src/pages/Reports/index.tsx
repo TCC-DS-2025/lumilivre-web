@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useRef } from 'react';
+
 import {
   baixarRelatorioPDF,
   type FiltrosRelatorio,
 } from '../../services/relatorioService';
-
 import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
 import {
@@ -15,11 +16,11 @@ import { buscarGeneros } from '../../services/generoService';
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
 
 import { Modal } from '../../components/Modal';
-import { LoadingIcon } from '../../components/LoadingIcon';
 import { CustomSelect } from '../../components/CustomSelect';
 import { CustomDatePicker } from '../../components/CustomDatePicker';
 import { SearchableSelect } from '../../components/SearchableSelect';
 
+import { LoadingIcon } from '../../components/LoadingIcon';
 import AddIcon from '../../assets/icons/add.svg?react';
 import DownloadIcon from '../../assets/icons/upload.svg';
 import ReportPaperIcon from '../../assets/icons/report-paper.svg?react';
@@ -89,6 +90,9 @@ function ModalFiltrosRelatorio({
   const [editorasOpts, setEditorasOpts] = useState<Option[]>([]);
   const [livrosSelectOpts, setLivrosSelectOpts] = useState<Option[]>([]);
   const [alunosSelectOpts, setAlunosSelectOpts] = useState<Option[]>([]);
+
+  const [progress, setProgress] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const turnoOpts: Option[] = [
     { label: 'Todos', value: '' },
@@ -262,6 +266,28 @@ function ModalFiltrosRelatorio({
     }
   }, [isOpen, tipoRelatorio]);
 
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+
+    if (isLoading) {
+      setProgress(10);
+
+      interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            return 90;
+          }
+          const increment = Math.random() * 15;
+          return Math.min(prev + increment, 90);
+        });
+      }, 800);
+    } else {
+      setProgress(0);
+    }
+
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFiltros((prev) => ({ ...prev, [name]: value }));
@@ -275,11 +301,26 @@ function ModalFiltrosRelatorio({
     e.preventDefault();
     if (!tipoRelatorio) return;
 
+    abortControllerRef.current = new AbortController();
     setIsLoading(true);
+
     try {
-      await baixarRelatorioPDF(tipoRelatorio, filtros);
+      await baixarRelatorioPDF(
+        tipoRelatorio,
+        filtros,
+        abortControllerRef.current.signal,
+      );
+
+      setProgress(100);
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
       onClose();
     } catch (error: any) {
+      if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
+        console.log('Download cancelado pelo usuário');
+        return;
+      }
+
       console.error(error);
       if (error.response?.status === 404) {
         alert('Nenhum registro encontrado para os filtros selecionados.');
@@ -289,8 +330,18 @@ function ModalFiltrosRelatorio({
         );
       }
     } finally {
-      setIsLoading(false);
+      if (progress !== 100) {
+        setIsLoading(false);
+      }
     }
+  };
+
+  const handleCancelar = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsLoading(false);
+    setProgress(0);
   };
 
   const labelClass =
@@ -299,22 +350,44 @@ function ModalFiltrosRelatorio({
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-[300px] pb-20">
+        <div className="flex flex-col items-center justify-center min-h-[300px] pb-10 px-8">
           <div className="transform scale-110">
             <LoadingIcon />
           </div>
-          <p className="text-lg font-semibold text-lumi-primary animate-pulse -mt-12">
-            Gerando PDF, aguarde...
+
+          <p className="text-lg font-bold text-lumi-primary dark:text-lumi-label animate-pulse mb-3">
+            {progress === 100 ? 'Download Iniciado!' : 'Gerando PDF...'}
           </p>
+
+          <div className="w-full max-w-xs bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden mb-6">
+            <div
+              className="bg-lumi-primary h-2.5 rounded-full duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+
+          {progress < 100 && (
+            <button
+              type="button"
+              onClick={handleCancelar}
+              className="text-sm font-bold text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-md"
+            >
+              Cancelar
+            </button>
+          )}
         </div>
       );
     }
 
     if (isDataLoading) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-[300px]">
-          <LoadingIcon />
-          <p className="text-gray-500 mt-4">Carregando filtros...</p>
+        <div className="flex flex-col items-center justify-center min-h-[300px] pb-20">
+          <div className="transform scale-110">
+            <LoadingIcon />
+          </div>
+          <p className="text-lg font-semibold text-lumi-primary animate-pulse -mt-12">
+            Carregando filtros...
+          </p>
         </div>
       );
     }
