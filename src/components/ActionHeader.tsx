@@ -55,7 +55,14 @@ export function ActionHeader({
             type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              onSearchChange(newValue);
+
+              if (newValue === '' && onReset) {
+                onReset();
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSearchSubmit();
             }}
