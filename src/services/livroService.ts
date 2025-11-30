@@ -31,6 +31,10 @@ export interface LivroFilterParams {
   autor?: string;
   genero?: string;
   editora?: string;
+  cdd?: string;
+  classificacaoEtaria?: string;
+  tipoCapa?: string;
+  dataLancamento?: string;
   page?: number;
   size?: number;
   sort?: string;

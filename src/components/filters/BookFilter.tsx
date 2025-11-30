@@ -158,6 +158,7 @@ export function BookFilter({
             options={generosOpts}
           />
 
+          {/* Ajustar a pesca por CDD */}
           <SearchableSelect
             label="CDD"
             value={filters.cdd}
@@ -180,6 +181,7 @@ export function BookFilter({
             <CustomSelect
               value={filters.tipoCapa}
               onChange={(val) => onFilterChange('tipoCapa', val)}
+              placeholder="Selecione o Tipo de Capa"
               options={tipoCapaOpts}
               invertArrow={true}
             />
