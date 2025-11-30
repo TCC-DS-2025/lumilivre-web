@@ -16,7 +16,7 @@ export interface ListaAluno {
   email: string;
   celular: string;
   cursoNome: string;
-  turnoNome?: string; 
+  turnoNome?: string;
   moduloNome?: string;
   cursoId?: number;
 }
@@ -42,7 +42,7 @@ export interface AlunoPayload {
   email: string;
   cursoId: number;
   turnoId: number;
-  moduloId: number; 
+  moduloId: number;
   cep?: string;
   logradouro?: string;
   bairro?: string;
@@ -50,8 +50,9 @@ export interface AlunoPayload {
   uf?: string;
   numero_casa?: number;
   complemento?: string;
-  turno?: string; 
-  modulo?: string; 
+  turno?: string;
+  modulo?: string;
+  penalidade?: string;
 }
 
 export const cadastrarAluno = async (alunoData: AlunoPayload) => {

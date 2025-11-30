@@ -43,6 +43,7 @@ export function StudentFilter({
 
   const penalidadeOptions = [
     { label: 'Todos', value: '' },
+    { label: 'Registro', value: 'REGISTRO' },
     { label: 'Advertência', value: 'ADVERTENCIA' },
     { label: 'Suspensão', value: 'SUSPENSAO' },
     { label: 'Bloqueio', value: 'BLOQUEIO' },

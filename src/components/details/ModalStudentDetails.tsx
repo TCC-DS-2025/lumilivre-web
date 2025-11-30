@@ -12,6 +12,7 @@ import {
   type AlunoPayload,
   type ListaAluno,
 } from '../../services/alunoService';
+import { buscarEnum } from '../../services/livroService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
 import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
@@ -46,6 +47,7 @@ export function ModalStudentDetails({
 
   const [formData, setFormData] = useState<Partial<AlunoDetalhado>>({});
 
+  const [penalidadeOptions, setPenalidadeOptions] = useState<Option[]>([]);
   const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
   const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
   const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
@@ -56,11 +58,13 @@ export function ModalStudentDetails({
 
       setIsLoading(true);
       try {
-        const [cursosRes, modulosRes, turnosRes] = await Promise.all([
-          buscarCursos(),
-          buscarModulos(),
-          buscarTurnos(),
-        ]);
+        const [cursosRes, modulosRes, turnosRes, penalidadesRes] =
+          await Promise.all([
+            buscarCursos(),
+            buscarModulos(),
+            buscarTurnos(),
+            buscarEnum('PENALIDADE'),
+          ]);
 
         const opcoesCursos = cursosRes.content.map((c) => ({
           label: c.nome,
@@ -80,6 +84,10 @@ export function ModalStudentDetails({
         setCursosOptions(opcoesCursos);
         setModulosOptions(opcoesModulos);
         setTurnoOptions(opcoesTurnos);
+        setPenalidadeOptions([
+          { label: 'Sem Penalidade', value: '' },
+          ...penalidadesRes.map((p) => ({ label: p.status, value: p.nome })),
+        ]);
 
         const alunoRes = await buscarAlunoPorMatricula(aluno.matricula);
 
@@ -264,19 +272,51 @@ export function ModalStudentDetails({
             )}
 
             <div className="space-y-4">
-              <div>
-                <label htmlFor="nomeCompleto" className={labelStyles}>
-                  Nome Completo
-                </label>
-                <input
-                  id="nomeCompleto"
-                  name="nomeCompleto"
-                  type="text"
-                  value={formData.nomeCompleto || ''}
-                  onChange={handleChange}
-                  disabled={!isEditMode}
-                  className={isEditMode ? inputStyles : disabledInputStyles}
-                />
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-8 md:col-span-9">
+                  <div>
+                    <label htmlFor="nomeCompleto" className={labelStyles}>
+                      Nome Completo
+                    </label>
+                    <input
+                      id="nomeCompleto"
+                      name="nomeCompleto"
+                      type="text"
+                      value={formData.nomeCompleto || ''}
+                      onChange={handleChange}
+                      disabled={!isEditMode}
+                      className={isEditMode ? inputStyles : disabledInputStyles}
+                    />
+                  </div>
+                </div>
+
+                <div className="col-span-4 md:col-span-3">
+                  <div>
+                    <label className={labelStyles}>Status de Penalidade</label>
+                    {isEditMode ? (
+                      <CustomSelect
+                        value={formData.penalidade || ''}
+                        onChange={(val) =>
+                          handleSelectChange('penalidade', val)
+                        }
+                        options={penalidadeOptions}
+                        placeholder="Selecione a situação"
+                      />
+                    ) : (
+                      <div
+                        className={`${disabledInputStyles} ${
+                          formData.penalidade
+                            ? 'text-red-600 font-bold bg-red-50 border-red-200'
+                            : 'text-green-600 font-bold bg-green-50 border-green-200'
+                        }`}
+                      >
+                        {penalidadeOptions.find(
+                          (p) => p.value === formData.penalidade,
+                        )?.label || 'Sem Penalidade'}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
