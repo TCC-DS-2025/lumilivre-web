@@ -7,6 +7,7 @@ import {
 } from '../../services/relatorioService';
 import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
+import { buscarTurnos } from '../../services/turnoService';
 import {
   buscarEnum,
   buscarCdds,
@@ -78,6 +79,7 @@ function ModalFiltrosRelatorio({
   const [cursosOpts, setCursosOpts] = useState<Option[]>([]);
   const [modulosOpts, setModulosOpts] = useState<Option[]>([]);
   const [generosOpts, setGenerosOpts] = useState<Option[]>([]);
+  const [turnoOpts, setTurnoOpts] = useState<Option[]>([]);
 
   const [statusLivroOpts, setStatusLivroOpts] = useState<Option[]>([]);
   const [statusEmpOpts, setStatusEmpOpts] = useState<Option[]>([]);
@@ -93,14 +95,6 @@ function ModalFiltrosRelatorio({
 
   const [progress, setProgress] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  const turnoOpts: Option[] = [
-    { label: 'Todos', value: '' },
-    { label: 'Manhã', value: 'MANHA' },
-    { label: 'Tarde', value: 'TARDE' },
-    { label: 'Noite', value: 'NOITE' },
-    { label: 'Integral', value: 'INTEGRAL' },
-  ];
 
   useEffect(() => {
     if (isOpen && tipoRelatorio) {
@@ -121,11 +115,21 @@ function ModalFiltrosRelatorio({
                 ]),
               ),
             );
+
             promises.push(
               buscarModulos().then((res) =>
                 setModulosOpts([
                   { label: 'Todos', value: '' },
-                  ...res.map((m, idx) => ({ label: m, value: idx + 1 })),
+                  ...res.map((m: any) => ({ label: m.nome, value: m.id })),
+                ]),
+              ),
+            );
+
+            promises.push(
+              buscarTurnos().then((res) =>
+                setTurnoOpts([
+                  { label: 'Todos', value: '' },
+                  ...res.map((t: any) => ({ label: t.nome, value: t.id })),
                 ]),
               ),
             );
@@ -151,7 +155,6 @@ function ModalFiltrosRelatorio({
                 ]),
               ),
             );
-
             promises.push(
               buscarCdds().then((res) =>
                 setCddOpts([
@@ -163,7 +166,6 @@ function ModalFiltrosRelatorio({
                 ]),
               ),
             );
-
             promises.push(
               buscarEnum('CLASSIFICACAO_ETARIA').then((res) =>
                 setClassificacaoOpts([
@@ -208,20 +210,17 @@ function ModalFiltrosRelatorio({
             promises.push(
               buscarLivrosParaAdmin('', 0, 1000).then((res) => {
                 const livrosUnicos = new Map();
-
                 res.content.forEach((l) => {
                   if (l.isbn && !livrosUnicos.has(l.isbn)) {
                     livrosUnicos.set(l.isbn, l.nome);
                   }
                 });
-
                 const opts = Array.from(livrosUnicos.entries()).map(
                   ([isbn, nome]) => ({
                     label: `${nome} (ISBN: ${isbn})`,
                     value: isbn,
                   }),
                 );
-
                 setLivrosSelectOpts([{ label: 'Todos', value: '' }, ...opts]);
 
                 const autoresUnicos = Array.from(
@@ -427,6 +426,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.idCurso || ''}
                   onChange={(val) => handleSelectChange('idCurso', val)}
+                  placeholder="Selecione o Curso"
                   options={cursosOpts}
                 />
               </div>
@@ -435,6 +435,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.idModulo || ''}
                   onChange={(val) => handleSelectChange('idModulo', val)}
+                  placeholder="Selecione o Módulo"
                   options={modulosOpts}
                 />
               </div>
@@ -445,6 +446,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.idTurno || ''}
                   onChange={(val) => handleSelectChange('idTurno', val)}
+                  placeholder="Selecione o Turno"
                   options={turnoOpts}
                 />
               </div>
@@ -453,6 +455,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.penalidade || ''}
                   onChange={(val) => handleSelectChange('penalidade', val)}
+                  placeholder="Selecione a Penalidade"
                   options={penalidadeOpts}
                 />
               </div>
@@ -506,6 +509,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.tipoCapa || ''}
                   onChange={(val) => handleSelectChange('tipoCapa', val)}
+                  placeholder="Selecione o Tipo da Capa"
                   options={tipoCapaOpts}
                 />
               </div>
@@ -550,6 +554,7 @@ function ModalFiltrosRelatorio({
                 <CustomSelect
                   value={filtros.idCurso || ''}
                   onChange={(val) => handleSelectChange('idCurso', val)}
+                  placeholder="Selecione o Curso"
                   options={cursosOpts}
                 />
               </div>

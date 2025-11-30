@@ -23,10 +23,11 @@ import {
   type EstatisticaGrafico,
   type Curso,
 } from '../../services/cursoService';
-import { buscarModulos } from '../../services/moduloService';
-import { LoadingIcon } from '../../components/LoadingIcon';
+import { buscarModulos, type Modulo } from '../../services/moduloService';
+import { buscarTurnos, type Turno } from '../../services/turnoService';
 import { CustomSelect } from '../../components/CustomSelect';
 
+import { LoadingIcon } from '../../components/LoadingIcon';
 import CrownIcon from '../../assets/icons/crown.svg?react';
 import Medal1Icon from '../../assets/icons/medal1.svg?react';
 import Medal2Icon from '../../assets/icons/medal2.svg?react';
@@ -189,7 +190,8 @@ export function ClassificacaoPage() {
   const [pieDataTurno, setPieDataTurno] = useState<EstatisticaGrafico[]>([]);
 
   const [cursos, setCursos] = useState<Curso[]>([]);
-  const [modulos, setModulos] = useState<string[]>([]);
+  const [modulos, setModulos] = useState<Modulo[]>([]);
+  const [turnos, setTurnos] = useState<Turno[]>([]);
 
   const [filtroCurso, setFiltroCurso] = useState<string>('');
   const [filtroModulo, setFiltroModulo] = useState<string>('');
@@ -206,6 +208,7 @@ export function ClassificacaoPage() {
           buscarRanking(3),
           buscarCursos(),
           buscarModulos(),
+          buscarTurnos(),
           buscarEstatisticasGrafico('curso'),
           buscarEstatisticasGrafico('modulo'),
           buscarEstatisticasGrafico('turno'),
@@ -215,12 +218,14 @@ export function ClassificacaoPage() {
         if (results[1].status === 'fulfilled')
           setCursos(results[1].value.content);
         if (results[2].status === 'fulfilled') setModulos(results[2].value);
-        if (results[3].status === 'fulfilled')
-          setPieDataCurso(results[3].value);
+        if (results[3].status === 'fulfilled') setTurnos(results[3].value);
+
         if (results[4].status === 'fulfilled')
-          setPieDataModulo(results[4].value);
+          setPieDataCurso(results[4].value);
         if (results[5].status === 'fulfilled')
-          setPieDataTurno(results[5].value);
+          setPieDataModulo(results[5].value);
+        if (results[6].status === 'fulfilled')
+          setPieDataTurno(results[6].value);
       } catch (error) {
         console.error('Erro crítico ao carregar dados:', error);
       } finally {
@@ -233,7 +238,6 @@ export function ClassificacaoPage() {
   useEffect(() => {
     const calculateLimit = () => {
       if (chartContainerRef.current) {
-        // Pega a largura exata do container em pixels
         const containerWidth =
           chartContainerRef.current.getBoundingClientRect().width;
 
@@ -273,15 +277,8 @@ export function ClassificacaoPage() {
     const fetchChartRanking = async () => {
       try {
         const cursoId = filtroCurso ? Number(filtroCurso) : undefined;
-        const moduloId = filtroModulo
-          ? modulos.indexOf(filtroModulo) + 1
-          : undefined;
-
-        let turnoId: number | undefined;
-        if (filtroTurno === 'MANHA') turnoId = 1;
-        if (filtroTurno === 'TARDE') turnoId = 2;
-        if (filtroTurno === 'NOITE') turnoId = 3;
-        if (filtroTurno === 'INTEGRAL') turnoId = 4;
+        const moduloId = filtroModulo ? Number(filtroModulo) : undefined;
+        const turnoId = filtroTurno ? Number(filtroTurno) : undefined;
 
         const data = await buscarRanking(
           chartLimit,
@@ -298,7 +295,7 @@ export function ClassificacaoPage() {
 
     const timeoutId = setTimeout(fetchChartRanking, 50);
     return () => clearTimeout(timeoutId);
-  }, [filtroCurso, filtroModulo, filtroTurno, modulos, chartLimit]);
+  }, [filtroCurso, filtroModulo, filtroTurno, chartLimit]);
 
   const cursoOptions = useMemo(
     () => [
@@ -311,18 +308,18 @@ export function ClassificacaoPage() {
   const moduloOptions = useMemo(
     () => [
       { label: 'Todos os Módulos', value: '' },
-      ...modulos.map((m) => ({ label: m, value: m })),
+      ...modulos.map((m) => ({ label: m.nome, value: m.id })),
     ],
     [modulos],
   );
 
-  const turnoOptions = [
-    { label: 'Todos os Turnos', value: '' },
-    { label: 'Manhã', value: 'MANHA' },
-    { label: 'Tarde', value: 'TARDE' },
-    { label: 'Noite', value: 'NOITE' },
-    { label: 'Integral', value: 'INTEGRAL' },
-  ];
+  const turnoOptions = useMemo(
+    () => [
+      { label: 'Todos os Turnos', value: '' },
+      ...turnos.map((t) => ({ label: t.nome, value: t.id })),
+    ],
+    [turnos],
+  );
 
   if (isLoading) return <LoadingIcon />;
 

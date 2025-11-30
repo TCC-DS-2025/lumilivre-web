@@ -67,12 +67,12 @@ export function ModalStudentDetails({
           value: c.id,
         }));
 
-        const opcoesModulos = modulosRes.map((m, index) => ({
-          label: m,
-          value: index + 1,
+        const opcoesModulos = modulosRes.map((m: any) => ({
+          label: m.nome,
+          value: m.id,
         }));
 
-        const opcoesTurnos = turnosRes.map((t) => ({
+        const opcoesTurnos = turnosRes.map((t: any) => ({
           label: t.nome,
           value: t.id,
         }));
@@ -364,6 +364,7 @@ export function ModalStudentDetails({
                   <CustomSelect
                     value={formData.cursoId || ''}
                     onChange={(val) => handleSelectChange('cursoId', val)}
+                    placeholder="Selecione o Curso"
                     options={cursosOptions}
                   />
                 ) : (
@@ -388,6 +389,7 @@ export function ModalStudentDetails({
                   <CustomSelect
                     value={formData.turno || ''}
                     onChange={(val) => handleSelectChange('turno', val)}
+                    placeholder="Selecione o Turno"
                     options={turnoOptions}
                   />
                 ) : (
@@ -412,6 +414,7 @@ export function ModalStudentDetails({
                   <CustomSelect
                     value={formData.modulo || ''}
                     onChange={(val) => handleSelectChange('modulo', val)}
+                    placeholder="Selecione o Módulo"
                     options={modulosOptions}
                   />
                 ) : (

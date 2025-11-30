@@ -33,23 +33,40 @@ export function CustomSelect({
   disabled = false,
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const [menuPlacement, setMenuPlacement] = useState<'up' | 'down'>('down');
+
+  const [coords, setCoords] = useState({
+    left: 0,
+    width: 0,
+    top: 0,
+    bottom: 0,
+  });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // --- Posicionamento Inteligente ---
   const updatePosition = () => {
     if (containerRef.current && isOpen) {
       const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const maxHeight = 240;
+      const margin = 4;
+
+      const spaceBelow = viewportHeight - rect.bottom;
+
+      const newPlacement = spaceBelow < maxHeight + margin ? 'up' : 'down';
+
+      setMenuPlacement(newPlacement);
 
       setCoords({
-        top: rect.bottom + 4,
         left: rect.left,
         width: rect.width,
+        top: rect.bottom + margin,
+        bottom: viewportHeight - rect.top + margin,
       });
     }
   };
@@ -66,6 +83,7 @@ export function CustomSelect({
     };
   }, [isOpen]);
 
+  // --- Fechar ao clicar fora ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -89,6 +107,7 @@ export function CustomSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, placeholder]);
 
+  // --- Resetar highlight ao abrir ---
   useEffect(() => {
     if (isOpen) {
       const index = options.findIndex(
@@ -98,6 +117,7 @@ export function CustomSelect({
     }
   }, [isOpen, value, options]);
 
+  // --- Navegação por Teclado ---
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (disabled) return;
 
@@ -161,6 +181,7 @@ export function CustomSelect({
 
   const hasValue = value !== '' && value !== null && value !== undefined;
 
+  // Lógica da seta (ícone)
   const rotationClass = invertArrow
     ? isOpen
       ? 'rotate-0'
@@ -174,27 +195,42 @@ export function CustomSelect({
       ? 'text-lumi-label opacity-100'
       : 'text-gray-500 dark:text-gray-400 opacity-70';
 
+  // --- Renderização do Dropdown (Portal) ---
   const renderDropdown = () => {
+    const style: React.CSSProperties = {
+      position: 'fixed',
+      left: coords.left,
+      width: coords.width,
+      maxHeight: '240px',
+      zIndex: 9999,
+    };
+
+    if (menuPlacement === 'down') {
+      style.top = coords.top;
+    } else {
+      style.bottom = coords.bottom;
+    }
+
+    const animationClasses = isOpen
+      ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto'
+      : menuPlacement === 'down'
+        ? 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+        : 'opacity-0 scale-y-95 translate-y-2 pointer-events-none';
+
+    const originClass =
+      menuPlacement === 'down' ? 'origin-top' : 'origin-bottom';
+
     return createPortal(
       <div
         id={`dropdown-portal-custom-${placeholder}`}
-        style={{
-          position: 'fixed',
-          top: coords.top,
-          left: coords.left,
-          width: coords.width,
-          maxHeight: '240px',
-          zIndex: 9999,
-        }}
+        style={style}
         className={`
-          overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg origin-top ease-out
-          ${
-            isOpen
-              ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
-          }
+          overflow-y-auto custom-scrollbar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg ease-out
+          ${originClass}
+          ${animationClasses}
         `}
         onMouseDown={(e) => e.preventDefault()}
+        ref={listRef}
       >
         {options.map((option, index) => {
           const isSelected = String(value) === String(option.value);
