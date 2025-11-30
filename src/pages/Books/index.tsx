@@ -13,17 +13,15 @@ import { BookFilter } from '../../components/filters/BookFilter';
 import BackIcon from '../../assets/icons/arrow-left.svg?react';
 
 import {
-  buscarLivrosAgrupados,
-  buscarLivrosAvancado,
   type LivroAgrupado,
   type ListaLivro,
 } from '../../services/livroService';
-import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
+import { type EmprestimoAtivoDTO } from '../../services/emprestimoService';
 import {
-  buscarEmprestimosAtivosEAtrasados,
-  type EmprestimoAtivoDTO,
-} from '../../services/emprestimoService';
-import type { Page } from '../../types';
+  useLivros,
+  useExemplares,
+  useEmprestimosAtivosEAtrasados,
+} from '../../hooks/useDomainQueries';
 
 const livrosLegend = [
   { label: 'Disponível', color: 'bg-green-500' },
@@ -34,13 +32,6 @@ export function LivrosPage() {
   const [isExemplarView, setIsExemplarView] = useState(false);
   const [selectedBook, setSelectedBook] = useState<LivroAgrupado | null>(null);
 
-  const [livrosAgrupados, setLivrosAgrupados] = useState<LivroAgrupado[]>([]);
-  const [exemplares, setExemplares] = useState<ListaLivro[]>([]);
-
-  // PAGINAÇÃO
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pageData, setPageData] = useState<Page<any> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -93,99 +84,85 @@ export function LivrosPage() {
     }
   }, [dynamicPageSize]);
 
-  // BUSCA DE DADOS
-  const fetchDados = useCallback(async () => {
-    if (itemsPerPage === 0) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (isExemplarView && selectedBook) {
-        const [listaExemplares, emprestimosAtivos] = await Promise.all([
-          buscarExemplaresPorLivroId(selectedBook.id),
-          buscarEmprestimosAtivosEAtrasados(),
-        ]);
-
-        const mapaEmprestimos = new Map<string, string>();
-
-        emprestimosAtivos.forEach((emp: EmprestimoAtivoDTO) => {
-          if (emp.tombo) {
-            mapaEmprestimos.set(emp.tombo, emp.alunoNome);
-          }
-        });
-
-        const exemplaresComResponsavel = (listaExemplares || []).map((ex) => ({
-          ...ex,
-          responsavel: mapaEmprestimos.get(ex.tomboExemplar) || '-',
-        }));
-
-        exemplaresComResponsavel.sort((a, b) => {
-          if (a.status === 'DISPONIVEL' && b.status !== 'DISPONIVEL') return -1;
-          if (a.status !== 'DISPONIVEL' && b.status === 'DISPONIVEL') return 1;
-          return a.tomboExemplar.localeCompare(b.tomboExemplar);
-        });
-        setExemplares(exemplaresComResponsavel);
-        setPageData({
-          content: exemplaresComResponsavel,
-          totalElements: exemplaresComResponsavel.length,
-          totalPages: Math.ceil(exemplaresComResponsavel.length / itemsPerPage),
-        } as Page<any>);
-      } else {
-        const hasActiveFilters = Object.values(activeFilters).some(
-          (val) => val !== '',
-        );
-
-        let paginaDeLivros;
-
-        if (hasActiveFilters) {
-          paginaDeLivros = await buscarLivrosAvancado({
-            ...activeFilters,
-            page: currentPage - 1,
-            size: itemsPerPage,
-            sort: `${sortConfig.key},${sortConfig.direction}`,
-          });
-        } else {
-          paginaDeLivros = await buscarLivrosAgrupados(
-            termoBuscaAtivo,
-            currentPage - 1,
-            itemsPerPage,
-            `${sortConfig.key},${sortConfig.direction}`,
-          );
-        }
-
-        setLivrosAgrupados(paginaDeLivros?.content || []);
-        setPageData(paginaDeLivros || null);
-      }
-    } catch (err: any) {
-      if (
-        err.response &&
-        (err.response.status === 404 || err.response.status === 204)
-      ) {
-        if (isExemplarView) {
-          setExemplares([]);
-        } else {
-          setLivrosAgrupados([]);
-        }
-        setError(null);
-      } else {
-        setError('Não foi possível carregar os dados.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
-    isExemplarView,
-    selectedBook,
+  const {
+    data: livrosPageData,
+    isLoading: isLivrosLoading,
+    error: livrosError,
+    refetch: refetchLivros,
+  } = useLivros(
+    currentPage - 1,
+    itemsPerPage || 10,
+    `${sortConfig.key},${sortConfig.direction}`,
     termoBuscaAtivo,
+    activeFilters,
+  );
+
+  const {
+    data: exemplaresData,
+    isLoading: isExemplaresLoading,
+    error: exemplaresError,
+    refetch: refetchExemplares,
+  } = useExemplares(selectedBook?.id || null);
+
+  const { data: emprestimosAtivos } = useEmprestimosAtivosEAtrasados();
+
+  const exemplaresProcessados = useMemo(() => {
+    if (!exemplaresData) return [];
+
+    const mapaEmprestimos = new Map<string, string>();
+    if (emprestimosAtivos) {
+      emprestimosAtivos.forEach((emp: EmprestimoAtivoDTO) => {
+        if (emp.tombo) {
+          mapaEmprestimos.set(emp.tombo, emp.alunoNome);
+        }
+      });
+    }
+
+    const lista = exemplaresData.map((ex) => ({
+      ...ex,
+      responsavel: mapaEmprestimos.get(ex.tomboExemplar) || '-',
+    }));
+
+    return lista.sort((a, b) => {
+      if (a.status === 'DISPONIVEL' && b.status !== 'DISPONIVEL') return -1;
+      if (a.status !== 'DISPONIVEL' && b.status === 'DISPONIVEL') return 1;
+      return a.tomboExemplar.localeCompare(b.tomboExemplar);
+    });
+  }, [exemplaresData, emprestimosAtivos]);
+
+  const exemplaresFiltrados = useMemo(() => {
+    if (!isExemplarView) return [];
+    if (!termoBusca.trim()) return exemplaresProcessados;
+
+    return exemplaresProcessados.filter((ex) =>
+      ex.tomboExemplar.toLowerCase().includes(termoBusca.toLowerCase()),
+    );
+  }, [exemplaresProcessados, isExemplarView, termoBuscaAtivo, termoBusca]);
+
+  const dadosPaginados = useMemo(() => {
+    if (isExemplarView) {
+      const source = exemplaresFiltrados;
+      const firstPageIndex = (currentPage - 1) * itemsPerPage;
+      const lastPageIndex = firstPageIndex + itemsPerPage;
+      return source.slice(firstPageIndex, lastPageIndex);
+    }
+    return livrosPageData?.content || [];
+  }, [
     currentPage,
     itemsPerPage,
-    sortConfig,
-    activeFilters,
+    livrosPageData,
+    exemplaresFiltrados,
+    isExemplarView,
   ]);
 
-  useEffect(() => {
-    fetchDados();
-  }, [fetchDados]);
+  const isLoading = isExemplarView ? isExemplaresLoading : isLivrosLoading;
+  const error = isExemplarView
+    ? exemplaresError
+      ? 'Erro ao carregar exemplares'
+      : null
+    : livrosError
+      ? 'Erro ao carregar livros'
+      : null;
 
   const handleApplyFilters = () => {
     setCurrentPage(1);
@@ -211,7 +188,6 @@ export function LivrosPage() {
 
   const handleSearchSubmit = () => {
     if (!termoBusca.trim()) return;
-
     setTermoBuscaAtivo(termoBusca);
     setCurrentPage(1);
   };
@@ -227,6 +203,7 @@ export function LivrosPage() {
     setIsExemplarView(true);
     setActiveFilters({});
     setTermoBusca('');
+    setCurrentPage(1);
   }, []);
 
   const handleVoltarParaLivros = () => {
@@ -251,7 +228,7 @@ export function LivrosPage() {
     setIsDetalhesOpen(false);
     setLivroSelecionado(null);
     if (foiAtualizado) {
-      fetchDados();
+      refetchLivros();
     }
   };
 
@@ -259,7 +236,8 @@ export function LivrosPage() {
     setIsDetalhesExemplarOpen(false);
     setExemplarSelecionado(null);
     if (foiAtualizado) {
-      fetchDados();
+      refetchExemplares();
+      refetchLivros();
     }
   };
 
@@ -287,33 +265,6 @@ export function LivrosPage() {
     }
     setSortConfig({ key, direction });
   };
-
-  const exemplaresFiltrados = useMemo(() => {
-    if (!isExemplarView) return [];
-    if (!termoBusca.trim()) return exemplares;
-
-    return exemplares.filter((ex) =>
-      ex.tomboExemplar.toLowerCase().includes(termoBusca.toLowerCase()),
-    );
-  }, [exemplares, isExemplarView, termoBuscaAtivo]);
-
-  const dadosPaginados = useMemo(() => {
-    if (isExemplarView) {
-      const source = exemplaresFiltrados;
-      const firstPageIndex = (currentPage - 1) * itemsPerPage;
-      const lastPageIndex = firstPageIndex + itemsPerPage;
-      return source.slice(firstPageIndex, lastPageIndex);
-    }
-    return livrosAgrupados;
-  }, [
-    currentPage,
-    itemsPerPage,
-    livrosAgrupados,
-    exemplaresFiltrados,
-    isExemplarView,
-  ]);
-
-  // DEFINIÇÃO DE COLUNAS
 
   const livrosColumns = useMemo(
     (): ColumnDef<LivroAgrupado>[] => [
@@ -465,7 +416,6 @@ export function LivrosPage() {
           showFilterButton={!isExemplarView}
           isFilterOpen={isFilterOpen}
           onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
-          // Filtro Avançado
           filterComponent={
             <BookFilter
               isOpen={isFilterOpen}
@@ -524,12 +474,12 @@ export function LivrosPage() {
             livroIsbn={selectedBook.isbn}
             livroNome={selectedBook.nome}
             onClose={() => setIsModalOpen(false)}
-            onSuccess={fetchDados}
+            onSuccess={refetchExemplares}
           />
         ) : (
           <NovoLivro
             onClose={() => setIsModalOpen(false)}
-            onSuccess={fetchDados}
+            onSuccess={refetchLivros}
           />
         )}
       </Modal>
@@ -552,7 +502,6 @@ export function LivrosPage() {
         className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0 overflow-hidden"
       >
         {isExemplarView ? (
-          // VIEW DE EXEMPLARES
           <div
             key="view-exemplares"
             className="flex flex-col h-full animate-slide-in-right"
@@ -572,9 +521,11 @@ export function LivrosPage() {
               legendItems={livrosLegend}
               pagination={{
                 currentPage,
-                totalPages: pageData?.totalPages ?? 1,
-                itemsPerPage,
-                totalItems: pageData?.totalElements ?? 0,
+                totalPages: Math.ceil(
+                  exemplaresFiltrados.length / (itemsPerPage || 1),
+                ),
+                itemsPerPage: itemsPerPage || 10,
+                totalItems: exemplaresFiltrados.length,
               }}
               onPageChange={setCurrentPage}
               onItemsPerPageChange={(size) => {
@@ -584,7 +535,6 @@ export function LivrosPage() {
             />
           </div>
         ) : (
-          // VIEW DE LIVROS
           <div key="view-livros" className="flex flex-col h-full">
             <DataTable<LivroAgrupado>
               data={dadosPaginados as LivroAgrupado[]}
@@ -600,9 +550,9 @@ export function LivrosPage() {
               viewMode="exception"
               pagination={{
                 currentPage,
-                totalPages: pageData?.totalPages ?? 1,
-                itemsPerPage,
-                totalItems: pageData?.totalElements ?? 0,
+                totalPages: livrosPageData?.totalPages ?? 1,
+                itemsPerPage: itemsPerPage || 10,
+                totalItems: livrosPageData?.totalElements ?? 0,
               }}
               onPageChange={setCurrentPage}
               onItemsPerPageChange={(size) => {

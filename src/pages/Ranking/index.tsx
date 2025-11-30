@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   BarChart,
   Bar,
@@ -13,18 +14,11 @@ import {
   Legend,
 } from 'recharts';
 
+import { type AlunoRanking } from '../../services/emprestimoService';
 import {
-  buscarRanking,
-  type AlunoRanking,
-} from '../../services/emprestimoService';
-import {
-  buscarCursos,
   buscarEstatisticasGrafico,
   type EstatisticaGrafico,
-  type Curso,
 } from '../../services/cursoService';
-import { buscarModulos, type Modulo } from '../../services/moduloService';
-import { buscarTurnos, type Turno } from '../../services/turnoService';
 import { CustomSelect } from '../../components/CustomSelect';
 
 import { LoadingIcon } from '../../components/LoadingIcon';
@@ -33,6 +27,9 @@ import Medal1Icon from '../../assets/icons/medal1.svg?react';
 import Medal2Icon from '../../assets/icons/medal2.svg?react';
 import Medal3Icon from '../../assets/icons/medal3.svg?react';
 import FilterIcon from '../../assets/icons/filter.svg?react';
+
+import { useRanking } from '../../hooks/useDomainQueries';
+import { useCursos, useModulos, useTurnos } from '../../hooks/useCommonQueries';
 
 const BAR_WIDTH = 40;
 const MIN_GAP = 20;
@@ -181,18 +178,6 @@ const PodiumItem = ({
 };
 
 export function ClassificacaoPage() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [podiumData, setPodiumData] = useState<AlunoRanking[]>([]);
-  const [chartData, setChartData] = useState<AlunoRanking[]>([]);
-  const [pieDataCurso, setPieDataCurso] = useState<EstatisticaGrafico[]>([]);
-  const [pieDataModulo, setPieDataModulo] = useState<EstatisticaGrafico[]>([]);
-  const [pieDataTurno, setPieDataTurno] = useState<EstatisticaGrafico[]>([]);
-
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [modulos, setModulos] = useState<Modulo[]>([]);
-  const [turnos, setTurnos] = useState<Turno[]>([]);
-
   const [filtroCurso, setFiltroCurso] = useState<string>('');
   const [filtroModulo, setFiltroModulo] = useState<string>('');
   const [filtroTurno, setFiltroTurno] = useState<string>('');
@@ -200,40 +185,35 @@ export function ClassificacaoPage() {
   const [chartLimit, setChartLimit] = useState(15);
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const carregarDadosIniciais = async () => {
-      setIsLoading(true);
-      try {
-        const results = await Promise.allSettled([
-          buscarRanking(3),
-          buscarCursos(),
-          buscarModulos(),
-          buscarTurnos(),
-          buscarEstatisticasGrafico('curso'),
-          buscarEstatisticasGrafico('modulo'),
-          buscarEstatisticasGrafico('turno'),
-        ]);
+  const { data: podiumData = [], isLoading: isLoadingPodium } = useRanking(3);
 
-        if (results[0].status === 'fulfilled') setPodiumData(results[0].value);
-        if (results[1].status === 'fulfilled')
-          setCursos(results[1].value.content);
-        if (results[2].status === 'fulfilled') setModulos(results[2].value);
-        if (results[3].status === 'fulfilled') setTurnos(results[3].value);
+  const { data: chartData = [], isLoading: isLoadingChart } = useRanking(
+    chartLimit,
+    filtroCurso ? Number(filtroCurso) : undefined,
+    filtroModulo ? Number(filtroModulo) : undefined,
+    filtroTurno ? Number(filtroTurno) : undefined,
+  );
 
-        if (results[4].status === 'fulfilled')
-          setPieDataCurso(results[4].value);
-        if (results[5].status === 'fulfilled')
-          setPieDataModulo(results[5].value);
-        if (results[6].status === 'fulfilled')
-          setPieDataTurno(results[6].value);
-      } catch (error) {
-        console.error('Erro crítico ao carregar dados:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    carregarDadosIniciais();
-  }, []);
+  const { data: cursosList = [], isLoading: isLoadingCursos } = useCursos();
+  const { data: modulosList = [], isLoading: isLoadingModulos } = useModulos();
+  const { data: turnosList = [], isLoading: isLoadingTurnos } = useTurnos();
+
+  const { data: statsData, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['estatisticas-grafico-dashboard'],
+    queryFn: async () => {
+      const [curso, modulo, turno] = await Promise.all([
+        buscarEstatisticasGrafico('curso'),
+        buscarEstatisticasGrafico('modulo'),
+        buscarEstatisticasGrafico('turno'),
+      ]);
+      return { curso, modulo, turno };
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const pieDataCurso = statsData?.curso || [];
+  const pieDataModulo = statsData?.modulo || [];
+  const pieDataTurno = statsData?.turno || [];
 
   useEffect(() => {
     const calculateLimit = () => {
@@ -273,53 +253,37 @@ export function ClassificacaoPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchChartRanking = async () => {
-      try {
-        const cursoId = filtroCurso ? Number(filtroCurso) : undefined;
-        const moduloId = filtroModulo ? Number(filtroModulo) : undefined;
-        const turnoId = filtroTurno ? Number(filtroTurno) : undefined;
-
-        const data = await buscarRanking(
-          chartLimit,
-          cursoId,
-          moduloId,
-          turnoId,
-        );
-        setChartData(data);
-      } catch (error) {
-        console.error('Erro ao buscar ranking do gráfico', error);
-        setChartData([]);
-      }
-    };
-
-    const timeoutId = setTimeout(fetchChartRanking, 50);
-    return () => clearTimeout(timeoutId);
-  }, [filtroCurso, filtroModulo, filtroTurno, chartLimit]);
-
   const cursoOptions = useMemo(
     () => [
       { label: 'Todos os Cursos', value: '' },
-      ...cursos.map((c) => ({ label: c.nome, value: c.id })),
+      ...cursosList.map((c) => ({ label: c.nome, value: c.id })),
     ],
-    [cursos],
+    [cursosList],
   );
 
   const moduloOptions = useMemo(
     () => [
       { label: 'Todos os Módulos', value: '' },
-      ...modulos.map((m) => ({ label: m.nome, value: m.id })),
+      ...modulosList.map((m) => ({ label: m.nome, value: m.id })),
     ],
-    [modulos],
+    [modulosList],
   );
 
   const turnoOptions = useMemo(
     () => [
       { label: 'Todos os Turnos', value: '' },
-      ...turnos.map((t) => ({ label: t.nome, value: t.id })),
+      ...turnosList.map((t) => ({ label: t.nome, value: t.id })),
     ],
-    [turnos],
+    [turnosList],
   );
+
+  const isLoading =
+    isLoadingPodium ||
+    isLoadingChart ||
+    isLoadingStats ||
+    isLoadingCursos ||
+    isLoadingModulos ||
+    isLoadingTurnos;
 
   if (isLoading) return <LoadingIcon />;
 

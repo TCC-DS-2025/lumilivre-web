@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { ActionHeader } from '../../components/ActionHeader';
@@ -9,12 +9,8 @@ import { Modal } from '../../components/Modal';
 import { NovoEmprestimo } from '../../components/forms/NewLoan';
 import { ModalLoanDetails } from '../../components/details/ModalLoanDetails';
 
-import {
-  buscarEmprestimosPaginado,
-  buscarEmprestimosAvancado,
-  type EmprestimoListagemDTO,
-} from '../../services/emprestimoService';
-import type { Page } from '../../types';
+import { useEmprestimos } from '../../hooks/useDomainQueries';
+import { type EmprestimoListagemDTO } from '../../services/emprestimoService';
 import { formatarNome } from '../../utils/formatters';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 
@@ -81,13 +77,6 @@ export function EmprestimosPage() {
     alunoNome: '',
   };
 
-  const [emprestimos, setEmprestimos] = useState<EmprestimoDisplay[]>([]);
-  const [pageData, setPageData] = useState<Page<EmprestimoListagemDTO> | null>(
-    null,
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'asc' | 'desc';
@@ -144,10 +133,6 @@ export function EmprestimosPage() {
     }
   }, [searchParams]);
 
-  const hasActiveFilters = useMemo(() => {
-    return Object.values(activeFilters).some((val) => val !== '');
-  }, [activeFilters]);
-
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const dynamicPageSizeOptions = useMemo(
     () => ({
@@ -168,128 +153,93 @@ export function EmprestimosPage() {
     }
   }, [dynamicPageSize]);
 
-  // FUNÇÃO BUSCA
-  const fetchEmprestimos = useCallback(async () => {
-    if (itemsPerPage === 0) return;
+  const sortParam = useMemo(() => {
+    const sortMap: Record<string, string> = {
+      status: 'status',
+      tombo: 'exemplar.tombo',
+      livro: 'exemplar.livro.nome',
+      aluno: 'aluno.nomeCompleto',
+      emprestimo: 'dataEmprestimo',
+      devolucao: 'dataDevolucao',
+    };
+    const backendKey = sortMap[sortConfig.key] || sortConfig.key;
+    return `${backendKey},${sortConfig.direction}`;
+  }, [sortConfig]);
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const sortMap: Record<string, string> = {
-        status: 'status',
-        tombo: 'exemplar.tombo',
-        livro: 'exemplar.livro.nome',
-        aluno: 'aluno.nomeCompleto',
-        emprestimo: 'dataEmprestimo',
-        devolucao: 'dataDevolucao',
-      };
+  const filtersForHook = useMemo(() => {
+    const filtrosParaApi = { ...activeFilters } as any;
 
-      const backendKey = sortMap[sortConfig.key] || sortConfig.key;
-      const sortParam = `${backendKey},${sortConfig.direction}`;
+    if (filtrosParaApi.statusEmprestimo === 'VENCE_HOJE') {
+      const hoje = new Date().toISOString().split('T')[0];
+      filtrosParaApi.dataDevolucao = hoje;
+      filtrosParaApi.dataDevolucaoInicio = hoje;
+      delete filtrosParaApi.statusEmprestimo;
+    }
 
-      let data: Page<EmprestimoListagemDTO>;
+    return cleanFilters(filtrosParaApi);
+  }, [activeFilters]);
 
-      if (hasActiveFilters) {
-        const filtrosParaApi = { ...activeFilters } as any;
+  const {
+    data: pageData,
+    isLoading,
+    error,
+    refetch,
+  } = useEmprestimos(
+    currentPage - 1,
+    itemsPerPage || 10,
+    sortParam,
+    filtroAtivo,
+    filtersForHook,
+  );
 
-        if (filtrosParaApi.statusEmprestimo === 'VENCE_HOJE') {
-          const hoje = new Date().toISOString().split('T')[0];
+  const emprestimos = useMemo(() => {
+    if (!pageData?.content) return [];
 
-          filtrosParaApi.dataDevolucao = hoje;
-          filtrosParaApi.dataDevolucaoInicio = hoje;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
 
-          delete filtrosParaApi.statusEmprestimo;
+    return pageData.content.map(
+      (item: EmprestimoListagemDTO, index: number) => {
+        const dataDevolucaoObj = new Date(item.dataDevolucao);
+        dataDevolucaoObj.setHours(0, 0, 0, 0);
+
+        let status: StatusEmprestimoDisplay;
+
+        if (item.statusEmprestimo === 'CONCLUIDO') {
+          status = 'concluido';
+        } else if (
+          item.statusEmprestimo === 'ATRASADO' ||
+          dataDevolucaoObj.getTime() < hoje.getTime()
+        ) {
+          status = 'atrasado';
+        } else if (dataDevolucaoObj.getTime() === hoje.getTime()) {
+          status = 'vence-hoje';
+        } else {
+          status = 'ativo';
         }
 
-        const filtrosLimpos = cleanFilters(filtrosParaApi);
-
-        data = await buscarEmprestimosAvancado({
-          ...filtrosLimpos,
-          page: currentPage - 1,
-          size: itemsPerPage,
-          sort: sortParam,
-        });
-      } else {
-        data = await buscarEmprestimosPaginado(
-          filtroAtivo,
-          currentPage - 1,
-          itemsPerPage,
-          sortParam,
-        );
-      }
-
-      if (data && data.content) {
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
-
-        const emprestimosMapeados: EmprestimoDisplay[] = data.content.map(
-          (item, index) => {
-            const dataDevolucaoObj = new Date(item.dataDevolucao);
-            dataDevolucaoObj.setHours(0, 0, 0, 0);
-
-            let status: StatusEmprestimoDisplay;
-
-            if (item.statusEmprestimo === 'CONCLUIDO') {
-              status = 'concluido';
-            } else if (
-              item.statusEmprestimo === 'ATRASADO' ||
-              dataDevolucaoObj.getTime() < hoje.getTime()
-            ) {
-              status = 'atrasado';
-            } else if (dataDevolucaoObj.getTime() === hoje.getTime()) {
-              status = 'vence-hoje';
-            } else {
-              status = 'ativo';
-            }
-
-            return {
-              id: `${item.livroTombo}-${index}`,
-              rawId: item.id,
-              status: status,
-              livro: item.livroNome,
-              isbn: '',
-              tombo: item.livroTombo,
-              aluno: item.nomeAluno,
-              matriculaAluno: item.matriculaAluno,
-              curso: item.curso || '-',
-              emprestimo: formatarDataIso(item.dataEmprestimo),
-              devolucao: formatarDataIso(item.dataDevolucao),
-              rawDataEmprestimo: item.dataEmprestimo
-                ? item.dataEmprestimo.split('T')[0]
-                : '',
-              rawDataDevolucao: item.dataDevolucao
-                ? item.dataDevolucao.split('T')[0]
-                : '',
-            };
-          },
-        );
-
-        setEmprestimos(emprestimosMapeados);
-        setPageData(data);
-      } else {
-        setEmprestimos([]);
-        setPageData(null);
-      }
-    } catch (err: any) {
-      setError('Não foi possível carregar os empréstimos.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
-    currentPage,
-    itemsPerPage,
-    sortConfig,
-    filtroAtivo,
-    activeFilters,
-    hasActiveFilters,
-  ]);
-
-  useEffect(() => {
-    fetchEmprestimos();
-  }, [fetchEmprestimos]);
-
-  // HANDLERS
+        return {
+          id: `${item.livroTombo}-${index}`,
+          rawId: item.id,
+          status: status,
+          livro: item.livroNome,
+          isbn: '',
+          tombo: item.livroTombo,
+          aluno: item.nomeAluno,
+          matriculaAluno: item.matriculaAluno,
+          curso: item.curso || '-',
+          emprestimo: formatarDataIso(item.dataEmprestimo),
+          devolucao: formatarDataIso(item.dataDevolucao),
+          rawDataEmprestimo: item.dataEmprestimo
+            ? item.dataEmprestimo.split('T')[0]
+            : '',
+          rawDataDevolucao: item.dataDevolucao
+            ? item.dataDevolucao.split('T')[0]
+            : '',
+        };
+      },
+    );
+  }, [pageData]);
 
   const handleBusca = () => {
     if (!termoBusca.trim()) return;
@@ -342,7 +292,7 @@ export function EmprestimosPage() {
   const handleFecharDetalhes = (foiAtualizado?: boolean) => {
     setIsDetalhesOpen(false);
     if (foiAtualizado) {
-      fetchEmprestimos();
+      refetch();
     }
   };
 
@@ -358,8 +308,6 @@ export function EmprestimosPage() {
     setSortConfig({ key, direction });
     setCurrentPage(1);
   };
-
-  // RENDERIZADORES AUXILIARES
 
   const StatusIndicator = ({ status }: { status: StatusEmprestimoDisplay }) => {
     const colorMap = {
@@ -466,7 +414,6 @@ export function EmprestimosPage() {
         showFilterButton={true}
         isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
-        // Filtro Avançado
         filterComponent={
           <LoanFilter
             isOpen={isFilterOpen}
@@ -488,7 +435,7 @@ export function EmprestimosPage() {
       >
         <NovoEmprestimo
           onClose={() => setIsModalOpen(false)}
-          onSuccess={fetchEmprestimos}
+          onSuccess={() => refetch()}
         />
       </Modal>
 
@@ -506,7 +453,7 @@ export function EmprestimosPage() {
           data={emprestimos}
           columns={columns}
           isLoading={isLoading}
-          error={error}
+          error={error ? 'Não foi possível carregar os empréstimos.' : null}
           sortConfig={sortConfig}
           onSort={requestSort}
           getRowKey={(item) => item.id}

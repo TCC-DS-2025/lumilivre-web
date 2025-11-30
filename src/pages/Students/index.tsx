@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 import { ActionHeader } from '../../components/ActionHeader';
 import { DataTable, type ColumnDef } from '../../components/DataTable';
@@ -9,13 +9,9 @@ import { StudentFilter } from '../../components/filters/StudentFilter';
 import { ModalStudentDetails } from '../../components/details/ModalStudentDetails';
 import { formatarNome } from '../../utils/formatters';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
+import { useAlunos } from '../../hooks/useDomainQueries';
 
-import {
-  buscarAlunosAvancado,
-  buscarAlunosParaAdmin,
-  type ListaAluno,
-} from '../../services/alunoService';
-import type { Page } from '../../types';
+import { type ListaAluno } from '../../services/alunoService';
 
 type StatusPenalidade =
   | 'sem-penalidade'
@@ -38,14 +34,7 @@ type AlunoDisplay = ListaAluno & {
 };
 
 export function AlunosPage() {
-  // estados da pagina
-  const [alunos, setAlunos] = useState<AlunoDisplay[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // estados de paginação e filtro
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageData, setPageData] = useState<Page<AlunoDisplay> | null>(null);
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroAtivo, setFiltroAtivo] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -58,14 +47,12 @@ export function AlunosPage() {
   });
   const [activeFilters, setActiveFilters] = useState({});
 
-  // Estados para Modais
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] = useState<ListaAluno | null>(
     null,
   );
 
-  // organização das colunas
   const [sortConfig, setSortConfig] = useState<{
     key: keyof AlunoDisplay;
     direction: 'asc' | 'desc';
@@ -91,98 +78,58 @@ export function AlunosPage() {
     }
   }, [dynamicPageSize]);
 
-  const fetchAlunos = useCallback(async () => {
-    if (itemsPerPage === 0) return;
+  const mapSortKey: Record<string, string> = {
+    penalidadeStatus: 'penalidade',
+    cursoNome: 'curso.nome',
+    nascimentoDate: 'dataNascimento',
+    matricula: 'matricula',
+    nomeCompleto: 'nomeCompleto',
+  };
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const mapSortKey: Record<string, string> = {
-        penalidadeStatus: 'penalidade',
-        cursoNome: 'curso.nome',
-        nascimentoDate: 'dataNascimento',
-        matricula: 'matricula',
-        nomeCompleto: 'nomeCompleto',
-      };
+  const sortKeyBackend = mapSortKey[sortConfig.key] || sortConfig.key;
+  const sortString = `${sortKeyBackend},${sortConfig.direction}`;
 
-      const sortKeyBackend = mapSortKey[sortConfig.key] || sortConfig.key;
+  const {
+    data: pageData,
+    isLoading,
+    isError,
+    refetch,
+  } = useAlunos(
+    currentPage - 1,
+    itemsPerPage,
+    sortString,
+    filtroAtivo,
+    activeFilters,
+  );
 
-      const params = {
-        page: currentPage - 1,
-        size: itemsPerPage,
-        sort: `${sortKeyBackend},${sortConfig.direction}`,
-      };
+  const alunos = useMemo(() => {
+    if (!pageData?.content) return [];
 
-      const filtrosAtuais = Object.values(activeFilters).some(
-        (value) => value !== '',
-      );
-
-      let paginaDeAlunos;
-
-      if (filtrosAtuais) {
-        const filtros = activeFilters as typeof filterParams;
-
-        paginaDeAlunos = await buscarAlunosAvancado({
-          penalidade: filtros.penalidade,
-          cursoNome: filtros.cursoNome,
-          turnoId: filtros.turno ? Number(filtros.turno) : undefined,
-          moduloId: filtros.modulo ? Number(filtros.modulo) : undefined,
-          dataNascimento: filtros.dataNascimento,
-          ...params,
-        });
-      } else {
-        paginaDeAlunos = await buscarAlunosParaAdmin(
-          filtroAtivo,
-          params.page,
-          params.size,
-          params.sort,
-        );
+    const toStatusPenalidade = (status: string | null): StatusPenalidade => {
+      if (status === null) {
+        return 'sem-penalidade';
       }
-
-      if (!paginaDeAlunos || !paginaDeAlunos.content) {
-        setAlunos([]);
-        setPageData(null);
-        return;
-      }
-
-      const toStatusPenalidade = (status: string | null): StatusPenalidade => {
-        if (status === null) {
+      const lowerStatus = status.toLowerCase();
+      switch (lowerStatus) {
+        case 'advertencia':
+        case 'suspensao':
+        case 'bloqueio':
+        case 'banimento':
+          return lowerStatus as StatusPenalidade;
+        default:
           return 'sem-penalidade';
-        }
-        const lowerStatus = status.toLowerCase();
-        switch (lowerStatus) {
-          case 'advertencia':
-          case 'suspensao':
-          case 'bloqueio':
-          case 'banimento':
-            return lowerStatus as StatusPenalidade;
-          default:
-            return 'sem-penalidade';
-        }
-      };
+      }
+    };
 
-      const alunosDaApi = paginaDeAlunos.content.map((dto) => ({
-        ...dto,
-        nascimentoDate: new Date(dto.dataNascimento),
-        penalidadeStatus: toStatusPenalidade(dto.penalidade),
-      }));
-
-      setPageData({ ...paginaDeAlunos, content: alunosDaApi });
-      setAlunos(alunosDaApi);
-    } catch (err) {
-      console.error('Erro ao carregar alunos:', err);
-      setError('Não foi possível carregar os dados dos alunos.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentPage, itemsPerPage, filtroAtivo, activeFilters, sortConfig]);
-
-  useEffect(() => {
-    fetchAlunos();
-  }, [fetchAlunos]);
+    return pageData.content.map((dto) => ({
+      ...dto,
+      nascimentoDate: new Date(dto.dataNascimento),
+      penalidadeStatus: toStatusPenalidade(dto.penalidade),
+    }));
+  }, [pageData]);
 
   const handleCadastroSucesso = () => {
-    fetchAlunos();
+    refetch();
   };
 
   const handleApplyFilters = () => {
@@ -226,7 +173,7 @@ export function AlunosPage() {
     setIsDetalhesOpen(false);
     setAlunoSelecionado(null);
     if (foiAtualizado) {
-      fetchAlunos();
+      refetch();
     }
   };
 
@@ -239,7 +186,6 @@ export function AlunosPage() {
     setCurrentPage(1);
   };
 
-  // configurações do status de penalidade
   const PenalidadeIndicator = ({
     status,
   }: {
@@ -270,7 +216,6 @@ export function AlunosPage() {
     );
   };
 
-  // colunas para a tabela
   const columns: ColumnDef<AlunoDisplay>[] = [
     {
       key: 'penalidadeStatus',
@@ -343,7 +288,6 @@ export function AlunosPage() {
         showFilterButton={true}
         isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
-        // Filtro Avançado
         filterComponent={
           <StudentFilter
             isOpen={isFilterOpen}
@@ -383,7 +327,9 @@ export function AlunosPage() {
           data={alunos}
           columns={columns}
           isLoading={isLoading}
-          error={error}
+          error={
+            isError ? 'Não foi possível carregar os dados dos alunos.' : null
+          }
           sortConfig={sortConfig}
           onSort={(key) => requestSort(key as keyof AlunoDisplay)}
           getRowKey={(item) => item.matricula}
