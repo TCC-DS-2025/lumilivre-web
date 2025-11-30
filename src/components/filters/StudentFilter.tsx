@@ -5,6 +5,7 @@ import { CustomDatePicker } from '../CustomDatePicker';
 
 import { buscarCursos } from '../../services/cursoService';
 import { buscarModulos } from '../../services/moduloService';
+import { buscarTurnos } from '../../services/turnoService';
 
 interface StudentFilterProps {
   isOpen: boolean;
@@ -35,10 +36,11 @@ export function StudentFilter({
   onClear,
 }: StudentFilterProps) {
   const [isLoading, setIsLoading] = useState(false);
+
   const [cursoOptions, setCursoOptions] = useState<Option[]>([]);
   const [moduloOptions, setModuloOptions] = useState<Option[]>([]);
+  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]); 
 
-  // Opções estáticas
   const penalidadeOptions = [
     { label: 'Todos', value: '' },
     { label: 'Advertência', value: 'ADVERTENCIA' },
@@ -47,29 +49,27 @@ export function StudentFilter({
     { label: 'Banimento', value: 'BANIMENTO' },
   ];
 
-  const turnoOptions = [
-    { label: 'Todos', value: '' },
-    { label: 'Manhã', value: 'MANHA' },
-    { label: 'Tarde', value: 'TARDE' },
-    { label: 'Noite', value: 'NOITE' },
-    { label: 'Integral', value: 'INTEGRAL' },
-  ];
-
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
-      Promise.all([buscarCursos(), buscarModulos()])
-        .then(([pageCursos, listaModulos]) => {
-          // Mapear Cursos
+      Promise.all([buscarCursos(), buscarModulos(), buscarTurnos()])
+        .then(([pageCursos, listaModulos, listaTurnos]) => {
           setCursoOptions([
             { label: 'Todos', value: '' },
-            ...pageCursos.content.map((c) => ({ label: c.nome, value: c.nome })),
+            ...pageCursos.content.map((c) => ({
+              label: c.nome,
+              value: c.nome,
+            })),
           ]);
 
-          // Mapear Módulos
           setModuloOptions([
             { label: 'Todos', value: '' },
-            ...listaModulos.map((m) => ({ label: m, value: m })),
+            ...listaModulos.map((m: any) => ({ label: m.nome, value: m.id })),
+          ]);
+
+          setTurnoOptions([
+            { label: 'Todos', value: '' },
+            ...listaTurnos.map((t: any) => ({ label: t.nome, value: t.id })),
           ]);
         })
         .catch(console.error)
@@ -109,7 +109,9 @@ export function StudentFilter({
               <CustomDatePicker
                 label="Data de Nascimento"
                 value={filters.dataNascimento}
-                onChange={(e) => onFilterChange('dataNascimento', e.target.value)}
+                onChange={(e) =>
+                  onFilterChange('dataNascimento', e.target.value)
+                }
               />
             </div>
           </div>
@@ -121,7 +123,7 @@ export function StudentFilter({
                 value={filters.cursoNome}
                 onChange={(val) => onFilterChange('cursoNome', val)}
                 options={cursoOptions}
-                placeholder="Selecione"
+                placeholder="Selecione o Curso"
                 invertArrow={true}
               />
             </div>
@@ -132,7 +134,7 @@ export function StudentFilter({
                 value={filters.turno}
                 onChange={(val) => onFilterChange('turno', val)}
                 options={turnoOptions}
-                placeholder="Selecione"
+                placeholder="Selecione o Turno"
                 invertArrow={true}
               />
             </div>
@@ -143,7 +145,7 @@ export function StudentFilter({
                 value={filters.modulo}
                 onChange={(val) => onFilterChange('modulo', val)}
                 options={moduloOptions}
-                placeholder="Selecione"
+                placeholder="Selecione o Módulo"
                 invertArrow={true}
               />
             </div>

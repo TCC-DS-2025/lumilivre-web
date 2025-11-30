@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 
-import { cadastrarAluno, type AlunoPayload } from '../../services/alunoService';
+import { cadastrarAluno } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
+import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
 import {
-  buscarCursos,
-  cadastrarCurso,
-  type CursoPayload,
-} from '../../services/cursoService';
-import { buscarModulos } from '../../services/moduloService';
+  buscarModulos,
+  cadastrarModulo,
+  type Modulo,
+} from '../../services/moduloService';
+import {
+  buscarTurnos,
+  cadastrarTurno,
+  type Turno,
+} from '../../services/turnoService';
 
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
@@ -24,9 +29,9 @@ interface FormData {
   celular: string;
   dataNascimento: string;
   email: string;
-  cursoId: string;
-  turno: string;
-  modulo: string;
+  cursoId: string | number;
+  turnoId: string | number;
+  moduloId: string | number;
   cep: string;
   logradouro: string;
   bairro: string;
@@ -44,8 +49,8 @@ const estadoInicial: FormData = {
   dataNascimento: '',
   email: '',
   cursoId: '',
-  turno: '',
-  modulo: '',
+  turnoId: '',
+  moduloId: '',
   cep: '',
   logradouro: '',
   bairro: '',
@@ -68,37 +73,37 @@ export function NovoAluno({
 
   const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
   const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
-
-  const turnoOptions: Option[] = [
-    { label: 'Manhã', value: 'MANHA' },
-    { label: 'Tarde', value: 'TARDE' },
-    { label: 'Noite', value: 'NOITE' },
-    { label: 'Integral', value: 'INTEGRAL' },
-  ];
+  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
 
   const [isNovoCurso, setIsNovoCurso] = useState(false);
-  const [isNovoTurno, setIsNovoTurno] = useState(false);
-  const [isNovoModulo, setIsNovoModulo] = useState(false);
-
   const [novoCursoInput, setNovoCursoInput] = useState('');
+  const [isNovoTurno, setIsNovoTurno] = useState(false);
   const [novoTurnoInput, setNovoTurnoInput] = useState('');
+  const [isNovoModulo, setIsNovoModulo] = useState(false);
   const [novoModuloInput, setNovoModuloInput] = useState('');
 
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const [cursosDaApi, modulosResponse] = await Promise.all([
+        const [cursosRes, modulosRes, turnosRes] = await Promise.all([
           buscarCursos(),
           buscarModulos(),
+          buscarTurnos(),
         ]);
 
         setCursosOptions(
-          cursosDaApi.content.map((c) => ({ label: c.nome, value: c.id })),
+          cursosRes.content.map((c) => ({ label: c.nome, value: c.id })),
         );
 
-        setModulosOptions(modulosResponse.map((m) => ({ label: m, value: m })));
+        setModulosOptions(
+          modulosRes.map((m: Modulo) => ({ label: m.nome, value: m.id })),
+        );
+
+        setTurnoOptions(
+          turnosRes.map((t: Turno) => ({ label: t.nome, value: t.id })),
+        );
       } catch (error) {
-        console.warn('Erro ao carregar cursos ou módulos', error);
+        console.warn('Erro ao carregar dados dos selects', error);
       }
     };
     carregarDados();
@@ -109,7 +114,7 @@ export function NovoAluno({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (field: string, value: string) => {
+  const handleSelectChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -123,13 +128,17 @@ export function NovoAluno({
       setIsCepLoading(true);
       try {
         const endereco = await buscarEnderecoPorCep(cleanCep);
-        setFormData((prev) => ({
-          ...prev,
-          logradouro: endereco.logradouro,
-          bairro: endereco.bairro,
-          localidade: endereco.localidade,
-          uf: endereco.uf,
-        }));
+        if ((endereco as any).erro) {
+          alert('CEP não encontrado.');
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            logradouro: endereco.logradouro || '',
+            bairro: endereco.bairro || '',
+            localidade: endereco.localidade || '',
+            uf: endereco.uf || '',
+          }));
+        }
       } catch (error) {
         console.error('Erro ao buscar CEP', error);
       } finally {
@@ -143,54 +152,90 @@ export function NovoAluno({
     setIsLoading(true);
 
     try {
-      let finalCursoId = Number(formData.cursoId);
-      const finalTurno = isNovoTurno ? novoTurnoInput : formData.turno;
-      const finalModulo = isNovoModulo ? novoModuloInput : formData.modulo;
+      let finalCursoId = formData.cursoId ? Number(formData.cursoId) : null;
+      let finalTurnoId = formData.turnoId ? Number(formData.turnoId) : null;
+      let finalModuloId = formData.moduloId ? Number(formData.moduloId) : null;
+
+      if (isNovoTurno) {
+        if (!novoTurnoInput.trim()) {
+          alert('Digite o nome do novo turno.');
+          setIsLoading(false);
+          return;
+        }
+        const novoTurno = await cadastrarTurno({ nome: novoTurnoInput });
+        finalTurnoId = novoTurno.id;
+      }
+
+      if (isNovoModulo) {
+        if (!novoModuloInput.trim()) {
+          alert('Digite o nome do novo módulo.');
+          setIsLoading(false);
+          return;
+        }
+        const novoModulo = await cadastrarModulo({ nome: novoModuloInput });
+        finalModuloId = novoModulo.id;
+      }
 
       if (isNovoCurso) {
-        if (!novoCursoInput || !finalTurno || !finalModulo) {
-          alert('Para criar um novo curso, preencha o Nome, Turno e Módulo.');
+        if (!novoCursoInput.trim()) {
+          alert('Digite o nome do novo curso.');
+          setIsLoading(false);
+          return;
+        }
+        if (!finalTurnoId || !finalModuloId) {
+          alert('Para criar um curso, Turno e Módulo são obrigatórios.');
           setIsLoading(false);
           return;
         }
 
-        const cursoPayload: CursoPayload = {
+        const novoCurso = await cadastrarCurso({
           nome: novoCursoInput,
-          turno: finalTurno,
-          modulo: finalModulo,
-        };
-
-        const novoCurso = await cadastrarCurso(cursoPayload);
+          turno: String(finalTurnoId),
+          modulo: String(finalModuloId),
+        });
         finalCursoId = novoCurso.id;
       }
 
-      const dataParaApi: AlunoPayload = {
+      if (!finalCursoId || !finalTurnoId || !finalModuloId) {
+        alert('Por favor, preencha Curso, Turno e Módulo.');
+        setIsLoading(false);
+        return;
+      }
+
+      const dataParaApi = {
         matricula: formData.matricula,
         nomeCompleto: formData.nomeCompleto,
-        cpf: formData.cpf.replace(/\D/g, ''),
-        celular: formData.celular.replace(/\D/g, ''),
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : null,
+        celular:
+          formData.celular && formData.celular.trim() !== ''
+            ? formData.celular.replace(/\D/g, '')
+            : null,
+        email:
+          formData.email && formData.email.trim() !== ''
+            ? formData.email
+            : null,
         dataNascimento: formData.dataNascimento,
-        email: formData.email,
-        cursoId: finalCursoId,
-        turno: finalTurno,
-        modulo: finalModulo,
-        cep: formData.cep.replace(/\D/g, ''),
+        curso_id: finalCursoId,
+        turno_id: finalTurnoId,
+        modulo_id: finalModuloId,
+        cep: formData.cep ? formData.cep.replace(/\D/g, '') : null,
         logradouro: formData.logradouro,
         bairro: formData.bairro,
         localidade: formData.localidade,
         uf: formData.uf,
         numero_casa: Number(formData.numero_casa) || 0,
         complemento: formData.complemento,
-      } as any;
+      };
 
-      await cadastrarAluno(dataParaApi);
+      await cadastrarAluno(dataParaApi as any);
+
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
-      alert(
-        `Falha no cadastro: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-      );
+      const msg =
+        error.response?.data?.mensagem || 'Erro desconhecido ao salvar aluno.';
+      alert(`Falha no cadastro: ${msg}`);
     } finally {
       setIsLoading(false);
     }
@@ -250,7 +295,7 @@ export function NovoAluno({
               </div>
               <div>
                 <label htmlFor="cpf" className={labelStyles}>
-                  CPF*
+                  CPF
                 </label>
                 <input
                   id="cpf"
@@ -260,7 +305,6 @@ export function NovoAluno({
                   onChange={handleChange}
                   placeholder="000.000.000-00"
                   className={inputStyles}
-                  required
                 />
               </div>
               <div>
@@ -289,7 +333,7 @@ export function NovoAluno({
               />
               <div>
                 <label htmlFor="email" className={labelStyles}>
-                  E-mail*
+                  E-mail
                 </label>
                 <input
                   id="email"
@@ -299,7 +343,6 @@ export function NovoAluno({
                   onChange={handleChange}
                   placeholder="exemplo@etec.sp.gov.br"
                   className={inputStyles}
-                  required
                 />
               </div>
             </div>
@@ -322,13 +365,14 @@ export function NovoAluno({
                   value={novoCursoInput}
                   onChange={(e) => setNovoCursoInput(e.target.value)}
                   className={inputStyles}
-                  placeholder="Digite o novo curso"
+                  placeholder="Nome do novo curso"
                 />
               ) : (
                 <CustomSelect
                   value={formData.cursoId}
                   onChange={(val) => handleSelectChange('cursoId', val)}
                   options={cursosOptions}
+                  placeholder="Selecione o Curso"
                 />
               )}
             </div>
@@ -349,13 +393,14 @@ export function NovoAluno({
                   value={novoTurnoInput}
                   onChange={(e) => setNovoTurnoInput(e.target.value)}
                   className={inputStyles}
-                  placeholder="Digite o novo turno"
+                  placeholder="Nome do novo turno"
                 />
               ) : (
                 <CustomSelect
-                  value={formData.turno}
-                  onChange={(val) => handleSelectChange('turno', val)}
+                  value={formData.turnoId}
+                  onChange={(val) => handleSelectChange('turnoId', val)}
                   options={turnoOptions}
+                  placeholder="Selecione o turno"
                 />
               )}
             </div>
@@ -376,13 +421,14 @@ export function NovoAluno({
                   value={novoModuloInput}
                   onChange={(e) => setNovoModuloInput(e.target.value)}
                   className={inputStyles}
-                  placeholder="Digite o novo módulo"
+                  placeholder="Nome do novo módulo"
                 />
               ) : (
                 <CustomSelect
-                  value={formData.modulo}
-                  onChange={(val) => handleSelectChange('modulo', val)}
+                  value={formData.moduloId}
+                  onChange={(val) => handleSelectChange('moduloId', val)}
                   options={modulosOptions}
+                  placeholder="Selecione o módulo"
                 />
               )}
             </div>
