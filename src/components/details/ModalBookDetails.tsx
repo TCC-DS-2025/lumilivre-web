@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../Modal';
 
 import {
-  buscarEnum,
   atualizarLivro,
   excluirLivroComExemplares,
   buscarLivroPorId,
   buscarLivrosParaAdmin,
-  buscarCdds,
   type LivroAgrupado,
   type LivroPayload,
 } from '../../services/livroService';
-import { buscarGeneros } from '../../services/generoService';
 
+import { useCdds, useEnum, useGeneros } from '../../hooks/useCommonQueries';
 import { useToast } from '../../contexts/ToastContext';
 import { CustomSelect } from '../CustomSelect';
 import { SearchableSelect } from '../SearchableSelect';
@@ -21,11 +20,6 @@ import { CustomDatePicker } from '../CustomDatePicker';
 import uploadIconUrl from '../../assets/icons/download.svg';
 import closeIcon from '../../assets/icons/close.svg';
 import addIcon from '../../assets/icons/add.svg';
-
-interface Option {
-  label: string;
-  value: string | number;
-}
 
 interface DetalhesLivroModalProps {
   livro: LivroAgrupado | null;
@@ -61,14 +55,69 @@ export function DetalhesLivroModal({
   const [isNovoGenero, setIsNovoGenero] = useState(false);
   const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
-  const [cddOptions, setCddOptions] = useState<Option[]>([]);
-  const [classificacaoOptions, setClassificacaoOptions] = useState<Option[]>(
-    [],
-  );
-  const [tipoCapaOptions, setTipoCapaOptions] = useState<Option[]>([]);
-  const [autoresOptions, setAutoresOptions] = useState<Option[]>([]);
-  const [editorasOptions, setEditorasOptions] = useState<Option[]>([]);
-  const [generosOptions, setGenerosOptions] = useState<Option[]>([]);
+  const { data: cddData } = useCdds();
+  const { data: classificacaoData } = useEnum('CLASSIFICACAO_ETARIA');
+  const { data: tipoCapaData } = useEnum('TIPO_CAPA');
+  const { data: generosData } = useGeneros();
+
+  const { data: livrosData } = useQuery({
+    queryKey: ['livros-auxiliares'],
+    queryFn: () => buscarLivrosParaAdmin('', 0, 1000),
+    staleTime: 1000 * 60 * 10,
+    enabled: isOpen,
+  });
+
+  const cddOptions = useMemo(() => {
+    return (
+      cddData?.map((c) => ({
+        label: `${c.id} - ${c.nome}`,
+        value: String(c.id),
+      })) || []
+    );
+  }, [cddData]);
+
+  const classificacaoOptions = useMemo(() => {
+    return (
+      classificacaoData?.map((c) => ({
+        label: c.status,
+        value: c.nome,
+      })) || []
+    );
+  }, [classificacaoData]);
+
+  const tipoCapaOptions = useMemo(() => {
+    return (
+      tipoCapaData?.map((c) => ({
+        label: c.status,
+        value: c.nome,
+      })) || []
+    );
+  }, [tipoCapaData]);
+
+  const generosOptions = useMemo(() => {
+    return (
+      generosData?.map((g) => ({
+        label: g.nome,
+        value: g.nome,
+      })) || []
+    );
+  }, [generosData]);
+
+  const autoresOptions = useMemo(() => {
+    if (!livrosData?.content) return [];
+    const autoresUnicos = Array.from(
+      new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
+    ).sort();
+    return autoresUnicos.map((a) => ({ label: a, value: a }));
+  }, [livrosData]);
+
+  const editorasOptions = useMemo(() => {
+    if (!livrosData?.content) return [];
+    const editorasUnicas = Array.from(
+      new Set(livrosData.content.map((l) => l.editora).filter(Boolean)),
+    ).sort();
+    return editorasUnicas.map((e) => ({ label: e, value: e }));
+  }, [livrosData]);
 
   useEffect(() => {
     if (livro) {
@@ -135,68 +184,6 @@ export function DetalhesLivroModal({
 
     carregarDetalhesDoLivro();
   }, [livroVisualizado, isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const carregarDadosIniciais = async () => {
-        try {
-          const [
-            cddData,
-            classificacaoData,
-            tipoCapaData,
-            generosData,
-            livrosData,
-          ] = await Promise.all([
-            buscarCdds(),
-            buscarEnum('CLASSIFICACAO_ETARIA'),
-            buscarEnum('TIPO_CAPA'),
-            buscarGeneros(),
-            buscarLivrosParaAdmin('', 0, 1000),
-          ]);
-
-          setCddOptions(
-            cddData.map((c) => ({
-              label: `${c.id} - ${c.nome}`,
-              value: String(c.id),
-            })),
-          );
-
-          setClassificacaoOptions(
-            classificacaoData.map((c) => ({
-              label: c.status,
-              value: c.nome,
-            })),
-          );
-
-          setTipoCapaOptions(
-            tipoCapaData.map((c) => ({
-              label: c.status,
-              value: c.nome,
-            })),
-          );
-
-          setGenerosOptions(
-            generosData.map((g) => ({ label: g.nome, value: g.nome })),
-          );
-
-          const autoresUnicos = Array.from(
-            new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
-          ).sort();
-          setAutoresOptions(autoresUnicos.map((a) => ({ label: a, value: a })));
-
-          const editorasUnicas = Array.from(
-            new Set(livrosData.content.map((l) => l.editora).filter(Boolean)),
-          ).sort();
-          setEditorasOptions(
-            editorasUnicas.map((e) => ({ label: e, value: e })),
-          );
-        } catch (error) {
-          console.error('Erro ao carregar dados iniciais do modal', error);
-        }
-      };
-      carregarDadosIniciais();
-    }
-  }, [isOpen]);
 
   if (!livroVisualizado) return null;
 

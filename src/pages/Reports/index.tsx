@@ -1,19 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 import {
   baixarRelatorioPDF,
   type FiltrosRelatorio,
 } from '../../services/relatorioService';
-import { buscarCursos } from '../../services/cursoService';
-import { buscarModulos } from '../../services/moduloService';
-import { buscarTurnos } from '../../services/turnoService';
-import {
-  buscarEnum,
-  buscarCdds,
-  buscarLivrosParaAdmin,
-} from '../../services/livroService';
-import { buscarGeneros } from '../../services/generoService';
+import { buscarLivrosParaAdmin } from '../../services/livroService';
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
+
+import {
+  useCursos,
+  useModulos,
+  useTurnos,
+  useGeneros,
+  useCdds,
+  useEnum,
+} from '../../hooks/useCommonQueries';
 
 import { useToast } from '../../contexts/ToastContext';
 import { Modal } from '../../components/Modal';
@@ -74,20 +75,25 @@ function ModalFiltrosRelatorio({
 }: ModalFiltrosProps) {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isDynamicDataLoading, setIsDynamicDataLoading] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({});
 
-  const [cursosOpts, setCursosOpts] = useState<Option[]>([]);
-  const [modulosOpts, setModulosOpts] = useState<Option[]>([]);
-  const [generosOpts, setGenerosOpts] = useState<Option[]>([]);
-  const [turnoOpts, setTurnoOpts] = useState<Option[]>([]);
+  const { data: cursosData, isLoading: isLoadingCursos } = useCursos();
+  const { data: modulosData, isLoading: isLoadingModulos } = useModulos();
+  const { data: turnosData, isLoading: isLoadingTurnos } = useTurnos();
+  const { data: generosData, isLoading: isLoadingGeneros } = useGeneros();
+  const { data: cddsData, isLoading: isLoadingCdds } = useCdds();
 
-  const [statusLivroOpts, setStatusLivroOpts] = useState<Option[]>([]);
-  const [statusEmpOpts, setStatusEmpOpts] = useState<Option[]>([]);
-  const [classificacaoOpts, setClassificacaoOpts] = useState<Option[]>([]);
-  const [tipoCapaOpts, setTipoCapaOpts] = useState<Option[]>([]);
-  const [penalidadeOpts, setPenalidadeOpts] = useState<Option[]>([]);
-  const [cddOpts, setCddOpts] = useState<Option[]>([]);
+  const { data: penalidadeData, isLoading: isLoadingPenalidade } =
+    useEnum('PENALIDADE');
+  const { data: classificacaoData, isLoading: isLoadingClassificacao } =
+    useEnum('CLASSIFICACAO_ETARIA');
+  const { data: tipoCapaData, isLoading: isLoadingTipoCapa } =
+    useEnum('TIPO_CAPA');
+  const { data: statusLivroData, isLoading: isLoadingStatusLivro } =
+    useEnum('STATUS_LIVRO');
+  const { data: statusEmpData, isLoading: isLoadingStatusEmp } =
+    useEnum('STATUS_EMPRESTIMO');
 
   const [autoresOpts, setAutoresOpts] = useState<Option[]>([]);
   const [editorasOpts, setEditorasOpts] = useState<Option[]>([]);
@@ -97,115 +103,98 @@ function ModalFiltrosRelatorio({
   const [progress, setProgress] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  const cursosOpts = useMemo(() => {
+    if (!cursosData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...cursosData.map((c) => ({ label: c.nome, value: c.id })),
+    ];
+  }, [cursosData]);
+
+  const modulosOpts = useMemo(() => {
+    if (!modulosData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...modulosData.map((m) => ({ label: m.nome, value: m.id })),
+    ];
+  }, [modulosData]);
+
+  const turnoOpts = useMemo(() => {
+    if (!turnosData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...turnosData.map((t) => ({ label: t.nome, value: t.id })),
+    ];
+  }, [turnosData]);
+
+  const generosOpts = useMemo(() => {
+    if (!generosData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...generosData.map((g) => ({ label: g.nome, value: g.nome })),
+    ];
+  }, [generosData]);
+
+  const cddOpts = useMemo(() => {
+    if (!cddsData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...cddsData.map((c) => ({
+        label: `${c.id} - ${c.nome}`,
+        value: c.id,
+      })),
+    ];
+  }, [cddsData]);
+
+  const penalidadeOpts = useMemo(() => {
+    if (!penalidadeData) return [];
+    return [
+      { label: 'Todas', value: '' },
+      ...penalidadeData.map((p) => ({ label: p.status, value: p.nome })),
+    ];
+  }, [penalidadeData]);
+
+  const classificacaoOpts = useMemo(() => {
+    if (!classificacaoData) return [];
+    return [
+      { label: 'Todas', value: '' },
+      ...classificacaoData.map((c) => ({ label: c.status, value: c.nome })),
+    ];
+  }, [classificacaoData]);
+
+  const tipoCapaOpts = useMemo(() => {
+    if (!tipoCapaData) return [];
+    return [
+      { label: 'Todas', value: '' },
+      ...tipoCapaData.map((t) => ({ label: t.status, value: t.nome })),
+    ];
+  }, [tipoCapaData]);
+
+  const statusLivroOpts = useMemo(() => {
+    if (!statusLivroData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...statusLivroData.map((s) => ({ label: s.status, value: s.nome })),
+    ];
+  }, [statusLivroData]);
+
+  const statusEmpOpts = useMemo(() => {
+    if (!statusEmpData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...statusEmpData.map((s) => ({ label: s.status, value: s.nome })),
+    ];
+  }, [statusEmpData]);
+
   useEffect(() => {
     if (isOpen && tipoRelatorio) {
       setFiltros({});
       setIsLoading(false);
-      setIsDataLoading(true);
+      setIsDynamicDataLoading(true);
 
-      const carregarDados = async () => {
+      const carregarDadosDinamicos = async () => {
         try {
           const promises = [];
-
-          if (tipoRelatorio === 'alunos' || tipoRelatorio === 'emprestimos') {
-            promises.push(
-              buscarCursos().then((res) =>
-                setCursosOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.content.map((c) => ({ label: c.nome, value: c.id })),
-                ]),
-              ),
-            );
-
-            promises.push(
-              buscarModulos().then((res) =>
-                setModulosOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((m: any) => ({ label: m.nome, value: m.id })),
-                ]),
-              ),
-            );
-
-            promises.push(
-              buscarTurnos().then((res) =>
-                setTurnoOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((t: any) => ({ label: t.nome, value: t.id })),
-                ]),
-              ),
-            );
-          }
-
-          if (tipoRelatorio === 'alunos') {
-            promises.push(
-              buscarEnum('PENALIDADE').then((res) =>
-                setPenalidadeOpts([
-                  { label: 'Todas', value: '' },
-                  ...res.map((p) => ({ label: p.status, value: p.nome })),
-                ]),
-              ),
-            );
-          }
-
-          if (tipoRelatorio === 'livros') {
-            promises.push(
-              buscarGeneros().then((res) =>
-                setGenerosOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((g) => ({ label: g.nome, value: g.nome })),
-                ]),
-              ),
-            );
-            promises.push(
-              buscarCdds().then((res) =>
-                setCddOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((c) => ({
-                    label: `${c.id} - ${c.nome}`,
-                    value: c.id,
-                  })),
-                ]),
-              ),
-            );
-            promises.push(
-              buscarEnum('CLASSIFICACAO_ETARIA').then((res) =>
-                setClassificacaoOpts([
-                  { label: 'Todas', value: '' },
-                  ...res.map((c) => ({ label: c.status, value: c.nome })),
-                ]),
-              ),
-            );
-            promises.push(
-              buscarEnum('TIPO_CAPA').then((res) =>
-                setTipoCapaOpts([
-                  { label: 'Todas', value: '' },
-                  ...res.map((t) => ({ label: t.status, value: t.nome })),
-                ]),
-              ),
-            );
-          }
-
-          if (tipoRelatorio === 'exemplares') {
-            promises.push(
-              buscarEnum('STATUS_LIVRO').then((res) =>
-                setStatusLivroOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((s) => ({ label: s.status, value: s.nome })),
-                ]),
-              ),
-            );
-          }
-
-          if (tipoRelatorio === 'emprestimos') {
-            promises.push(
-              buscarEnum('STATUS_EMPRESTIMO').then((res) =>
-                setStatusEmpOpts([
-                  { label: 'Todos', value: '' },
-                  ...res.map((s) => ({ label: s.status, value: s.nome })),
-                ]),
-              ),
-            );
-          }
 
           if (['livros', 'exemplares', 'emprestimos'].includes(tipoRelatorio)) {
             promises.push(
@@ -257,12 +246,13 @@ function ModalFiltrosRelatorio({
 
           await Promise.all(promises);
         } catch (error) {
-          console.error('Erro ao carregar opções do filtro', error);
+          console.error('Erro ao carregar dados dinâmicos', error);
         } finally {
-          setIsDataLoading(false);
+          setIsDynamicDataLoading(false);
         }
       };
-      carregarDados();
+
+      carregarDadosDinamicos();
     }
   }, [isOpen, tipoRelatorio]);
 
@@ -355,6 +345,19 @@ function ModalFiltrosRelatorio({
   const labelClass =
     'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
+  const isInitialLoading =
+    isDynamicDataLoading ||
+    isLoadingCursos ||
+    isLoadingModulos ||
+    isLoadingTurnos ||
+    isLoadingGeneros ||
+    isLoadingCdds ||
+    isLoadingPenalidade ||
+    isLoadingClassificacao ||
+    isLoadingTipoCapa ||
+    isLoadingStatusLivro ||
+    isLoadingStatusEmp;
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -387,7 +390,7 @@ function ModalFiltrosRelatorio({
       );
     }
 
-    if (isDataLoading) {
+    if (isInitialLoading) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[300px] pb-20">
           <div className="transform scale-110">

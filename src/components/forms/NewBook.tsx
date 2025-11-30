@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import {
   cadastrarLivro,
-  buscarEnum,
-  buscarCdds,
   buscarLivrosParaAdmin,
   type LivroPayload,
 } from '../../services/livroService';
-import { buscarGeneros } from '../../services/generoService';
 import { buscarLivroPorIsbn } from '../../services/googleBooksService';
 
 import { useToast } from '../../contexts/ToastContext';
 import { CustomSelect } from '../CustomSelect';
 import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
+import { useCdds, useEnum, useGeneros } from '../../hooks/useCommonQueries';
 
 import uploadIconUrl from '../../assets/icons/download.svg';
 import closeIcon from '../../assets/icons/close.svg';
@@ -60,58 +58,56 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [isNovoGenero, setIsNovoGenero] = useState(false);
   const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
-  const [cddOptions, setCddOptions] = useState<Option[]>([]);
-  const [classificacaoOptions, setClassificacaoOptions] = useState<Option[]>(
-    [],
-  );
-  const [tipoCapaOptions, setTipoCapaOptions] = useState<Option[]>([]);
   const [autoresOptions, setAutoresOptions] = useState<Option[]>([]);
   const [editorasOptions, setEditorasOptions] = useState<Option[]>([]);
-  const [generosOptions, setGenerosOptions] = useState<Option[]>([]);
+
+  const { data: cddData } = useCdds();
+  const { data: generosData } = useGeneros();
+  const { data: classificacaoData } = useEnum('CLASSIFICACAO_ETARIA');
+  const { data: tipoCapaData } = useEnum('TIPO_CAPA');
+
+  const cddOptions = useMemo(() => {
+    return (
+      cddData?.map((c) => ({
+        label: `${c.id} - ${c.nome}`,
+        value: String(c.id),
+      })) || []
+    );
+  }, [cddData]);
+
+  const generosOptions = useMemo(() => {
+    return (
+      generosData?.map((g) => ({
+        label: g.nome,
+        value: g.nome,
+      })) || []
+    );
+  }, [generosData]);
+
+  const classificacaoOptions = useMemo(() => {
+    return (
+      classificacaoData?.map((c) => ({
+        label: c.status,
+        value: c.nome,
+      })) || []
+    );
+  }, [classificacaoData]);
+
+  const tipoCapaOptions = useMemo(() => {
+    return (
+      tipoCapaData?.map((c) => ({
+        label: c.status,
+        value: c.nome,
+      })) || []
+    );
+  }, [tipoCapaData]);
 
   const { addToast } = useToast();
 
   useEffect(() => {
-    const carregarDados = async () => {
+    const carregarAutoresEEditoras = async () => {
       try {
-        const [
-          cddData,
-          classificacaoData,
-          tipoCapaData,
-          generosData,
-          livrosData,
-        ] = await Promise.all([
-          buscarCdds(),
-          buscarEnum('CLASSIFICACAO_ETARIA'),
-          buscarEnum('TIPO_CAPA'),
-          buscarGeneros(),
-          buscarLivrosParaAdmin('', 0, 1000),
-        ]);
-
-        setCddOptions(
-          cddData.map((c) => ({
-            label: `${c.id} - ${c.nome}`,
-            value: String(c.id),
-          })),
-        );
-
-        setClassificacaoOptions(
-          classificacaoData.map((c) => ({
-            label: c.status,
-            value: c.nome,
-          })),
-        );
-
-        setTipoCapaOptions(
-          tipoCapaData.map((c) => ({
-            label: c.status,
-            value: c.nome,
-          })),
-        );
-
-        setGenerosOptions(
-          generosData.map((g) => ({ label: g.nome, value: g.nome })),
-        );
+        const livrosData = await buscarLivrosParaAdmin('', 0, 1000);
 
         const autoresUnicos = Array.from(
           new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
@@ -123,10 +119,10 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         ).sort();
         setEditorasOptions(editorasUnicas.map((e) => ({ label: e, value: e })));
       } catch (error) {
-        console.error('Erro ao carregar dados iniciais', error);
+        console.error('Erro ao carregar autores e editoras', error);
       }
     };
-    carregarDados();
+    carregarAutoresEEditoras();
   }, []);
 
   const handleChange = (

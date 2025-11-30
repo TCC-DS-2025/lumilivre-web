@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { Modal } from '../Modal';
 import { CustomSelect } from '../CustomSelect';
@@ -13,16 +13,15 @@ import {
   type AlunoPayload,
   type ListaAluno,
 } from '../../services/alunoService';
-import { buscarEnum } from '../../services/livroService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
-import { buscarCursos } from '../../services/cursoService';
-import { buscarModulos } from '../../services/moduloService';
-import { buscarTurnos } from '../../services/turnoService';
 
-interface Option {
-  label: string;
-  value: string | number;
-}
+// Novos Hooks de Cache
+import {
+  useCursos,
+  useModulos,
+  useTurnos,
+  useEnum,
+} from '../../hooks/useCommonQueries';
 
 interface ModalStudentDetailsProps {
   aluno: ListaAluno | null;
@@ -48,50 +47,45 @@ export function ModalStudentDetails({
 
   const [formData, setFormData] = useState<Partial<AlunoDetalhado>>({});
 
-  const [penalidadeOptions, setPenalidadeOptions] = useState<Option[]>([]);
-  const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
-  const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
-  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
-
   const { addToast } = useToast();
 
+  // --- Implementação do Cache (TanStack Query) ---
+  const { data: cursosData } = useCursos();
+  const { data: modulosData } = useModulos();
+  const { data: turnosData } = useTurnos();
+  const { data: penalidadesData } = useEnum('PENALIDADE');
+
+  // Transformação dos dados em opções para os Selects
+  const cursosOptions = useMemo(
+    () => cursosData?.map((c) => ({ label: c.nome, value: c.id })) || [],
+    [cursosData],
+  );
+
+  const modulosOptions = useMemo(
+    () => modulosData?.map((m) => ({ label: m.nome, value: m.id })) || [],
+    [modulosData],
+  );
+
+  const turnoOptions = useMemo(
+    () => turnosData?.map((t) => ({ label: t.nome, value: t.id })) || [],
+    [turnosData],
+  );
+
+  const penalidadeOptions = useMemo(
+    () => [
+      { label: 'Sem Penalidade', value: '' },
+      ...(penalidadesData?.map((p) => ({ label: p.status, value: p.nome })) ||
+        []),
+    ],
+    [penalidadesData],
+  );
+
   useEffect(() => {
-    const carregarTudo = async () => {
+    const carregarDetalhes = async () => {
       if (!isOpen || !aluno) return;
 
       setIsLoading(true);
       try {
-        const [cursosRes, modulosRes, turnosRes, penalidadesRes] =
-          await Promise.all([
-            buscarCursos(),
-            buscarModulos(),
-            buscarTurnos(),
-            buscarEnum('PENALIDADE'),
-          ]);
-
-        const opcoesCursos = cursosRes.content.map((c) => ({
-          label: c.nome,
-          value: c.id,
-        }));
-
-        const opcoesModulos = modulosRes.map((m: any) => ({
-          label: m.nome,
-          value: m.id,
-        }));
-
-        const opcoesTurnos = turnosRes.map((t: any) => ({
-          label: t.nome,
-          value: t.id,
-        }));
-
-        setCursosOptions(opcoesCursos);
-        setModulosOptions(opcoesModulos);
-        setTurnoOptions(opcoesTurnos);
-        setPenalidadeOptions([
-          { label: 'Sem Penalidade', value: '' },
-          ...penalidadesRes.map((p) => ({ label: p.status, value: p.nome })),
-        ]);
-
         const alunoRes = await buscarAlunoPorMatricula(aluno.matricula);
 
         if (alunoRes.success && alunoRes.data) {
@@ -99,13 +93,15 @@ export function ModalStudentDetails({
 
           let cursoIdFinal = dados.cursoId;
           if (!cursoIdFinal && dados.cursoNome) {
-            const found = opcoesCursos.find((c) => c.label === dados.cursoNome);
+            const found = cursosOptions.find(
+              (c) => c.label === dados.cursoNome,
+            );
             if (found) cursoIdFinal = Number(found.value);
           }
 
           let turnoIdFinal = dados.turnoId;
           if (!turnoIdFinal && dados.turnoNome) {
-            const found = opcoesTurnos.find(
+            const found = turnoOptions.find(
               (t) => t.label.toUpperCase() === dados.turnoNome?.toUpperCase(),
             );
             if (found) turnoIdFinal = Number(found.value);
@@ -113,7 +109,7 @@ export function ModalStudentDetails({
 
           let moduloIdFinal = dados.moduloId;
           if (!moduloIdFinal && dados.moduloNome) {
-            const found = opcoesModulos.find(
+            const found = modulosOptions.find(
               (m) => m.label === dados.moduloNome,
             );
             if (found) moduloIdFinal = Number(found.value);
@@ -140,8 +136,8 @@ export function ModalStudentDetails({
       }
     };
 
-    carregarTudo();
-  }, [isOpen, aluno]);
+    carregarDetalhes();
+  }, [isOpen, aluno, cursosOptions, turnoOptions, modulosOptions]);
 
   if (!isOpen || !aluno) return null;
 

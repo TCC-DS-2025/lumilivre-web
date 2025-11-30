@@ -1,11 +1,8 @@
-import { useState, useEffect } from 'react';
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 
-import { buscarCursos } from '../../services/cursoService';
-import { buscarModulos } from '../../services/moduloService';
-import { buscarTurnos } from '../../services/turnoService';
+import { useCursos, useModulos, useTurnos } from '../../hooks/useCommonQueries';
 
 interface StudentFilterProps {
   isOpen: boolean;
@@ -35,11 +32,29 @@ export function StudentFilter({
   onApply,
   onClear,
 }: StudentFilterProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: cursosData, isLoading: isLoadingCursos } = useCursos();
+  const { data: modulosData, isLoading: isLoadingModulos } = useModulos();
+  const { data: turnosData, isLoading: isLoadingTurnos } = useTurnos();
 
-  const [cursoOptions, setCursoOptions] = useState<Option[]>([]);
-  const [moduloOptions, setModuloOptions] = useState<Option[]>([]);
-  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]); 
+  const isLoading = isLoadingCursos || isLoadingModulos || isLoadingTurnos;
+
+  const cursoOptions: Option[] = [
+    { label: 'Todos', value: '' },
+    ...(cursosData?.map((c) => ({
+      label: c.nome,
+      value: c.nome,
+    })) || []),
+  ];
+
+  const moduloOptions: Option[] = [
+    { label: 'Todos', value: '' },
+    ...(modulosData?.map((m) => ({ label: m.nome, value: m.id })) || []),
+  ];
+
+  const turnoOptions: Option[] = [
+    { label: 'Todos', value: '' },
+    ...(turnosData?.map((t) => ({ label: t.nome, value: t.id })) || []),
+  ];
 
   const penalidadeOptions = [
     { label: 'Todos', value: '' },
@@ -49,34 +64,6 @@ export function StudentFilter({
     { label: 'Bloqueio', value: 'BLOQUEIO' },
     { label: 'Banimento', value: 'BANIMENTO' },
   ];
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true);
-      Promise.all([buscarCursos(), buscarModulos(), buscarTurnos()])
-        .then(([pageCursos, listaModulos, listaTurnos]) => {
-          setCursoOptions([
-            { label: 'Todos', value: '' },
-            ...pageCursos.content.map((c) => ({
-              label: c.nome,
-              value: c.nome,
-            })),
-          ]);
-
-          setModuloOptions([
-            { label: 'Todos', value: '' },
-            ...listaModulos.map((m: any) => ({ label: m.nome, value: m.id })),
-          ]);
-
-          setTurnoOptions([
-            { label: 'Todos', value: '' },
-            ...listaTurnos.map((t: any) => ({ label: t.nome, value: t.id })),
-          ]);
-        })
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
-    }
-  }, [isOpen]);
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';

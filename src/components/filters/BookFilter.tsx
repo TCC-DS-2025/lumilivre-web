@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
 import { SearchableSelect } from '../SearchableSelect';
 
-import { buscarGeneros } from '../../services/generoService';
-import {
-  buscarEnum,
-  buscarCdds,
-  buscarLivrosParaAdmin,
-} from '../../services/livroService';
+import { buscarLivrosParaAdmin } from '../../services/livroService';
+import { useGeneros, useCdds, useEnum } from '../../hooks/useCommonQueries';
 
 interface BookFilterProps {
   isOpen: boolean;
@@ -28,11 +25,6 @@ interface BookFilterProps {
   onClear: () => void;
 }
 
-interface Option {
-  label: string;
-  value: string | number;
-}
-
 export function BookFilter({
   isOpen,
   onClose,
@@ -41,85 +33,87 @@ export function BookFilter({
   onApply,
   onClear,
 }: BookFilterProps) {
-  const [generosOpts, setGenerosOpts] = useState<Option[]>([]);
-  const [cddOpts, setCddOpts] = useState<Option[]>([]);
-  const [classificacaoOpts, setClassificacaoOpts] = useState<Option[]>([]);
-  const [tipoCapaOpts, setTipoCapaOpts] = useState<Option[]>([]);
-  const [autoresOpts, setAutoresOpts] = useState<Option[]>([]);
-  const [editorasOpts, setEditorasOpts] = useState<Option[]>([]);
+  const { data: generosData, isLoading: isLoadingGeneros } = useGeneros();
+  const { data: cddData, isLoading: isLoadingCdds } = useCdds();
+  const { data: classificacaoData, isLoading: isLoadingClass } = useEnum(
+    'CLASSIFICACAO_ETARIA',
+  );
+  const { data: tipoCapaData, isLoading: isLoadingCapa } = useEnum('TIPO_CAPA');
 
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: livrosData, isLoading: isLoadingLivros } = useQuery({
+    queryKey: ['livros-filtro-admin'],
+    queryFn: () => buscarLivrosParaAdmin('', 0, 1000),
+    staleTime: 1000 * 60 * 5,
+    enabled: isOpen,
+  });
 
-  useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true);
-      const carregarDados = async () => {
-        try {
-          const [
-            generosData,
-            cddData,
-            classificacaoData,
-            capaData,
-            livrosData,
-          ] = await Promise.all([
-            buscarGeneros(),
-            buscarCdds(),
-            buscarEnum('CLASSIFICACAO_ETARIA'),
-            buscarEnum('TIPO_CAPA'),
-            buscarLivrosParaAdmin('', 0, 1000),
-          ]);
+  const generosOpts = useMemo(() => {
+    if (!generosData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...generosData.map((g) => ({ label: g.nome, value: g.nome })),
+    ];
+  }, [generosData]);
 
-          setGenerosOpts([
-            { label: 'Todos', value: '' },
-            ...generosData.map((g) => ({ label: g.nome, value: g.nome })),
-          ]);
+  const cddOpts = useMemo(() => {
+    if (!cddData) return [];
+    return [
+      { label: 'Todos', value: '' },
+      ...cddData.map((c) => ({
+        label: `${c.id} - ${c.nome}`,
+        value: c.id,
+      })),
+    ];
+  }, [cddData]);
 
-          setCddOpts([
-            { label: 'Todos', value: '' },
-            ...cddData.map((c) => ({
-              label: `${c.id} - ${c.nome}`,
-              value: c.id,
-            })),
-          ]);
+  const classificacaoOpts = useMemo(() => {
+    if (!classificacaoData) return [];
+    return [
+      { label: 'Todas', value: '' },
+      ...classificacaoData.map((c) => ({
+        label: c.status,
+        value: c.nome,
+      })),
+    ];
+  }, [classificacaoData]);
 
-          setClassificacaoOpts([
-            { label: 'Todas', value: '' },
-            ...classificacaoData.map((c) => ({
-              label: c.status,
-              value: c.nome,
-            })),
-          ]);
+  const tipoCapaOpts = useMemo(() => {
+    if (!tipoCapaData) return [];
+    return [
+      { label: 'Todas', value: '' },
+      ...tipoCapaData.map((c) => ({ label: c.status, value: c.nome })),
+    ];
+  }, [tipoCapaData]);
 
-          setTipoCapaOpts([
-            { label: 'Todas', value: '' },
-            ...capaData.map((c) => ({ label: c.status, value: c.nome })),
-          ]);
+  const { autoresOpts, editorasOpts } = useMemo(() => {
+    if (!livrosData?.content) return { autoresOpts: [], editorasOpts: [] };
 
-          const autoresUnicos = Array.from(
-            new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
-          ).sort();
-          setAutoresOpts([
-            { label: 'Todos', value: '' },
-            ...autoresUnicos.map((a) => ({ label: a, value: a })),
-          ]);
+    const autoresUnicos = Array.from(
+      new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
+    ).sort();
 
-          const editorasUnicas = Array.from(
-            new Set(livrosData.content.map((l) => l.editora).filter(Boolean)),
-          ).sort();
-          setEditorasOpts([
-            { label: 'Todas', value: '' },
-            ...editorasUnicas.map((e) => ({ label: e, value: e })),
-          ]);
-        } catch (error) {
-          console.error('Erro ao carregar filtros:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+    const editorasUnicas = Array.from(
+      new Set(livrosData.content.map((l) => l.editora).filter(Boolean)),
+    ).sort();
 
-      carregarDados();
-    }
-  }, [isOpen]);
+    return {
+      autoresOpts: [
+        { label: 'Todos', value: '' },
+        ...autoresUnicos.map((a) => ({ label: a, value: a })),
+      ],
+      editorasOpts: [
+        { label: 'Todas', value: '' },
+        ...editorasUnicas.map((e) => ({ label: e, value: e })),
+      ],
+    };
+  }, [livrosData]);
+
+  const isLoading =
+    isLoadingGeneros ||
+    isLoadingCdds ||
+    isLoadingClass ||
+    isLoadingCapa ||
+    (isOpen && isLoadingLivros);
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
@@ -158,7 +152,6 @@ export function BookFilter({
             options={generosOpts}
           />
 
-          {/* Ajustar a pesca por CDD */}
           <SearchableSelect
             label="CDD"
             value={filters.cdd}

@@ -1,27 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { cadastrarAluno } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
-import { buscarCursos, cadastrarCurso } from '../../services/cursoService';
-import {
-  buscarModulos,
-  cadastrarModulo,
-  type Modulo,
-} from '../../services/moduloService';
-import {
-  buscarTurnos,
-  cadastrarTurno,
-  type Turno,
-} from '../../services/turnoService';
+import { cadastrarCurso } from '../../services/cursoService';
+import { cadastrarModulo } from '../../services/moduloService';
+import { cadastrarTurno } from '../../services/turnoService';
+
+import { useCursos, useModulos, useTurnos } from '../../hooks/useCommonQueries';
 
 import { useToast } from '../../contexts/ToastContext';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
-
-interface Option {
-  label: string;
-  value: string | number;
-}
 
 interface FormData {
   matricula: string;
@@ -72,9 +61,24 @@ export function NovoAluno({
   const [isLoading, setIsLoading] = useState(false);
   const [isCepLoading, setIsCepLoading] = useState(false);
 
-  const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
-  const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
-  const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
+  const { data: cursosList } = useCursos();
+  const { data: modulosList } = useModulos();
+  const { data: turnosList } = useTurnos();
+
+  const cursosOptions = (cursosList || []).map((c) => ({
+    label: c.nome,
+    value: c.id,
+  }));
+
+  const modulosOptions = (modulosList || []).map((m) => ({
+    label: m.nome,
+    value: m.id,
+  }));
+
+  const turnoOptions = (turnosList || []).map((t) => ({
+    label: t.nome,
+    value: t.id,
+  }));
 
   const [isNovoCurso, setIsNovoCurso] = useState(false);
   const [novoCursoInput, setNovoCursoInput] = useState('');
@@ -83,35 +87,7 @@ export function NovoAluno({
   const [isNovoModulo, setIsNovoModulo] = useState(false);
   const [novoModuloInput, setNovoModuloInput] = useState('');
 
-  // hook de notificação
   const { addToast } = useToast();
-
-  useEffect(() => {
-    const carregarDados = async () => {
-      try {
-        const [cursosRes, modulosRes, turnosRes] = await Promise.all([
-          buscarCursos(),
-          buscarModulos(),
-          buscarTurnos(),
-        ]);
-
-        setCursosOptions(
-          cursosRes.content.map((c) => ({ label: c.nome, value: c.id })),
-        );
-
-        setModulosOptions(
-          modulosRes.map((m: Modulo) => ({ label: m.nome, value: m.id })),
-        );
-
-        setTurnoOptions(
-          turnosRes.map((t: Turno) => ({ label: t.nome, value: t.id })),
-        );
-      } catch (error) {
-        console.warn('Erro ao carregar dados dos selects', error);
-      }
-    };
-    carregarDados();
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -170,7 +146,6 @@ export function NovoAluno({
       let finalTurnoId = formData.turnoId ? Number(formData.turnoId) : null;
       let finalModuloId = formData.moduloId ? Number(formData.moduloId) : null;
 
-      // lógica para criação rápida de turno
       if (isNovoTurno) {
         if (!novoTurnoInput.trim()) {
           addToast({
@@ -288,7 +263,6 @@ export function NovoAluno({
     }
   };
 
-  // Estilos
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1 flex justify-between items-center';
   const linkActionStyles =

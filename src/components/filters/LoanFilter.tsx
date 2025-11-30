@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
-
+import { useEnum } from '../../hooks/useCommonQueries';
 import { FilterPanel } from '../FilterPanel';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
-
-import { buscarEnum } from '../../services/livroService';
 
 interface LoanFilterProps {
   isOpen: boolean;
@@ -32,28 +29,13 @@ export function LoanFilter({
   onApply,
   onClear,
 }: LoanFilterProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [statusOptions, setStatusOptions] = useState<Option[]>([]);
+  const { data: statusData, isLoading } = useEnum('STATUS_EMPRESTIMO');
 
-  useEffect(() => {
-    if (isOpen) {
-      setIsLoading(true);
-      buscarEnum('STATUS_EMPRESTIMO')
-        .then((data) => {
-          setStatusOptions([
-            { label: 'Todos', value: '' },
-            { label: 'Vence Hoje', value: 'VENCE_HOJE' },
-            ...data.map((s) => ({ label: s.status, value: s.nome })),
-          ]);
-        })
-        .catch((error) => {
-          console.error('Erro ao carregar status:', error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [isOpen]);
+  const statusOptions: Option[] = [
+    { label: 'Todos', value: '' },
+    { label: 'Vence Hoje', value: 'VENCE_HOJE' },
+    ...(statusData?.map((s) => ({ label: s.status, value: s.nome })) || []),
+  ];
 
   const labelStyles =
     'block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1';
@@ -72,7 +54,6 @@ export function LoanFilter({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Status */}
           <div className="md:col-span-2">
             <label className={labelStyles}>Status do Empréstimo</label>
             <CustomSelect
@@ -83,7 +64,6 @@ export function LoanFilter({
             />
           </div>
 
-          {/* Datas */}
           <CustomDatePicker
             label="Data do Empréstimo (A partir)"
             value={filters.dataEmprestimo}
