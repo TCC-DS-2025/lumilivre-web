@@ -25,7 +25,11 @@ interface SearchableSelectProps {
   className?: string;
   disabled?: boolean;
   isLoading?: boolean;
+  onLoadMore?: () => void;
 }
+
+const ITEMS_PER_BATCH = 50;
+const SCROLL_THRESHOLD = 100;
 
 export function SearchableSelect({
   value,
@@ -36,11 +40,13 @@ export function SearchableSelect({
   className = '',
   disabled = false,
   isLoading = false,
+  onLoadMore,
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  const [displayLimit, setDisplayLimit] = useState(ITEMS_PER_BATCH);
 
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
 
@@ -100,8 +106,14 @@ export function SearchableSelect({
       requestAnimationFrame(() => {
         searchInputRef.current?.focus();
       });
+      setDisplayLimit(ITEMS_PER_BATCH);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    setDisplayLimit(ITEMS_PER_BATCH);
+    setHighlightedIndex(0);
+  }, [searchTerm]);
 
   const selectedOption = useMemo(() => {
     return options.find((opt) => String(opt.value) === String(value));
@@ -114,9 +126,9 @@ export function SearchableSelect({
     );
   }, [options, searchTerm]);
 
-  useEffect(() => {
-    setHighlightedIndex(0);
-  }, [searchTerm]);
+  const visibleOptions = useMemo(() => {
+    return filteredOptions.slice(0, displayLimit);
+  }, [filteredOptions, displayLimit]);
 
   const handleSelect = (optionValue: string | number) => {
     onChange(String(optionValue));
@@ -127,6 +139,20 @@ export function SearchableSelect({
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange('');
+  };
+
+  // Lógica de Scroll Lazy Loading
+  const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+    if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
+      if (displayLimit < filteredOptions.length) {
+        setDisplayLimit((prev) => prev + ITEMS_PER_BATCH);
+      }
+      else if (onLoadMore && !isLoading) {
+        onLoadMore();
+      }
+    }
   };
 
   // Navegação por Teclado
@@ -143,7 +169,7 @@ export function SearchableSelect({
       case 'ArrowDown':
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev < filteredOptions.length - 1 ? prev + 1 : prev,
+          prev < visibleOptions.length - 1 ? prev + 1 : prev,
         );
         scrollIntoView(highlightedIndex + 1);
         break;
@@ -154,8 +180,8 @@ export function SearchableSelect({
         break;
       case 'Enter':
         e.preventDefault();
-        if (filteredOptions[highlightedIndex]) {
-          handleSelect(filteredOptions[highlightedIndex].value);
+        if (visibleOptions[highlightedIndex]) {
+          handleSelect(visibleOptions[highlightedIndex].value);
         }
         break;
       case 'Escape':
@@ -226,22 +252,19 @@ export function SearchableSelect({
         <ul
           ref={listRef}
           className="flex-1 overflow-y-auto custom-scrollbar py-1"
+          onScroll={handleScroll}
         >
-          {isLoading ? (
-            <li className="px-4 py-3 text-sm text-gray-500 text-center">
-              Carregando...
-            </li>
-          ) : filteredOptions.length === 0 ? (
+          {visibleOptions.length === 0 && !isLoading ? (
             <li className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center italic">
               Nenhum resultado encontrado.
             </li>
           ) : (
-            filteredOptions.map((option, index) => {
+            visibleOptions.map((option, index) => {
               const isSelected = String(value) === String(option.value);
               const isHighlighted = index === highlightedIndex;
 
               return (
-                <li key={option.value}>
+                <li key={`${option.value}-${index}`}>
                   <button
                     type="button"
                     onClick={() => handleSelect(option.value)}
@@ -265,6 +288,12 @@ export function SearchableSelect({
                 </li>
               );
             })
+          )}
+
+          {isLoading && (
+            <li className="px-4 py-2 text-xs text-gray-400 text-center animate-pulse">
+              Carregando mais opções...
+            </li>
           )}
         </ul>
       </div>,
