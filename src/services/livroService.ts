@@ -1,7 +1,6 @@
 import api from './api';
 
 import type { Page } from '../types';
-import type { Genero } from './generoService';
 
 export interface ListaLivro {
   status: string;
@@ -53,7 +52,7 @@ export interface LivroPayload {
   sinopse?: string;
   tipo_capa: string;
   generos: string[];
-  autor: string[];
+  autor: string;
   imagem?: string;
 }
 
@@ -63,7 +62,10 @@ export interface CddItem {
 }
 
 export interface LivroDetalhado extends Omit<LivroPayload, 'generos'> {
-  generos: Genero[];
+  generos: string[];
+  cddCodigo?: string;
+  tipoCapaRaw?: string;
+  classificacaoEtariaRaw?: string;
 }
 
 export const getContagemLivros = async (): Promise<number> => {
@@ -104,8 +106,50 @@ export const buscarLivrosAvancado = async (
   return response.data;
 };
 
-export const cadastrarLivro = async (livroData: LivroPayload) => {
-  const response = await api.post('/livros/cadastrar', livroData);
+export const cadastrarLivro = async (
+  livroData: LivroPayload,
+  file?: File | null,
+) => {
+  const formData = new FormData();
+
+  formData.append(
+    'livro',
+    new Blob([JSON.stringify(livroData)], { type: 'application/json' }),
+  );
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response = await api.post('/livros/cadastrar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const atualizarLivro = async (
+  id: number,
+  livroData: LivroPayload,
+  file?: File | null,
+) => {
+  const formData = new FormData();
+
+  formData.append(
+    'livro',
+    new Blob([JSON.stringify(livroData)], { type: 'application/json' }),
+  );
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response = await api.put(`/livros/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 
@@ -128,37 +172,13 @@ export const buscarEnum = async (
   return response.data;
 };
 
-export const atualizarLivro = async (
-  id: number,
-  livroData: LivroPayload,
-  file?: File | null, 
-) => {
-  const formData = new FormData();
-
-  formData.append(
-    'livro',
-    new Blob([JSON.stringify(livroData)], { type: 'application/json' }),
-  );
-
-  if (file) {
-    formData.append('file', file);
-  }
-
-  const response = await api.put(`/livros/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
-};
-
 export const excluirLivroComExemplares = async (isbn: string) => {
   const response = await api.delete(`/livros/${isbn}/com-exemplares`);
   return response.data;
 };
 
-export const buscarLivroPorIsbn = async (isbn: string) => {
-  return api.get<LivroDetalhado>(`/livros/${isbn}`);
+export const buscarLivroPorId = async (id: number | string) => {
+  return api.get<LivroDetalhado>(`/livros/${id}`);
 };
 
 export const buscarCdds = async (): Promise<CddItem[]> => {

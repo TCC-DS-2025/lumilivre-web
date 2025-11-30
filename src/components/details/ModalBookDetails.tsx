@@ -5,7 +5,7 @@ import {
   buscarEnum,
   atualizarLivro,
   excluirLivroComExemplares,
-  buscarLivroPorIsbn,
+  buscarLivroPorId,
   buscarLivrosParaAdmin,
   buscarCdds,
   type LivroAgrupado,
@@ -84,7 +84,8 @@ export function DetalhesLivroModal({
         setFormData({});
         setCapaFile(null);
         try {
-          const response = await buscarLivroPorIsbn(livroVisualizado.isbn);
+          const response = await buscarLivroPorId(livroVisualizado.id);
+
           if (response.data) {
             const dadosCompletos = response.data;
 
@@ -93,25 +94,38 @@ export function DetalhesLivroModal({
                 dadosCompletos.data_lancamento.split('T')[0];
             }
 
-            const nomesDosGeneros =
-              dadosCompletos.generos?.map((g) => g.nome) || [];
+            const nomesDosGeneros = dadosCompletos.generos || [];
 
             const dadosParaForm = {
               ...dadosCompletos,
+              cdd: dadosCompletos.cddCodigo
+                ? String(dadosCompletos.cddCodigo)
+                : '',
+              tipo_capa: dadosCompletos.tipoCapaRaw
+                ? String(dadosCompletos.tipoCapaRaw)
+                : '',
+              classificacao_etaria: dadosCompletos.classificacaoEtariaRaw
+                ? String(dadosCompletos.classificacaoEtariaRaw)
+                : '',
               generos: nomesDosGeneros,
-              autor: Array.isArray(dadosCompletos.autor)
-                ? dadosCompletos.autor
-                : [dadosCompletos.autor],
+              autor: dadosCompletos.autor || '',
             };
 
+            // @ts-ignore
             setInitialData(dadosParaForm);
+            // @ts-ignore
             setFormData(dadosParaForm);
 
             setImagemPreview(dadosCompletos.imagem || null);
           }
         } catch (error) {
           console.error('Erro ao buscar detalhes do livro:', error);
-          const fallbackData = { ...livroVisualizado, generos: [], autor: [] };
+          // @ts-ignore
+          const fallbackData = {
+            ...livroVisualizado,
+            generos: [],
+            autor: livroVisualizado.autor || '',
+          };
           setInitialData(fallbackData);
           setFormData(fallbackData);
         } finally {
@@ -143,14 +157,26 @@ export function DetalhesLivroModal({
           ]);
 
           setCddOptions(
-            cddData.map((c) => ({ label: `${c.id} - ${c.nome}`, value: c.id })),
+            cddData.map((c) => ({
+              label: `${c.id} - ${c.nome}`,
+              value: String(c.id),
+            })),
           );
+
           setClassificacaoOptions(
-            classificacaoData.map((c) => ({ label: c.status, value: c.nome })),
+            classificacaoData.map((c) => ({
+              label: c.status,
+              value: c.nome,
+            })),
           );
+
           setTipoCapaOptions(
-            tipoCapaData.map((c) => ({ label: c.status, value: c.nome })),
+            tipoCapaData.map((c) => ({
+              label: c.status,
+              value: c.nome,
+            })),
           );
+
           setGenerosOptions(
             generosData.map((g) => ({ label: g.nome, value: g.nome })),
           );
@@ -187,7 +213,6 @@ export function DetalhesLivroModal({
   const handleAlterarClick = () => setIsEditMode(true);
 
   const handleSalvarClick = async () => {
-    // Verifica se houve mudança nos dados OU se um novo arquivo foi selecionado
     if (JSON.stringify(initialData) === JSON.stringify(formData) && !capaFile) {
       alert('Nenhuma alteração foi identificada.');
       setIsEditMode(false);
@@ -196,36 +221,22 @@ export function DetalhesLivroModal({
 
     setIsLoading(true);
     try {
-      const autorString = Array.isArray(formData.autor)
-        ? formData.autor.join(', ')
-        : formData.autor || '';
-
       const payload: LivroPayload = {
         ...formData,
         isbn: formData.isbn!,
         nome: formData.nome!,
         data_lancamento: formData.data_lancamento!,
         numero_paginas: Number(formData.numero_paginas) || 0,
-        cdd: formData.cdd!,
+        cdd: formData.cdd ? String(formData.cdd) : '',
         editora: formData.editora!,
-        classificacao_etaria: formData.classificacao_etaria!,
-        tipo_capa: formData.tipo_capa!,
-        autor: [autorString],
+        classificacao_etaria: formData.classificacao_etaria || '',
+        tipo_capa: formData.tipo_capa ? String(formData.tipo_capa) : '',
+        autor: formData.autor || '',
         generos: formData.generos || [],
         volume: Number(formData.volume) || 0,
       } as LivroPayload;
 
-      const payloadParaEnvio = {
-        ...payload,
-        autor: autorString,
-      };
-
-      await atualizarLivro(
-        Number(livroVisualizado.id),
-        // @ts-ignore
-        payloadParaEnvio,
-        capaFile,
-      );
+      await atualizarLivro(Number(livroVisualizado.id), payload, capaFile);
 
       alert('Livro atualizado com sucesso!');
       setInitialData(formData);
@@ -275,7 +286,7 @@ export function DetalhesLivroModal({
   };
 
   const handleAutorChange = (val: string) => {
-    setFormData((prev) => ({ ...prev, autor: [val] }));
+    setFormData((prev) => ({ ...prev, autor: val }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,23 +338,11 @@ export function DetalhesLivroModal({
       onClose={handleClose}
       title={isEditMode ? 'Editando Livro' : 'Detalhes do Livro'}
     >
-      <div className="flex flex-col h-full max-h-[60vh]">
+      <div className="flex flex-col h-full max-h-[600px]">
         <div className="overflow-y-auto overflow-x-hidden p-1 flex-grow pr-2 custom-scrollbar space-y-6">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="w-full md:w-[28%] flex flex-col items-center space-y-4 pt-1">
               <div className="w-[9.5rem] h-[14rem] bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg flex items-center justify-center overflow-hidden border border-gray-300 dark:border-gray-600 relative group shrink-0">
-                {formData.imagem ? (
-                  <img
-                    src={formData.imagem}
-                    alt="Capa"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm text-gray-500 p-2 text-center">
-                    Sem capa
-                  </span>
-                )}
-
                 {imagemPreview ? (
                   <img
                     src={imagemPreview}

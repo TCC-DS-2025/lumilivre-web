@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 
 import {
   cadastrarLivro,
-  uploadCapaLivro,
   buscarEnum,
   buscarCdds,
   buscarLivrosParaAdmin,
@@ -40,7 +39,7 @@ const estadoInicialFormulario: Partial<LivroPayload> = {
   classificacao_etaria: '',
   tipo_capa: '',
   generos: [],
-  autor: [],
+  autor: '',
   sinopse: '',
   edicao: '',
   volume: 0,
@@ -51,19 +50,16 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     estadoInicialFormulario,
   );
 
-  // Estados de controle de UI
   const [capaFile, setCapaFile] = useState<File | null>(null);
   const [imagemPreview, setImagemPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBuscandoIsbn, setIsBuscandoIsbn] = useState(false);
 
-  // Estados para alternar entre Select e Input
   const [isNovoAutor, setIsNovoAutor] = useState(false);
   const [isNovaEditora, setIsNovaEditora] = useState(false);
   const [isNovoGenero, setIsNovoGenero] = useState(false);
   const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
-  // Opções para os Selects
   const [cddOptions, setCddOptions] = useState<Option[]>([]);
   const [classificacaoOptions, setClassificacaoOptions] = useState<Option[]>(
     [],
@@ -72,10 +68,9 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [autoresOptions, setAutoresOptions] = useState<Option[]>([]);
   const [editorasOptions, setEditorasOptions] = useState<Option[]>([]);
   const [generosOptions, setGenerosOptions] = useState<Option[]>([]);
-  
+
   const { addToast } = useToast();
 
-  // Carregamento de dados
   useEffect(() => {
     const carregarDados = async () => {
       try {
@@ -94,14 +89,26 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         ]);
 
         setCddOptions(
-          cddData.map((c) => ({ label: `${c.id} - ${c.nome}`, value: c.id })),
+          cddData.map((c) => ({
+            label: `${c.id} - ${c.nome}`,
+            value: String(c.id),
+          })),
         );
+
         setClassificacaoOptions(
-          classificacaoData.map((c) => ({ label: c.status, value: c.nome })),
+          classificacaoData.map((c) => ({
+            label: c.status,
+            value: c.nome,
+          })),
         );
+
         setTipoCapaOptions(
-          tipoCapaData.map((c) => ({ label: c.status, value: c.nome })),
+          tipoCapaData.map((c) => ({
+            label: c.status,
+            value: c.nome,
+          })),
         );
+
         setGenerosOptions(
           generosData.map((g) => ({ label: g.nome, value: g.nome })),
         );
@@ -122,7 +129,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     carregarDados();
   }, []);
 
-  // Handlers
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -135,7 +141,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   };
 
   const handleAutorChange = (val: string) => {
-    setFormData((prev) => ({ ...prev, autor: [val] }));
+    setFormData((prev) => ({ ...prev, autor: val }));
   };
 
   const handleAddGeneroSelect = (val: string) => {
@@ -163,7 +169,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     }));
   };
 
-  // Busca ISBN
   const handleIsbnBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const isbn = e.target.value.replace(/-/g, '');
     if (isbn.length === 10 || isbn.length === 13) {
@@ -174,11 +179,10 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
           setFormData((prev) => ({
             ...prev,
             ...dados,
-            autor: dados.autor ? [dados.autor] : [],
+            autor: dados.autor || '',
             generos: dados.generos || [],
           }));
           if (dados.imagem) setImagemPreview(dados.imagem);
-
           if (dados.autor) setIsNovoAutor(true);
           if (dados.editora) setIsNovaEditora(true);
         }
@@ -207,26 +211,24 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         ? formData.autor.join(', ')
         : formData.autor || '';
 
-      const payload: any = {
+      const payload: LivroPayload = {
         ...formData,
-        isbn: formData.isbn!,
+        isbn: formData.isbn || '',
         nome: formData.nome!,
-        data_lancamento: formData.data_lancamento!,
+        data_lancamento: formData.data_lancamento
+          ? formData.data_lancamento
+          : null,
         numero_paginas: Number(formData.numero_paginas) || 0,
-        cdd: formData.cdd!,
+        cdd: formData.cdd ? String(formData.cdd) : '',
         editora: formData.editora!,
-        classificacao_etaria: formData.classificacao_etaria!,
-        tipo_capa: formData.tipo_capa!,
+        classificacao_etaria: formData.classificacao_etaria || '',
+        tipo_capa: formData.tipo_capa ? String(formData.tipo_capa) : '',
         autor: autoresString,
         generos: formData.generos || [],
         volume: Number(formData.volume) || 0,
-      };
+      } as LivroPayload;
 
-      await cadastrarLivro(payload);
-
-      if (capaFile && formData.isbn) {
-        await uploadCapaLivro(formData.isbn, capaFile);
-      }
+      await cadastrarLivro(payload, capaFile);
 
       addToast({
         type: 'success',
@@ -249,7 +251,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
     }
   };
 
-  // Estilos
   const labelStyles =
     'block text-sm font-medium text-gray-700 dark:text-white mb-1 flex justify-between items-center';
   const linkActionStyles =
@@ -285,7 +286,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                   Capa do Livro
                 </span>
               )}
-
               <label
                 htmlFor="capaFile"
                 className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -307,7 +307,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 className="hidden"
               />
             </div>
-
             <div className="w-full space-y-3">
               <div>
                 <label htmlFor="edicao" className={labelStyles}>
@@ -339,7 +338,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
               </div>
               <div className="col-span-6">
                 <CustomDatePicker
-                  label="Lançamento*"
+                  label="Lançamento"
                   value={formData.data_lancamento || ''}
                   onChange={(e) =>
                     handleSelectChange('data_lancamento', e.target.value)
@@ -353,7 +352,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-4">
                 <label htmlFor="isbn" className={labelStyles}>
-                  ISBN*
+                  ISBN
                 </label>
                 <input
                   id="isbn"
@@ -397,7 +396,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 {isNovoAutor ? (
                   <input
                     type="text"
-                    value={formData.autor?.[0] || ''}
+                    value={formData.autor || ''}
                     onChange={(e) => handleAutorChange(e.target.value)}
                     className={inputStyles}
                     placeholder="Digite o nome do autor"
@@ -418,7 +417,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                     onClick={() => setIsNovaEditora(!isNovaEditora)}
                     className={linkActionStyles}
                   >
-                    {isNovaEditora ? 'Selecionar existente' : 'Nova?'}
+                    {isNovaEditora ? 'Selecionar existente' : 'Novo?'}
                   </span>
                 </div>
                 {isNovaEditora ? (
@@ -452,7 +451,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                     {isNovoGenero ? 'Selecionar existente' : 'Novo?'}
                   </span>
                 </div>
-
                 <div className="flex gap-2 mb-2">
                   {isNovoGenero ? (
                     <div className="flex w-full gap-2">
@@ -490,7 +488,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                     </div>
                   )}
                 </div>
-
                 <div className="flex flex-wrap gap-2 min-h-[32px]">
                   {formData.generos?.map((g) => (
                     <span
@@ -522,7 +519,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-4">
-                <label className={labelStyles}>CDD*</label>
+                <label className={labelStyles}>CDD</label>
                 <SearchableSelect
                   value={formData.cdd || ''}
                   onChange={(val) => handleSelectChange('cdd', val)}
@@ -542,7 +539,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
                 />
               </div>
               <div className="col-span-4">
-                <label className={labelStyles}>Capa*</label>
+                <label className={labelStyles}>Capa</label>
                 <CustomSelect
                   value={formData.tipo_capa || ''}
                   onChange={(val) => handleSelectChange('tipo_capa', val)}
