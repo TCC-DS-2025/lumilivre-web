@@ -27,7 +27,7 @@ type StatusEmprestimoDisplay =
 const emprestimosLegend = [
   { status: 'ativo', label: 'Ativo', color: 'bg-green-500' },
   { status: 'vence-hoje', label: 'Vence Hoje', color: 'bg-yellow-500' },
-  { status: 'atrasado', label: 'Vencido', color: 'bg-red-500' },
+  { status: 'atrasado', label: 'Atrasado', color: 'bg-red-500' },
   { status: 'concluido', label: 'Concluído', color: 'bg-gray-400' },
 ];
 
@@ -161,7 +161,7 @@ export function EmprestimosPage() {
     dynamicPageSizeOptions,
   );
   const [itemsPerPage, setItemsPerPage] = useState(0);
-  
+
   useEffect(() => {
     if (dynamicPageSize > 0) {
       setItemsPerPage(dynamicPageSize);
@@ -190,7 +190,18 @@ export function EmprestimosPage() {
       let data: Page<EmprestimoListagemDTO>;
 
       if (hasActiveFilters) {
-        const filtrosLimpos = cleanFilters(activeFilters);
+        const filtrosParaApi = { ...activeFilters } as any;
+
+        if (filtrosParaApi.statusEmprestimo === 'VENCE_HOJE') {
+          const hoje = new Date().toISOString().split('T')[0];
+
+          filtrosParaApi.dataDevolucao = hoje;
+          filtrosParaApi.dataDevolucaoInicio = hoje;
+
+          delete filtrosParaApi.statusEmprestimo;
+        }
+
+        const filtrosLimpos = cleanFilters(filtrosParaApi);
 
         data = await buscarEmprestimosAvancado({
           ...filtrosLimpos,

@@ -42,6 +42,7 @@ export function LoanFilter({
         .then((data) => {
           setStatusOptions([
             { label: 'Todos', value: '' },
+            { label: 'Vence Hoje', value: 'VENCE_HOJE' },
             ...data.map((s) => ({ label: s.status, value: s.nome })),
           ]);
         })

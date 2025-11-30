@@ -33,6 +33,7 @@ export interface EmprestimoFilterParams {
   statusEmprestimo?: string;
   dataEmprestimo?: string;
   dataDevolucao?: string;
+  dataDevolucaoInicio?: string;
   tombo?: string;
   livroNome?: string;
   alunoNome?: string;
@@ -86,6 +87,7 @@ export const buscarEmprestimosAvancado = async (
     alunoNome: params.alunoNome,
     dataEmprestimo: params.dataEmprestimo,
     dataDevolucao: params.dataDevolucao,
+    dataDevolucaoInicio: params.dataDevolucaoInicio,
   };
 
   Object.keys(paramsParaApi).forEach((key) => {
