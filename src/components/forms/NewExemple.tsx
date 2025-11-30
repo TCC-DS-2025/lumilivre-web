@@ -6,6 +6,7 @@ import {
 } from '../../services/exemplarService';
 
 interface NewExemplarProps {
+  livroId: number;
   livroIsbn: string;
   livroNome: string;
   onClose: () => void;
@@ -13,6 +14,7 @@ interface NewExemplarProps {
 }
 
 export function NovoExemplar({
+  livroId,
   livroIsbn,
   livroNome,
   onClose,
@@ -31,7 +33,7 @@ export function NovoExemplar({
     setIsLoading(true);
 
     const payload: ExemplarPayload = {
-      livro_isbn: livroIsbn,
+      livro_id: livroId,
       tombo: tombo,
       status_livro: 'DISPONIVEL',
       localizacao_fisica: localizacao,

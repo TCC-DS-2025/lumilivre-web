@@ -51,6 +51,9 @@ export function DetalhesLivroModal({
   const [initialData, setInitialData] = useState<FormDataState>({});
   const [formData, setFormData] = useState<FormDataState>({});
 
+  const [capaFile, setCapaFile] = useState<File | null>(null);
+  const [imagemPreview, setImagemPreview] = useState<string | null>(null);
+
   // Estados para alternar entre Select e Input
   const [isNovoAutor, setIsNovoAutor] = useState(false);
   const [isNovaEditora, setIsNovaEditora] = useState(false);
@@ -79,6 +82,7 @@ export function DetalhesLivroModal({
       if (livroVisualizado && isOpen) {
         setIsLoading(true);
         setFormData({});
+        setCapaFile(null);
         try {
           const response = await buscarLivroPorIsbn(livroVisualizado.isbn);
           if (response.data) {
@@ -102,6 +106,8 @@ export function DetalhesLivroModal({
 
             setInitialData(dadosParaForm);
             setFormData(dadosParaForm);
+
+            setImagemPreview(dadosCompletos.imagem || null);
           }
         } catch (error) {
           console.error('Erro ao buscar detalhes do livro:', error);
@@ -181,13 +187,19 @@ export function DetalhesLivroModal({
   const handleAlterarClick = () => setIsEditMode(true);
 
   const handleSalvarClick = async () => {
-    if (JSON.stringify(initialData) === JSON.stringify(formData)) {
+    // Verifica se houve mudança nos dados OU se um novo arquivo foi selecionado
+    if (JSON.stringify(initialData) === JSON.stringify(formData) && !capaFile) {
       alert('Nenhuma alteração foi identificada.');
       setIsEditMode(false);
       return;
     }
+
     setIsLoading(true);
     try {
+      const autorString = Array.isArray(formData.autor)
+        ? formData.autor.join(', ')
+        : formData.autor || '';
+
       const payload: LivroPayload = {
         ...formData,
         isbn: formData.isbn!,
@@ -198,19 +210,29 @@ export function DetalhesLivroModal({
         editora: formData.editora!,
         classificacao_etaria: formData.classificacao_etaria!,
         tipo_capa: formData.tipo_capa!,
-        autor: Array.isArray(formData.autor)
-          ? formData.autor
-          : [formData.autor || ''],
+        autor: [autorString],
         generos: formData.generos || [],
         volume: Number(formData.volume) || 0,
       } as LivroPayload;
 
-      await atualizarLivro(livroVisualizado.isbn, payload);
+      const payloadParaEnvio = {
+        ...payload,
+        autor: autorString,
+      };
+
+      await atualizarLivro(
+        Number(livroVisualizado.id),
+        // @ts-ignore
+        payloadParaEnvio,
+        capaFile,
+      );
+
       alert('Livro atualizado com sucesso!');
       setInitialData(formData);
       setIsEditMode(false);
       setFoiAtualizado(true);
     } catch (error: any) {
+      console.error(error);
       alert(
         `Erro ao salvar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
       );
@@ -254,6 +276,14 @@ export function DetalhesLivroModal({
 
   const handleAutorChange = (val: string) => {
     setFormData((prev) => ({ ...prev, autor: [val] }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setCapaFile(file);
+      setImagemPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleAddGeneroSelect = (val: string) => {
@@ -314,6 +344,18 @@ export function DetalhesLivroModal({
                   </span>
                 )}
 
+                {imagemPreview ? (
+                  <img
+                    src={imagemPreview}
+                    alt="Capa"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-gray-500 p-2 text-center">
+                    Sem capa
+                  </span>
+                )}
+
                 {isEditMode && (
                   <>
                     <label
@@ -334,6 +376,7 @@ export function DetalhesLivroModal({
                       type="file"
                       accept="image/*"
                       className="hidden"
+                      onChange={handleFileChange}
                     />
                   </>
                 )}

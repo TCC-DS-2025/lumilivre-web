@@ -3,7 +3,7 @@ import type { ListaLivro } from './livroService';
 
 export interface ExemplarPayload {
   tombo: string;
-  livro_isbn: string;
+  livro_id: number;
   status_livro: 'DISPONIVEL';
   localizacao_fisica: string;
 }
@@ -11,6 +11,8 @@ export interface ExemplarPayload {
 export interface ExemplarUpdatePayload {
   tombo: string;
   localizacao_fisica: string;
+  livro_id: number;
+  status_livro: string;
 }
 
 export const buscarExemplaresPorLivroId = async (
@@ -29,7 +31,10 @@ export const atualizarExemplar = async (
   tomboAtual: string,
   payload: ExemplarUpdatePayload,
 ) => {
-  const response = await api.put(`/livros/exemplares/atualizar/${tomboAtual}`, payload);
+  const response = await api.put(
+    `/livros/exemplares/atualizar/${tomboAtual}`,
+    payload,
+  );
   return response.data;
 };
 

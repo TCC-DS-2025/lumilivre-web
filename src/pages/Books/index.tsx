@@ -520,6 +520,7 @@ export function LivrosPage() {
       >
         {isExemplarView && selectedBook ? (
           <NovoExemplar
+            livroId={selectedBook.id}
             livroIsbn={selectedBook.isbn}
             livroNome={selectedBook.nome}
             onClose={() => setIsModalOpen(false)}
@@ -543,6 +544,7 @@ export function LivrosPage() {
         isOpen={isDetalhesExemplarOpen}
         onClose={handleFecharDetalhesExemplar}
         exemplar={exemplarSelecionado}
+        livroId={selectedBook ? selectedBook.id : null}
       />
 
       <div

@@ -128,8 +128,27 @@ export const buscarEnum = async (
   return response.data;
 };
 
-export const atualizarLivro = async (isbn: string, livroData: LivroPayload) => {
-  const response = await api.put(`/livros/${isbn}`, livroData);
+export const atualizarLivro = async (
+  id: number,
+  livroData: LivroPayload,
+  file?: File | null, 
+) => {
+  const formData = new FormData();
+
+  formData.append(
+    'livro',
+    new Blob([JSON.stringify(livroData)], { type: 'application/json' }),
+  );
+
+  if (file) {
+    formData.append('file', file);
+  }
+
+  const response = await api.put(`/livros/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

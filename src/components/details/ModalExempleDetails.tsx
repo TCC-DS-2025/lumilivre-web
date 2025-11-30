@@ -9,12 +9,14 @@ import {
 
 interface ModalExemplarDetailsProps {
   exemplar: ListaLivro | null;
+  livroId: number | null;
   isOpen: boolean;
   onClose: (foiAtualizado?: boolean) => void;
 }
 
 export function ModalExemplarDetails({
   exemplar,
+  livroId,
   isOpen,
   onClose,
 }: ModalExemplarDetailsProps) {
@@ -25,7 +27,6 @@ export function ModalExemplarDetails({
   const [tombo, setTombo] = useState('');
   const [localizacao, setLocalizacao] = useState('');
 
-  // Carrega os dados quando o modal abre ou o exemplar muda
   useEffect(() => {
     if (exemplar && isOpen) {
       setTombo(exemplar.tomboExemplar);
@@ -49,11 +50,18 @@ export function ModalExemplarDetails({
       return;
     }
 
+    if (!livroId) {
+      alert('Erro interno: ID do livro não identificado.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await atualizarExemplar(exemplar.tomboExemplar, {
         tombo: tombo,
         localizacao_fisica: localizacao,
+        livro_id: livroId,
+        status_livro: exemplar.status,
       });
 
       alert('Exemplar atualizado com sucesso!');
