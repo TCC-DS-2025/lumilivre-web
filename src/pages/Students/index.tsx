@@ -230,32 +230,13 @@ export function AlunosPage() {
     }
   };
 
-  const sortedAlunos = useMemo(() => {
-    let sortableItems = [...alunos];
-    sortableItems.sort((a, b) => {
-      const key = sortConfig.key;
-      if (key === 'nascimentoDate') {
-        return sortConfig.direction === 'asc'
-          ? a[key].getTime() - b[key].getTime()
-          : b[key].getTime() - a[key].getTime();
-      }
-      const valA = a[key as keyof typeof a];
-      const valB = b[key as keyof typeof b];
-      if (valA === null) return 1;
-      if (valB === null) return -1;
-      return sortConfig.direction === 'asc'
-        ? String(valA).localeCompare(String(valB))
-        : String(valB).localeCompare(String(valA));
-    });
-    return sortableItems;
-  }, [alunos, sortConfig]);
-
   const requestSort = (key: keyof AlunoDisplay) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
+    setCurrentPage(1);
   };
 
   // configurações do status de penalidade
@@ -399,7 +380,7 @@ export function AlunosPage() {
         className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow flex flex-col min-h-0"
       >
         <DataTable
-          data={sortedAlunos}
+          data={alunos}
           columns={columns}
           isLoading={isLoading}
           error={error}
