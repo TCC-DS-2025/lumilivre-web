@@ -8,6 +8,7 @@ import { buscarAlunosParaAdmin } from '../../services/alunoService';
 import { buscarLivrosAgrupados } from '../../services/livroService';
 import { buscarExemplaresPorLivroId } from '../../services/exemplarService';
 
+import { useToast } from '../../contexts/ToastContext';
 import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 
@@ -22,6 +23,7 @@ interface NewLoanProps {
 }
 
 export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
+  const { addToast } = useToast(); // Hook instanciado
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExemplares, setIsLoadingExemplares] = useState(false);
 
@@ -86,9 +88,12 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
         const disponiveis = lista.filter((ex) => ex.status === 'DISPONIVEL');
 
         if (disponiveis.length === 0) {
-          alert(
-            'Este livro não possui exemplares disponíveis para empréstimo.',
-          );
+          addToast({
+            type: 'warning',
+            title: 'Indisponível',
+            description:
+              'Este livro não possui exemplares disponíveis para empréstimo.',
+          });
         }
 
         setExemplaresOptions(
@@ -106,7 +111,7 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
     };
 
     carregarExemplares();
-  }, [livroId]);
+  }, [livroId, addToast]);
 
   const formatarDataParaBackend = (dataIso: string): string => {
     if (!dataIso) return '';
@@ -124,7 +129,11 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
       !dataEmprestimo ||
       !dataDevolucao
     ) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+      addToast({
+        type: 'warning',
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha todos os campos obrigatórios.',
+      });
       return;
     }
 
@@ -139,12 +148,23 @@ export function NovoEmprestimo({ onClose, onSuccess }: NewLoanProps) {
       };
 
       await cadastrarEmprestimo(payload);
-      alert('Empréstimo realizado com sucesso!');
+
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Empréstimo realizado com sucesso!',
+      });
+
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar empréstimo:', error);
-      alert(error.response?.data?.mensagem || 'Erro ao realizar empréstimo.');
+      addToast({
+        type: 'error',
+        title: 'Erro ao cadastrar',
+        description:
+          error.response?.data?.mensagem || 'Erro ao realizar empréstimo.',
+      });
     } finally {
       setIsLoading(false);
     }

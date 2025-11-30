@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import {
   baixarRelatorioPDF,
@@ -16,6 +15,7 @@ import {
 import { buscarGeneros } from '../../services/generoService';
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
 
+import { useToast } from '../../contexts/ToastContext';
 import { Modal } from '../../components/Modal';
 import { CustomSelect } from '../../components/CustomSelect';
 import { CustomDatePicker } from '../../components/CustomDatePicker';
@@ -72,6 +72,7 @@ function ModalFiltrosRelatorio({
   tipoRelatorio,
   titulo,
 }: ModalFiltrosProps) {
+  const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({});
@@ -322,11 +323,19 @@ function ModalFiltrosRelatorio({
 
       console.error(error);
       if (error.response?.status === 404) {
-        alert('Nenhum registro encontrado para os filtros selecionados.');
+        addToast({
+          type: 'warning',
+          title: 'Sem dados',
+          description:
+            'Nenhum registro encontrado para os filtros selecionados.',
+        });
       } else {
-        alert(
-          'Erro ao gerar o relatório. Verifique se há dados para este período.',
-        );
+        addToast({
+          type: 'error',
+          title: 'Erro ao gerar',
+          description:
+            'Erro ao gerar o relatório. Verifique se há dados para este período.',
+        });
       }
     } finally {
       if (progress !== 100) {

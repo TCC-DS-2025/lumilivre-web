@@ -4,6 +4,7 @@ import { Modal } from '../Modal';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 import { LoadingIcon } from '../LoadingIcon';
+import { useToast } from '../../contexts/ToastContext';
 
 import {
   atualizarAluno,
@@ -51,6 +52,8 @@ export function ModalStudentDetails({
   const [cursosOptions, setCursosOptions] = useState<Option[]>([]);
   const [modulosOptions, setModulosOptions] = useState<Option[]>([]);
   const [turnoOptions, setTurnoOptions] = useState<Option[]>([]);
+
+  const { addToast } = useToast();
 
   useEffect(() => {
     const carregarTudo = async () => {
@@ -125,7 +128,11 @@ export function ModalStudentDetails({
         }
       } catch (error) {
         console.error('Erro ao carregar dados do modal:', error);
-        alert('Erro ao carregar dados. Tente novamente.');
+        addToast({
+          type: 'error',
+          title: 'Erro ao carregar',
+          description: 'Erro ao carregar dados. Tente novamente.',
+        });
         onClose();
       } finally {
         setIsLoading(false);
@@ -180,9 +187,12 @@ export function ModalStudentDetails({
       const moduloIdNumber = Number(formData.modulo);
 
       if (!cursoIdNumber || !turnoIdNumber || !moduloIdNumber) {
-        alert(
-          'Por favor, verifique se Curso, Turno e Módulo estão selecionados.',
-        );
+        addToast({
+          type: 'warning',
+          title: 'Campos obrigatórios',
+          description:
+            'Por favor, verifique se Curso, Turno e Módulo estão selecionados.',
+        });
         setIsLoading(false);
         return;
       }
@@ -210,7 +220,11 @@ export function ModalStudentDetails({
       };
 
       await atualizarAluno(aluno.matricula, payload);
-      alert('Aluno atualizado com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Aluno atualizado com sucesso!',
+      });
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error);
@@ -218,7 +232,11 @@ export function ModalStudentDetails({
         error.response?.data?.message ||
         error.response?.data?.mensagem ||
         'Erro desconhecido';
-      alert(`Erro ao atualizar: ${msg}`);
+      addToast({
+        type: 'error',
+        title: 'Erro ao atualizar',
+        description: msg,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -233,12 +251,19 @@ export function ModalStudentDetails({
       setIsLoading(true);
       try {
         await excluirAluno(aluno.matricula);
-        alert('Aluno excluído com sucesso!');
+        addToast({
+          type: 'success',
+          title: 'Sucesso',
+          description: 'Aluno excluído com sucesso!',
+        });
         onClose(true);
       } catch (error: any) {
-        alert(
-          `Erro ao excluir: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-        );
+        addToast({
+          type: 'error',
+          title: 'Erro ao excluir',
+          description:
+            error.response?.data?.mensagem || 'Erro desconhecido ao excluir.',
+        });
       } finally {
         setIsLoading(false);
       }

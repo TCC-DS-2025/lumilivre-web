@@ -13,6 +13,7 @@ import {
 } from '../../services/livroService';
 import { buscarGeneros } from '../../services/generoService';
 
+import { useToast } from '../../contexts/ToastContext';
 import { CustomSelect } from '../CustomSelect';
 import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
@@ -47,20 +48,19 @@ export function DetalhesLivroModal({
   const [livroVisualizado, setLivroVisualizado] =
     useState<LivroAgrupado | null>(null);
 
-  // Dados do formulário
+  const { addToast } = useToast();
+
   const [initialData, setInitialData] = useState<FormDataState>({});
   const [formData, setFormData] = useState<FormDataState>({});
 
   const [capaFile, setCapaFile] = useState<File | null>(null);
   const [imagemPreview, setImagemPreview] = useState<string | null>(null);
 
-  // Estados para alternar entre Select e Input
   const [isNovoAutor, setIsNovoAutor] = useState(false);
   const [isNovaEditora, setIsNovaEditora] = useState(false);
   const [isNovoGenero, setIsNovoGenero] = useState(false);
   const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
-  // Opções para os Selects
   const [cddOptions, setCddOptions] = useState<Option[]>([]);
   const [classificacaoOptions, setClassificacaoOptions] = useState<Option[]>(
     [],
@@ -76,7 +76,6 @@ export function DetalhesLivroModal({
     }
   }, [livro]);
 
-  // Carregar dados do livro específico
   useEffect(() => {
     const carregarDetalhesDoLivro = async () => {
       if (livroVisualizado && isOpen) {
@@ -137,7 +136,6 @@ export function DetalhesLivroModal({
     carregarDetalhesDoLivro();
   }, [livroVisualizado, isOpen]);
 
-  // Carregar opções dos selects
   useEffect(() => {
     if (isOpen) {
       const carregarDadosIniciais = async () => {
@@ -214,7 +212,11 @@ export function DetalhesLivroModal({
 
   const handleSalvarClick = async () => {
     if (JSON.stringify(initialData) === JSON.stringify(formData) && !capaFile) {
-      alert('Nenhuma alteração foi identificada.');
+      addToast({
+        type: 'info',
+        title: 'Sem alterações',
+        description: 'Nenhuma alteração foi identificada.',
+      });
       setIsEditMode(false);
       return;
     }
@@ -238,15 +240,22 @@ export function DetalhesLivroModal({
 
       await atualizarLivro(Number(livroVisualizado.id), payload, capaFile);
 
-      alert('Livro atualizado com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Livro atualizado com sucesso!',
+      });
       setInitialData(formData);
       setIsEditMode(false);
       setFoiAtualizado(true);
     } catch (error: any) {
       console.error(error);
-      alert(
-        `Erro ao salvar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-      );
+      addToast({
+        type: 'error',
+        title: 'Erro ao salvar',
+        description:
+          error.response?.data?.mensagem || 'Erro desconhecido ao salvar.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -261,20 +270,26 @@ export function DetalhesLivroModal({
       setIsLoading(true);
       try {
         await excluirLivroComExemplares(livroVisualizado.isbn);
-        alert('Livro e exemplares excluídos com sucesso!');
+        addToast({
+          type: 'success',
+          title: 'Sucesso',
+          description: 'Livro e exemplares excluídos com sucesso!',
+        });
         setFoiAtualizado(true);
         handleClose();
       } catch (error: any) {
-        alert(
-          `Erro ao excluir: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-        );
+        addToast({
+          type: 'error',
+          title: 'Erro ao excluir',
+          description:
+            error.response?.data?.mensagem || 'Erro desconhecido ao excluir.',
+        });
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  // Handlers
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -465,7 +480,6 @@ export function DetalhesLivroModal({
                 </div>
               </div>
 
-              {/* Linha 2: Autor e Editora */}
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-6">
                   <div className={labelStyles}>

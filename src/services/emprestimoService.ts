@@ -115,8 +115,8 @@ export const getContagemAtrasados = async (): Promise<number> => {
     }
     return response.data.length;
   } catch (error) {
-    console.error('Erro ao buscar contagem de atrasados:', error);
-    return 0;
+    console.error('Erro crítico ao buscar contagem de atrasados:', error);
+    throw error;
   }
 };
 

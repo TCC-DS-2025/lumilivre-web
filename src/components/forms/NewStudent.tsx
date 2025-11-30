@@ -14,6 +14,7 @@ import {
   type Turno,
 } from '../../services/turnoService';
 
+import { useToast } from '../../contexts/ToastContext';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
 
@@ -82,6 +83,9 @@ export function NovoAluno({
   const [isNovoModulo, setIsNovoModulo] = useState(false);
   const [novoModuloInput, setNovoModuloInput] = useState('');
 
+  // hook de notificação
+  const { addToast } = useToast();
+
   useEffect(() => {
     const carregarDados = async () => {
       try {
@@ -128,8 +132,13 @@ export function NovoAluno({
       setIsCepLoading(true);
       try {
         const endereco = await buscarEnderecoPorCep(cleanCep);
-        if ((endereco as any).erro) {
-          alert('CEP não encontrado.');
+        // @ts-ignore
+        if (endereco.erro) {
+          addToast({
+            type: 'warning',
+            title: 'CEP não encontrado',
+            description: 'Verifique o número digitado.',
+          });
         } else {
           setFormData((prev) => ({
             ...prev,
@@ -141,6 +150,11 @@ export function NovoAluno({
         }
       } catch (error) {
         console.error('Erro ao buscar CEP', error);
+        addToast({
+          type: 'error',
+          title: 'Erro na busca',
+          description: 'Não foi possível buscar o endereço.',
+        });
       } finally {
         setIsCepLoading(false);
       }
@@ -156,9 +170,14 @@ export function NovoAluno({
       let finalTurnoId = formData.turnoId ? Number(formData.turnoId) : null;
       let finalModuloId = formData.moduloId ? Number(formData.moduloId) : null;
 
+      // lógica para criação rápida de turno
       if (isNovoTurno) {
         if (!novoTurnoInput.trim()) {
-          alert('Digite o nome do novo turno.');
+          addToast({
+            type: 'warning',
+            title: 'Campo obrigatório',
+            description: 'Digite o nome do novo turno.',
+          });
           setIsLoading(false);
           return;
         }
@@ -168,7 +187,11 @@ export function NovoAluno({
 
       if (isNovoModulo) {
         if (!novoModuloInput.trim()) {
-          alert('Digite o nome do novo módulo.');
+          addToast({
+            type: 'warning',
+            title: 'Campo obrigatório',
+            description: 'Digite o nome do novo módulo.',
+          });
           setIsLoading(false);
           return;
         }
@@ -178,12 +201,21 @@ export function NovoAluno({
 
       if (isNovoCurso) {
         if (!novoCursoInput.trim()) {
-          alert('Digite o nome do novo curso.');
+          addToast({
+            type: 'warning',
+            title: 'Campo obrigatório',
+            description: 'Digite o nome do novo curso.',
+          });
           setIsLoading(false);
           return;
         }
         if (!finalTurnoId || !finalModuloId) {
-          alert('Para criar um curso, Turno e Módulo são obrigatórios.');
+          addToast({
+            type: 'warning',
+            title: 'Dados incompletos',
+            description:
+              'Para criar um curso, Turno e Módulo são obrigatórios.',
+          });
           setIsLoading(false);
           return;
         }
@@ -197,7 +229,11 @@ export function NovoAluno({
       }
 
       if (!finalCursoId || !finalTurnoId || !finalModuloId) {
-        alert('Por favor, preencha Curso, Turno e Módulo.');
+        addToast({
+          type: 'warning',
+          title: 'Campos obrigatórios',
+          description: 'Por favor, preencha Curso, Turno e Módulo.',
+        });
         setIsLoading(false);
         return;
       }
@@ -229,13 +265,24 @@ export function NovoAluno({
 
       await cadastrarAluno(dataParaApi as any);
 
+      addToast({
+        type: 'success',
+        title: 'Aluno Cadastrado',
+        description: `O aluno ${formData.nomeCompleto} foi salvo com sucesso!`,
+      });
+
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
       const msg =
         error.response?.data?.mensagem || 'Erro desconhecido ao salvar aluno.';
-      alert(`Falha no cadastro: ${msg}`);
+
+      addToast({
+        type: 'error',
+        title: 'Falha no cadastro',
+        description: msg,
+      });
     } finally {
       setIsLoading(false);
     }

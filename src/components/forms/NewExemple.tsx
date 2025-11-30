@@ -4,6 +4,7 @@ import {
   cadastrarExemplar,
   type ExemplarPayload,
 } from '../../services/exemplarService';
+import { useToast } from '../../contexts/ToastContext';
 
 interface NewExemplarProps {
   livroId: number;
@@ -24,10 +25,16 @@ export function NovoExemplar({
   const [localizacao, setLocalizacao] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const { addToast } = useToast();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!tombo.trim() || !localizacao.trim()) {
-      alert('Por favor, preencha todos os campos.');
+      addToast({
+        type: 'warning',
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha todos os campos.',
+      });
       return;
     }
     setIsLoading(true);
@@ -41,14 +48,22 @@ export function NovoExemplar({
 
     try {
       await cadastrarExemplar(payload);
+      addToast({
+        type: 'success',
+        title: 'Exemplar Cadastrado',
+        description: 'O exemplar foi salvo com sucesso!',
+      });
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar exemplar:', error);
-      alert(
-        error.response?.data?.mensagem ||
+      addToast({
+        type: 'error',
+        title: 'Erro ao cadastrar',
+        description:
+          error.response?.data?.mensagem ||
           'Erro ao cadastrar exemplar. Verifique se o tombo já existe.',
-      );
+      });
     } finally {
       setIsLoading(false);
     }

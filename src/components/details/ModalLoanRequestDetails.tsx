@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+import { useToast } from '../../contexts/ToastContext';
 import { Modal } from '../Modal';
 import { SearchableSelect } from '../SearchableSelect';
 import {
@@ -26,15 +27,14 @@ export function ModalLoanRequestDetails({
   isOpen,
   onClose,
 }: ModalLoanRequestDetailsProps) {
+  const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExemplares, setIsLoadingExemplares] = useState(false);
 
-  // Estados de exibição
   const [alunoInfo, setAlunoInfo] = useState('');
   const [livroInfo, setLivroInfo] = useState('');
   const [dataSolicitacao, setDataSolicitacao] = useState('');
 
-  // Estado para o exemplar selecionável
   const [selectedTombo, setSelectedTombo] = useState('');
   const [exemplarOptions, setExemplarOptions] = useState<Option[]>([]);
 
@@ -101,7 +101,12 @@ export function ModalLoanRequestDetails({
     if (!solicitacao) return;
 
     if (aceitar && !selectedTombo) {
-      alert('Por favor, selecione um exemplar para aceitar a solicitação.');
+      addToast({
+        type: 'warning',
+        title: 'Atenção',
+        description:
+          'Por favor, selecione um exemplar para aceitar a solicitação.',
+      });
       return;
     }
 
@@ -112,14 +117,21 @@ export function ModalLoanRequestDetails({
 
     setIsLoading(true);
     try {
-      // Nota: BACKEND PRECISA SUPORTAR A TROCA DE TOMBO
       await processarSolicitacao(solicitacao.id, aceitar);
 
-      alert(`Solicitação ${aceitar ? 'aceita' : 'recusada'} com sucesso!`);
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: `Solicitação ${aceitar ? 'aceita' : 'recusada'} com sucesso!`,
+      });
       onClose(true);
     } catch (error: any) {
       console.error(`Erro ao ${acao} solicitação:`, error);
-      alert(error.response?.data || `Erro ao ${acao} solicitação.`);
+      addToast({
+        type: 'error',
+        title: 'Erro',
+        description: error.response?.data || `Erro ao ${acao} solicitação.`,
+      });
     } finally {
       setIsLoading(false);
     }

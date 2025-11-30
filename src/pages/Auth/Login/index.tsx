@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { InputFloatingLabel } from '../../../components/InputFloatingLabel';
 import { login as apiLogin } from '../../../services/authService';
@@ -15,16 +16,15 @@ export function LoginPage() {
   const [senha, setSenha] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isExiting, setIsExiting] = useState(false);
 
   const navigate = useNavigate();
   const { login: setAuthUser } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
       const responseData = await apiLogin({ user: usuario, senha: senha });
@@ -37,6 +37,14 @@ export function LoginPage() {
       };
 
       setAuthUser(userToStore);
+
+      addToast({
+        type: 'success',
+        title: 'Bem-vindo!',
+        description: 'Login realizado com sucesso.',
+        duration: 3000,
+      });
+
       setIsExiting(true);
 
       setTimeout(() => {
@@ -57,7 +65,12 @@ export function LoginPage() {
         }
       }
 
-      setError(mensagemErro);
+      addToast({
+        type: 'error',
+        title: 'Falha no Login',
+        description: mensagemErro,
+      });
+
       setIsLoading(false);
     }
   };
@@ -99,12 +112,6 @@ export function LoginPage() {
             disabled={isExiting}
             required
           />
-
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-center text-sm animate-fade-in">
-              {error}
-            </div>
-          )}
 
           <div className="space-y-3 pt-2">
             <button

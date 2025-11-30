@@ -8,6 +8,7 @@ import {
 } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from './ToastContext';
 
 interface User {
   id: number;
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const logout = useCallback(() => {
     setUser(null);
@@ -76,6 +78,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user
         ) {
           console.warn('Sessão expirada ou inválida. Realizando logout...');
+
+          addToast({
+            type: 'info',
+            title: 'Sessão Expirada',
+            description: 'Por favor, faça login novamente para continuar.',
+          });
+
           logout();
         }
         return Promise.reject(error);
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       api.interceptors.response.eject(interceptorId);
     };
-  }, [user, logout]);
+  }, [user, logout, addToast]);
 
   const login = (userData: User) => {
     setUser(userData);

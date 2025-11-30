@@ -6,6 +6,7 @@ import {
   atualizarExemplar,
   excluirExemplar,
 } from '../../services/exemplarService';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ModalExemplarDetailsProps {
   exemplar: ListaLivro | null;
@@ -23,9 +24,10 @@ export function ModalExemplarDetails({
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Estados do formulário
   const [tombo, setTombo] = useState('');
   const [localizacao, setLocalizacao] = useState('');
+
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (exemplar && isOpen) {
@@ -46,12 +48,20 @@ export function ModalExemplarDetails({
 
   const handleSalvar = async () => {
     if (!tombo.trim() || !localizacao.trim()) {
-      alert('Preencha todos os campos.');
+      addToast({
+        type: 'warning',
+        title: 'Campos obrigatórios',
+        description: 'Preencha todos os campos.',
+      });
       return;
     }
 
     if (!livroId) {
-      alert('Erro interno: ID do livro não identificado.');
+      addToast({
+        type: 'error',
+        title: 'Erro interno',
+        description: 'ID do livro não identificado.',
+      });
       return;
     }
 
@@ -64,12 +74,21 @@ export function ModalExemplarDetails({
         status_livro: exemplar.status,
       });
 
-      alert('Exemplar atualizado com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Exemplar atualizado com sucesso!',
+      });
       setIsEditMode(false);
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao atualizar exemplar:', error);
-      alert(error.response?.data?.mensagem || 'Erro ao atualizar exemplar.');
+      addToast({
+        type: 'error',
+        title: 'Erro ao atualizar',
+        description:
+          error.response?.data?.mensagem || 'Erro ao atualizar exemplar.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -84,12 +103,18 @@ export function ModalExemplarDetails({
       setIsLoading(true);
       try {
         await excluirExemplar(exemplar.tomboExemplar);
-        alert('Exemplar excluído com sucesso!');
+        addToast({
+          type: 'success',
+          title: 'Sucesso',
+          description: 'Exemplar excluído com sucesso!',
+        });
         onClose(true);
       } catch (error: any) {
-        alert(
-          `Erro ao excluir: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-        );
+        addToast({
+          type: 'error',
+          title: 'Erro ao excluir',
+          description: error.response?.data?.mensagem || 'Erro desconhecido',
+        });
       } finally {
         setIsLoading(false);
       }

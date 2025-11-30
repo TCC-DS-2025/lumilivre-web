@@ -5,6 +5,7 @@ import {
   validarTokenReset,
   mudarSenhaComToken,
 } from '../../../services/authService';
+import { useToast } from '../../../contexts/ToastContext';
 import { InputFloatingLabel } from '../../../components/InputFloatingLabel';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 
@@ -14,6 +15,7 @@ import LockIcon from '../../../assets/icons/lock.svg?react';
 export function MudarSenhaPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [token, setToken] = useState<string | null>(null);
   const [isTokenValid, setIsTokenValid] = useState(false);
@@ -22,13 +24,12 @@ export function MudarSenhaPage() {
 
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorToken, setErrorToken] = useState<string | null>(null);
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get('token');
     if (!tokenFromUrl) {
-      setError('Token não encontrado na URL.');
+      setErrorToken('Token não encontrado na URL.');
       setIsLoadingToken(false);
       return;
     }
@@ -40,12 +41,12 @@ export function MudarSenhaPage() {
         if (isValid) {
           setIsTokenValid(true);
         } else {
-          setError(
+          setErrorToken(
             'Este link é inválido ou expirou. Por favor, solicite uma nova redefinição.',
           );
         }
       } catch {
-        setError('Ocorreu um erro ao validar o token de segurança.');
+        setErrorToken('Ocorreu um erro ao validar o token de segurança.');
       } finally {
         setIsLoadingToken(false);
       }
@@ -55,33 +56,51 @@ export function MudarSenhaPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
 
     if (novaSenha.length < 6) {
-      setError('A nova senha deve ter pelo menos 6 caracteres.');
+      addToast({
+        type: 'warning',
+        title: 'Senha curta',
+        description: 'A nova senha deve ter pelo menos 6 caracteres.',
+      });
       return;
     }
     if (novaSenha !== confirmarSenha) {
-      setError('As senhas não coincidem.');
+      addToast({
+        type: 'warning',
+        title: 'Senhas não conferem',
+        description: 'As senhas digitadas não coincidem.',
+      });
       return;
     }
     if (!token) {
-      setError('Token inválido.');
+      addToast({
+        type: 'error',
+        title: 'Token inválido',
+        description: 'Token de redefinição inválido.',
+      });
       return;
     }
 
     setIsSubmitting(true);
     try {
       await mudarSenhaComToken(token, novaSenha);
-      setSuccessMessage(
-        'Senha alterada com sucesso! Redirecionando para o login...',
-      );
-      setTimeout(() => navigate('/login'), 3000);
+
+      addToast({
+        type: 'success',
+        title: 'Senha Alterada',
+        description: 'Sua senha foi redefinida com sucesso! Redirecionando...',
+      });
+
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
-      setError(
-        err.response?.data?.mensagem ||
+      addToast({
+        type: 'error',
+        title: 'Erro ao alterar',
+        description:
+          err.response?.data?.mensagem ||
           'Não foi possível alterar a senha. Tente novamente.',
-      );
+      });
       setIsSubmitting(false);
     }
   };
@@ -91,7 +110,9 @@ export function MudarSenhaPage() {
       return (
         <div className="text-center py-8">
           <div className="w-8 h-8 border-4 border-lumi-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Validando seu link de segurança...</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            Validando seu link de segurança...
+          </p>
         </div>
       );
     }
@@ -100,7 +121,7 @@ export function MudarSenhaPage() {
       return (
         <div className="text-center">
           <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm mb-6">
-            {error}
+            {errorToken}
           </div>
           <Link
             to="/esqueci-a-senha"
@@ -108,15 +129,6 @@ export function MudarSenhaPage() {
           >
             Solicitar um novo link
           </Link>
-        </div>
-      );
-    }
-
-    if (successMessage) {
-      return (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md text-center">
-          <p className="font-bold text-lg mb-1">Tudo certo!</p>
-          <p className="text-sm">{successMessage}</p>
         </div>
       );
     }
@@ -142,12 +154,6 @@ export function MudarSenhaPage() {
           icon={LockIcon}
           required
         />
-
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-center text-sm animate-fade-in">
-            {error}
-          </div>
-        )}
 
         <div className="pt-2">
           <button
@@ -181,7 +187,7 @@ export function MudarSenhaPage() {
 
         {renderContent()}
 
-        {!isLoadingToken && !successMessage && (
+        {!isLoadingToken && isTokenValid && (
           <div className="text-center mt-4">
             <Link
               to="/login"

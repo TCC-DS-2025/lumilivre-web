@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../Modal';
 import { SearchableSelect } from '../SearchableSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
+import { useToast } from '../../contexts/ToastContext';
 
 import { buscarAlunosParaAdmin } from '../../services/alunoService';
 import { buscarLivrosAgrupados } from '../../services/livroService';
@@ -45,14 +46,14 @@ export function ModalLoanDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExemplares, setIsLoadingExemplares] = useState(false);
 
-  // Estados dos dados
+  const { addToast } = useToast();
+
   const [alunoMatricula, setAlunoMatricula] = useState('');
   const [livroId, setLivroId] = useState('');
   const [exemplarTombo, setExemplarTombo] = useState('');
   const [dataEmprestimo, setDataEmprestimo] = useState('');
   const [dataDevolucao, setDataDevolucao] = useState('');
 
-  // Opções para os Selects
   const [alunosOptions, setAlunosOptions] = useState<Option[]>([]);
   const [livrosOptions, setLivrosOptions] = useState<Option[]>([]);
   const [exemplaresOptions, setExemplaresOptions] = useState<Option[]>([]);
@@ -169,8 +170,6 @@ export function ModalLoanDetails({
     return `${dia}/${mes}/${ano} ${horaAtual}`;
   };
 
-  // --- AÇÕES ---
-
   const handleSalvar = async () => {
     if (!emprestimo) return;
     if (
@@ -179,7 +178,11 @@ export function ModalLoanDetails({
       !dataEmprestimo ||
       !dataDevolucao
     ) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+      addToast({
+        type: 'warning',
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha todos os campos obrigatórios.',
+      });
       return;
     }
 
@@ -194,11 +197,20 @@ export function ModalLoanDetails({
       };
 
       await atualizarEmprestimo(Number(emprestimo.id), payload);
-      alert('Empréstimo atualizado com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Empréstimo atualizado com sucesso!',
+      });
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error);
-      alert(error.response?.data?.mensagem || 'Erro ao atualizar empréstimo.');
+      addToast({
+        type: 'error',
+        title: 'Erro ao atualizar',
+        description:
+          error.response?.data?.mensagem || 'Erro ao atualizar empréstimo.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -211,11 +223,20 @@ export function ModalLoanDetails({
     setIsLoading(true);
     try {
       await concluirEmprestimo(Number(emprestimo.id));
-      alert('Devolução registrada com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Devolução registrada',
+        description: 'Devolução registrada com sucesso!',
+      });
       onClose(true);
     } catch (error: any) {
       console.error('Erro na devolução:', error);
-      alert(error.response?.data?.mensagem || 'Erro ao registrar devolução.');
+      addToast({
+        type: 'error',
+        title: 'Erro na devolução',
+        description:
+          error.response?.data?.mensagem || 'Erro ao registrar devolução.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -233,11 +254,20 @@ export function ModalLoanDetails({
     setIsLoading(true);
     try {
       await excluirEmprestimo(Number(emprestimo.id));
-      alert('Empréstimo excluído com sucesso!');
+      addToast({
+        type: 'success',
+        title: 'Empréstimo excluído',
+        description: 'Empréstimo excluído com sucesso!',
+      });
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao excluir:', error);
-      alert(error.response?.data?.mensagem || 'Erro ao excluir empréstimo.');
+      addToast({
+        type: 'error',
+        title: 'Erro ao excluir',
+        description:
+          error.response?.data?.mensagem || 'Erro ao excluir empréstimo.',
+      });
     } finally {
       setIsLoading(false);
     }

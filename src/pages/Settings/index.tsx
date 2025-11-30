@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 
 import DownloadIcon from '../../assets/icons/upload.svg?react';
 import UploadIcon from '../../assets/icons/download.svg?react';
@@ -76,6 +77,7 @@ const SubPageHeader = ({
 export function ConfiguracoesPage() {
   const { theme, setTheme } = useContext(ThemeContext);
   const { user, logoutWithAnimation } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
 
   const isAdmin = user?.role === 'ADMIN';
@@ -99,6 +101,14 @@ export function ConfiguracoesPage() {
     }
   }, [theme]);
 
+  const handleFeatureNotImplemented = () => {
+    addToast({
+      type: 'info',
+      title: 'Em desenvolvimento',
+      description: 'Esta funcionalidade estará disponível em breve.',
+    });
+  };
+
   const renderImportView = () => (
     <div className="p-6">
       <SubPageHeader
@@ -111,7 +121,10 @@ export function ConfiguracoesPage() {
           title="Importar Alunos"
           description="Adicione um arquivo CSV ou XLSX com a relação de alunos"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Selecionar
           </button>
         </SettingItem>
@@ -120,7 +133,10 @@ export function ConfiguracoesPage() {
           title="Importar Livros"
           description="Adicione um arquivo CSV ou XLSX com a relação de livros"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Selecionar
           </button>
         </SettingItem>
@@ -129,7 +145,10 @@ export function ConfiguracoesPage() {
           title="Importar Exemplares"
           description="Adicione um arquivo CSV ou XLSX com a relação de exemplares dos livros"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Selecionar
           </button>
         </SettingItem>
@@ -149,7 +168,10 @@ export function ConfiguracoesPage() {
           title="Exportar Alunos"
           description="Baixe um arquivo CSV ou XLSX com a relação de alunos cadastrados"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Baixar
           </button>
         </SettingItem>
@@ -158,7 +180,10 @@ export function ConfiguracoesPage() {
           title="Exportar Livros"
           description="Baixe um arquivo CSV ou XLSX com a relação de livros cadastrados"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Baixar
           </button>
         </SettingItem>
@@ -167,7 +192,10 @@ export function ConfiguracoesPage() {
           title="Exportar Exemplares"
           description="Baixe um arquivo CSV ou XLSX com a relação de exemplares cadastrados"
         >
-          <button className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none">
+          <button
+            onClick={handleFeatureNotImplemented}
+            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
+          >
             Baixar
           </button>
         </SettingItem>
@@ -177,7 +205,6 @@ export function ConfiguracoesPage() {
 
   const renderMainView = () => (
     <>
-      {/* apenas para ADMIN */}
       {isAdmin && (
         <div className="p-6">
           <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
