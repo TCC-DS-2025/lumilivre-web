@@ -179,17 +179,20 @@ export function ModalStudentDetails({
         return;
       }
 
-      const payload: AlunoPayload = {
+      const rawCep = (formData.cep || '').replace(/\D/g, '');
+      const cepFinal = rawCep.length === 0 ? null : rawCep;
+
+      const payload: any = {
         matricula: formData.matricula!,
         nomeCompleto: formData.nomeCompleto!,
         cpf: (formData.cpf || '').replace(/\D/g, ''),
         celular: (formData.celular || '').replace(/\D/g, ''),
-        dataNascimento: formData.dataNascimento,
+        data_nascimento: formData.dataNascimento,
         email: formData.email!,
-        cursoId: cursoIdNumber,
-        turnoId: turnoIdNumber,
-        moduloId: moduloIdNumber,
-        cep: (formData.cep || '').replace(/\D/g, ''),
+        curso_id: cursoIdNumber,
+        turno_id: turnoIdNumber,
+        modulo_id: moduloIdNumber,
+        cep: cepFinal,
         logradouro: formData.logradouro,
         bairro: formData.bairro,
         localidade: formData.localidade,
@@ -203,9 +206,11 @@ export function ModalStudentDetails({
       onClose(true);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error);
-      alert(
-        `Erro ao atualizar: ${error.response?.data?.mensagem || 'Erro desconhecido'}`,
-      );
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.mensagem ||
+        'Erro desconhecido';
+      alert(`Erro ao atualizar: ${msg}`);
     } finally {
       setIsLoading(false);
     }
