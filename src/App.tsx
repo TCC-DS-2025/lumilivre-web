@@ -1,35 +1,65 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
+import { LoadingIcon } from './components/LoadingIcon';
 
 import { LoginPage } from './pages/Auth/Login';
 import { EsqueciSenhaPage } from './pages/Auth/ForgotPassword';
 import { MudarSenhaPage } from './pages/Auth/ChangePassword';
 
-import { DashboardPage } from './pages/Start';
-import { LivrosPage } from './pages/Books';
-import { AlunosPage } from './pages/Students';
-import { EmprestimosPage } from './pages/Loans';
-import { ClassificacaoPage } from './pages/Ranking';
-import { RelatoriosPage } from './pages/Reports';
-import { ConfiguracoesPage } from './pages/Settings';
+const DashboardPage = lazy(() =>
+  import('./pages/Start').then((module) => ({ default: module.DashboardPage })),
+);
+const LivrosPage = lazy(() =>
+  import('./pages/Books').then((module) => ({ default: module.LivrosPage })),
+);
+const AlunosPage = lazy(() =>
+  import('./pages/Students').then((module) => ({ default: module.AlunosPage })),
+);
+const EmprestimosPage = lazy(() =>
+  import('./pages/Loans').then((module) => ({
+    default: module.EmprestimosPage,
+  })),
+);
+const ClassificacaoPage = lazy(() =>
+  import('./pages/Ranking').then((module) => ({
+    default: module.ClassificacaoPage,
+  })),
+);
+const RelatoriosPage = lazy(() =>
+  import('./pages/Reports').then((module) => ({
+    default: module.RelatoriosPage,
+  })),
+);
+const ConfiguracoesPage = lazy(() =>
+  import('./pages/Settings').then((module) => ({
+    default: module.ConfiguracoesPage,
+  })),
+);
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[400px]">
+    <LoadingIcon />
+  </div>
+);
 
 function App() {
   return (
     <Routes>
-      {/* rotas públicas */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/esqueci-a-senha" element={<EsqueciSenhaPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
 
-      {/* rotas privadas */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <MainLayout>
-              <DashboardPage />
+              <Suspense fallback={<PageLoader />}>
+                <DashboardPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -40,7 +70,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <LivrosPage />
+              <Suspense fallback={<PageLoader />}>
+                <LivrosPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -51,7 +83,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <AlunosPage />
+              <Suspense fallback={<PageLoader />}>
+                <AlunosPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -62,7 +96,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <EmprestimosPage />
+              <Suspense fallback={<PageLoader />}>
+                <EmprestimosPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -73,7 +109,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <ClassificacaoPage />
+              <Suspense fallback={<PageLoader />}>
+                <ClassificacaoPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -84,7 +122,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <RelatoriosPage />
+              <Suspense fallback={<PageLoader />}>
+                <RelatoriosPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -95,7 +135,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <ConfiguracoesPage />
+              <Suspense fallback={<PageLoader />}>
+                <ConfiguracoesPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
@@ -106,7 +148,9 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout>
-              <DashboardPage />
+              <Suspense fallback={<PageLoader />}>
+                <DashboardPage />
+              </Suspense>
             </MainLayout>
           </ProtectedRoute>
         }
