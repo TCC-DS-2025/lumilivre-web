@@ -127,10 +127,23 @@ export function ModalLoanRequestDetails({
       onClose(true);
     } catch (error: any) {
       console.error(`Erro ao ${acao} solicitação:`, error);
+
+      let mensagemErro = `Erro ao ${acao} solicitação.`;
+
+      if (error.response?.data) {
+        if (typeof error.response.data.mensagem === 'string') {
+          mensagemErro = error.response.data.mensagem;
+        } else if (typeof error.response.data.message === 'string') {
+          mensagemErro = error.response.data.message;
+        } else if (typeof error.response.data === 'string') {
+          mensagemErro = error.response.data;
+        }
+      }
+
       addToast({
         type: 'error',
-        title: 'Erro',
-        description: error.response?.data || `Erro ao ${acao} solicitação.`,
+        title: 'Atenção',
+        description: mensagemErro,
       });
     } finally {
       setIsLoading(false);
