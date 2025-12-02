@@ -28,8 +28,8 @@ interface SearchableSelectProps {
   onLoadMore?: () => void;
 }
 
-const ITEMS_PER_BATCH = 50;
-const SCROLL_THRESHOLD = 100;
+const ITEMS_PER_BATCH = 25;
+const SCROLL_THRESHOLD = 50;
 
 export function SearchableSelect({
   value,
