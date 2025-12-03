@@ -308,7 +308,9 @@ export function LivrosPage() {
         width: '5%',
         render: (item) => (
           <span className="font-bold dark:text-white">
-            {item.quantidade || '-'}
+            {item.quantidade !== null && item.quantidade !== undefined
+              ? item.quantidade
+              : '-'}
           </span>
         ),
       },

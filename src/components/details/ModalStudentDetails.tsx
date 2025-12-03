@@ -199,10 +199,16 @@ export function ModalStudentDetails({
       const payload: any = {
         matricula: formData.matricula!,
         nomeCompleto: formData.nomeCompleto!,
-        cpf: (formData.cpf || '').replace(/\D/g, ''),
-        celular: (formData.celular || '').replace(/\D/g, ''),
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : null,
+        celular:
+          formData.celular && formData.celular.trim() !== ''
+            ? formData.celular.replace(/\D/g, '')
+            : null,
+        email:
+          formData.email && formData.email.trim() !== ''
+            ? formData.email
+            : null,
         data_nascimento: formData.dataNascimento,
-        email: formData.email!,
         curso_id: cursoIdNumber,
         turno_id: turnoIdNumber,
         modulo_id: moduloIdNumber,
@@ -213,6 +219,7 @@ export function ModalStudentDetails({
         uf: formData.uf,
         numero_casa: Number(formData.numero_casa) || 0,
         complemento: formData.complemento,
+        penalidade: formData.penalidade,
       };
 
       await atualizarAluno(aluno.matricula, payload);
