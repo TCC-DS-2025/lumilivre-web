@@ -23,6 +23,9 @@ const EmprestimosPage = lazy(() =>
     default: module.EmprestimosPage,
   })),
 );
+const TccPage = lazy(() =>
+  import('./pages/TCC').then((module) => ({ default: module.TccPage })),
+);
 const ClassificacaoPage = lazy(() =>
   import('./pages/Ranking').then((module) => ({
     default: module.ClassificacaoPage,
@@ -98,6 +101,19 @@ function App() {
             <MainLayout>
               <Suspense fallback={<PageLoader />}>
                 <EmprestimosPage />
+              </Suspense>
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tcc"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <Suspense fallback={<PageLoader />}>
+                <TccPage />
               </Suspense>
             </MainLayout>
           </ProtectedRoute>

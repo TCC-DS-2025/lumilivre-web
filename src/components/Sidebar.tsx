@@ -16,6 +16,9 @@ import RankingIcon from '../assets/icons/ranking.svg?react';
 import RankingActiveIcon from '../assets/icons/ranking-active.svg?react';
 import PinIcon from '../assets/icons/pin.svg?react';
 import PinActiveIcon from '../assets/icons/pin-active.svg?react';
+import EducationCap from '../assets/icons/education-cap.svg?react';
+import EducationCapActive from '../assets/icons/education-cap-active.svg?react';
+
 
 const prefetchSettings = () => import('../pages/Settings');
 
@@ -43,6 +46,12 @@ const navLinks = [
     label: 'Empréstimos',
     Icon: LoansIcon,
     ActiveIcon: LoansActiveIcon,
+  },
+  {
+    path: '/tcc',
+    label: 'TCCs',
+    Icon: EducationCap,
+    ActiveIcon: EducationCapActive,
   },
   {
     path: '/classificacao',

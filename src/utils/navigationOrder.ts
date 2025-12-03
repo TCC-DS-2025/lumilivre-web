@@ -3,6 +3,7 @@ export const routeOrder = [
   '/livros',
   '/alunos',
   '/emprestimos',
+  '/tcc',
   '/classificacao',
   '/relatorios',
   '/configuracoes',
