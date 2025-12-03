@@ -93,11 +93,11 @@ export function ModalTccDetails({
               <div className={valueStyles}>{tcc.curso}</div>
             </div>
             <div>
-              <label className={labelStyles}>Ano</label>
+              <label className={labelStyles}>Ano de Conclusão</label>
               <div className={valueStyles}>{tcc.anoConclusao}</div>
             </div>
             <div>
-              <label className={labelStyles}>Semestre</label>
+              <label className={labelStyles}>Semestre de Conclusão</label>
               <div className={valueStyles}>{tcc.semestreConclusao}º</div>
             </div>
           </div>

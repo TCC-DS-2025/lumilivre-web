@@ -127,14 +127,14 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
             value={formData.titulo}
             onChange={handleChange}
             className={inputStyles}
-            placeholder="Ex: Sistema de Gerenciamento..."
+            placeholder="Ex: Sistema de Gerenciamento Bibliotecário (LumiLivre)"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="alunos" className={labelStyles}>
-              Alunos (separados por vírgula)*
+              Alunos*
             </label>
             <input
               id="alunos"
@@ -157,7 +157,7 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
               value={formData.orientadores}
               onChange={handleChange}
               className={inputStyles}
-              placeholder="Prof. Silva"
+              placeholder="Prof. Adriano, Jacques"
             />
           </div>
         </div>
@@ -186,7 +186,7 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
             />
           </div>
           <div>
-            <label className={labelStyles}>Semestre</label>
+            <label className={labelStyles}>Semestre de Conclusão</label>
             <CustomSelect
               value={formData.semestreConclusao}
               onChange={(val) => handleSelectChange('semestreConclusao', val)}
