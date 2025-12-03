@@ -1,6 +1,7 @@
 import {
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
   type SVGProps,
@@ -9,9 +10,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../contexts/ToastContext';
+// import { useToast } from '../../contexts/ToastContext';
 
-import DownloadIcon from '../../assets/icons/upload.svg?react';
 import UploadIcon from '../../assets/icons/download.svg?react';
 import LockIcon from '../../assets/icons/lock.svg?react';
 import SunIcon from '../../assets/icons/sun.svg?react';
@@ -77,7 +77,8 @@ const SubPageHeader = ({
 export function ConfiguracoesPage() {
   const { theme, setTheme } = useContext(ThemeContext);
   const { user, logoutWithAnimation } = useAuth();
-  const { addToast } = useToast();
+  // const { addToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // retirar depois
   const navigate = useNavigate();
 
   const isAdmin = user?.role === 'ADMIN';
@@ -101,13 +102,23 @@ export function ConfiguracoesPage() {
     }
   }, [theme]);
 
-  const handleFeatureNotImplemented = () => {
-    addToast({
-      type: 'info',
-      title: 'Em desenvolvimento',
-      description: 'Esta funcionalidade estará disponível em breve.',
-    });
-  };
+  // const handleFeatureNotImplemented = () => {
+  //   addToast({
+  //     type: 'info',
+  //     title: 'Em desenvolvimento',
+  //     description: 'Esta funcionalidade estará disponível em breve.',
+  //   });
+  // };
+
+  // retirar depois
+  function handleClick() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    console.log('Arquivo selecionado:', file);
+  }
 
   const renderImportView = () => (
     <div className="p-6">
@@ -116,13 +127,22 @@ export function ConfiguracoesPage() {
         onBack={() => setCurrentView('main')}
       />
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        {/* INPUT ESCONDIDO */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+        />
+
         <SettingItem
           Icon={UploadIcon}
           title="Importar Alunos"
           description="Adicione um arquivo CSV ou XLSX com a relação de alunos"
         >
           <button
-            onClick={handleFeatureNotImplemented}
+            // onClick={handleFeatureNotImplemented}
+            onChange={handleClick}
             className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
           >
             Selecionar
@@ -134,7 +154,8 @@ export function ConfiguracoesPage() {
           description="Adicione um arquivo CSV ou XLSX com a relação de livros"
         >
           <button
-            onClick={handleFeatureNotImplemented}
+            // onClick={handleFeatureNotImplemented}
+            onClick={handleClick}
             className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
           >
             Selecionar
@@ -146,57 +167,11 @@ export function ConfiguracoesPage() {
           description="Adicione um arquivo CSV ou XLSX com a relação de exemplares dos livros"
         >
           <button
-            onClick={handleFeatureNotImplemented}
+            // onClick={handleFeatureNotImplemented}
+            onClick={handleClick}
             className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
           >
             Selecionar
-          </button>
-        </SettingItem>
-      </div>
-    </div>
-  );
-
-  const renderExportView = () => (
-    <div className="p-6">
-      <SubPageHeader
-        title="Exportar Dados"
-        onBack={() => setCurrentView('main')}
-      />
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
-        <SettingItem
-          Icon={DownloadIcon}
-          title="Exportar Alunos"
-          description="Baixe um arquivo CSV ou XLSX com a relação de alunos cadastrados"
-        >
-          <button
-            onClick={handleFeatureNotImplemented}
-            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
-          >
-            Baixar
-          </button>
-        </SettingItem>
-        <SettingItem
-          Icon={DownloadIcon}
-          title="Exportar Livros"
-          description="Baixe um arquivo CSV ou XLSX com a relação de livros cadastrados"
-        >
-          <button
-            onClick={handleFeatureNotImplemented}
-            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
-          >
-            Baixar
-          </button>
-        </SettingItem>
-        <SettingItem
-          Icon={DownloadIcon}
-          title="Exportar Exemplares"
-          description="Baixe um arquivo CSV ou XLSX com a relação de exemplares cadastrados"
-        >
-          <button
-            onClick={handleFeatureNotImplemented}
-            className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
-          >
-            Baixar
           </button>
         </SettingItem>
       </div>
@@ -218,19 +193,6 @@ export function ConfiguracoesPage() {
             >
               <button
                 onClick={() => setCurrentView('import')}
-                className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
-              >
-                Mais Opções
-              </button>
-            </SettingItem>
-
-            <SettingItem
-              Icon={DownloadIcon}
-              title="Exportar Dados"
-              description="Exporte dados de alunos ou livros para um arquivo."
-            >
-              <button
-                onClick={() => setCurrentView('export')}
                 className="font-semibold dark:text-white py-2 px-4 rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transform hover:scale-105 select-none"
               >
                 Mais Opções
@@ -339,7 +301,6 @@ export function ConfiguracoesPage() {
       <div className="bg-white dark:bg-dark-card rounded-lg shadow-md flex-grow overflow-y-auto border border-gray-100 dark:border-gray-700">
         {currentView === 'main' && renderMainView()}
         {currentView === 'import' && renderImportView()}
-        {currentView === 'export' && renderExportView()}
       </div>
     </div>
   );

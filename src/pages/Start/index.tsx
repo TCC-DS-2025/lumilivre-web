@@ -238,101 +238,105 @@ export function DashboardPage() {
   };
 
   const carregarDados = async () => {
-    getContagemLivros()
-      .then((livros) =>
-        Promise.all([
-          livros,
-          getContagemAlunos(),
-          getContagemEmprestimosTotais(),
-          getContagemAtrasados(),
-        ]),
-      )
-      .then(([livros, alunos, emprestimosAtivos, atrasados]) => {
-        setStatsState({
-          data: { livros, alunos, emprestimosAtivos, atrasados },
-          isLoading: false,
-          error: null,
-        });
-      })
-      .catch(() => {
-        setStatsState({ data: null as any, isLoading: false, error: 'Erro' });
+    setStatsState((prev) => ({ ...prev, isLoading: true }));
+    setSolicitacoesState((prev) => ({ ...prev, isLoading: true }));
+    setEmprestimosState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      const [
+        livrosCount,
+        alunosCount,
+        emprestimosCount,
+        atrasadosCount,
+        solicitacoesList,
+        emprestimosList,
+      ] = await Promise.all([
+        getContagemLivros(),
+        getContagemAlunos(),
+        getContagemEmprestimosTotais(),
+        getContagemAtrasados(),
+        buscarSolicitacoesPendentes(),
+        buscarEmprestimosAtivosEAtrasados(),
+      ]);
+
+      setStatsState({
+        data: {
+          livros: livrosCount,
+          alunos: alunosCount,
+          emprestimosAtivos: emprestimosCount,
+          atrasados: atrasadosCount,
+        },
+        isLoading: false,
+        error: null,
       });
 
-    buscarSolicitacoesPendentes()
-      .then((lista) => {
-        const processadas = lista.map((s) => ({
-          id: s.id,
-          aluno: s.alunoNome,
-          alunoMatricula: s.alunoMatricula,
-          livro: s.livroNome,
-          exemplarTombo: s.exemplarTombo,
-          solicitacao: new Date(s.dataSolicitacao),
-          rawDataSolicitacao: s.dataSolicitacao,
-        }));
-        setSolicitacoesState({
-          data: processadas,
-          isLoading: false,
-          error: null,
-        });
-      })
-      .catch(() => {
-        setSolicitacoesState({
-          data: [],
-          isLoading: false,
-          error: 'Erro ao carregar solicitações.',
-        });
+      const solicitacoesProcessadas = solicitacoesList.map((s) => ({
+        id: s.id,
+        aluno: s.alunoNome,
+        alunoMatricula: s.alunoMatricula,
+        livro: s.livroNome,
+        exemplarTombo: s.exemplarTombo,
+        solicitacao: new Date(s.dataSolicitacao),
+        rawDataSolicitacao: s.dataSolicitacao,
+      }));
+      setSolicitacoesState({
+        data: solicitacoesProcessadas,
+        isLoading: false,
+        error: null,
       });
 
-    buscarEmprestimosAtivosEAtrasados()
-      .then((lista) => {
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
 
-        const processados = lista
-          .map((e: any) => {
-            const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
-            dataDevolucao.setHours(0, 0, 0, 0);
+      const emprestimosProcessados = emprestimosList
+        .map((e: any) => {
+          const dataDevolucao = new Date(e.dataDevolucao + 'T00:00:00');
+          dataDevolucao.setHours(0, 0, 0, 0);
 
-            let statusVencimento: EmprestimoVencer['statusVencimento'] =
-              'ativo';
+          let statusVencimento: EmprestimoVencer['statusVencimento'] = 'ativo';
 
-            if (e.statusEmprestimo === 'ATRASADO') {
-              statusVencimento = 'atrasado';
-            } else if (dataDevolucao.getTime() < hoje.getTime()) {
-              statusVencimento = 'atrasado';
-            } else if (dataDevolucao.getTime() === hoje.getTime()) {
-              statusVencimento = 'vence-hoje';
-            }
+          if (e.statusEmprestimo === 'ATRASADO') {
+            statusVencimento = 'atrasado';
+          } else if (dataDevolucao.getTime() < hoje.getTime()) {
+            statusVencimento = 'atrasado';
+          } else if (dataDevolucao.getTime() === hoje.getTime()) {
+            statusVencimento = 'vence-hoje';
+          }
 
-            return {
-              id: e.id,
-              livro: e.livroNome,
-              isbn: '-',
-              aluno: e.alunoNome,
-              alunoMatricula: e.alunoMatricula,
-              tombo: e.tombo,
-              rawDevolucao: e.dataDevolucao,
-              retirada: e.dataEmprestimo || '-',
-              devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
-              statusVencimento,
-            };
-          })
-          .filter((item) => item.statusVencimento !== 'ativo');
+          return {
+            id: e.id,
+            livro: e.livroNome,
+            isbn: '-',
+            aluno: e.alunoNome,
+            alunoMatricula: e.alunoMatricula,
+            tombo: e.tombo,
+            rawDevolucao: e.dataDevolucao,
+            retirada: e.dataEmprestimo || '-',
+            devolucao: dataDevolucao.toLocaleDateString('pt-BR'),
+            statusVencimento,
+          };
+        })
+        .filter((item) => item.statusVencimento !== 'ativo');
 
-        setEmprestimosState({
-          data: processados,
-          isLoading: false,
-          error: null,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        setEmprestimosState({
-          data: [],
-          isLoading: false,
-          error: 'Erro ao carregar empréstimos.',
-        });
+      setEmprestimosState({
+        data: emprestimosProcessados,
+        isLoading: false,
+        error: null,
       });
+    } catch (error) {
+      console.error('Erro ao carregar dashboard:', error);
+      setStatsState((prev) => ({ ...prev, isLoading: false, error: 'Erro' }));
+      setSolicitacoesState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: 'Erro',
+      }));
+      setEmprestimosState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: 'Erro',
+      }));
+    }
   };
 
   useEffect(() => {

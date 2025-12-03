@@ -17,6 +17,8 @@ import RankingActiveIcon from '../assets/icons/ranking-active.svg?react';
 import PinIcon from '../assets/icons/pin.svg?react';
 import PinActiveIcon from '../assets/icons/pin-active.svg?react';
 
+const prefetchSettings = () => import('../pages/Settings');
+
 const navLinks = [
   {
     path: '/dashboard',
@@ -153,6 +155,7 @@ export function Sidebar({
       <div className="p-2 border-t border-white/10 space-y-2">
         <NavLink
           to="/configuracoes"
+          onMouseEnter={prefetchSettings}
           className={({ isActive }) =>
             `flex items-center p-3 justify-center rounded-lg hover:bg-white/20 ${
               isActive ? 'bg-white/20' : ''

@@ -2,7 +2,7 @@ import api from './api';
 import type { Page } from '../types';
 
 export const getContagemAlunos = async (): Promise<number> => {
-  const response = await api.get('/alunos/buscar', {
+  const response = await api.get('/alunos/home', {
     params: { page: 0, size: 1 },
   });
   return response.data.totalElements || 0;
