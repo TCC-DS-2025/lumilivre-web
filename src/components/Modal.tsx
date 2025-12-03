@@ -8,9 +8,16 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  preventClose?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  preventClose = false,
+}: ModalProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
@@ -43,7 +50,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     >
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={() => !preventClose && onClose()}
       />
 
       <div
@@ -58,13 +65,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             {title}
           </h2>
 
-          <button
-            onClick={onClose}
-            className="rounded-md"
-            aria-label="Fechar modal"
-          >
-            <CloseIcon className="w-8 h-8 mr-0.5 text-lumi-primary hover:text-opacity-75" />
-          </button>
+          {!preventClose && (
+            <button
+              onClick={onClose}
+              className="rounded-md"
+              aria-label="Fechar modal"
+            >
+              <CloseIcon className="w-8 h-8 mr-0.5 text-lumi-primary hover:text-opacity-75" />
+            </button>
+          )}
         </div>
 
         <div className="p-6">{children}</div>

@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
 import { getRouteIndex } from '../utils/navigationOrder';
+import { MandatoryPasswordChangeModal } from '../components/MandatoryPasswordChangeModal';
 
 export function MainLayout({ children }: { children: ReactNode }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -70,6 +71,8 @@ export function MainLayout({ children }: { children: ReactNode }) {
         ${isLoggingOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}
       `}
     >
+      <MandatoryPasswordChangeModal />
+
       <Header
         isSidebarExpanded={isSidebarExpanded}
         setSidebarExpanded={setIsSidebarExpanded}

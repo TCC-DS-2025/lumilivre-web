@@ -11,6 +11,7 @@ interface LoginResponse {
   role: string;
   matriculaAluno?: string;
   token: string;
+  isInitialPassword: boolean;
 }
 
 export const login = async (

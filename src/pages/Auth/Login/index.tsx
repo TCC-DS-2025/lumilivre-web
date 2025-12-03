@@ -34,6 +34,7 @@ export function LoginPage() {
         email: responseData.email,
         role: responseData.role,
         token: responseData.token,
+        isInitialPassword: responseData.isInitialPassword, 
       };
 
       setAuthUser(userToStore);

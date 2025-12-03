@@ -15,6 +15,7 @@ interface User {
   email: string;
   role: string;
   token: string;
+  isInitialPassword?: boolean;
 }
 
 interface AuthContextType {
@@ -25,6 +26,7 @@ interface AuthContextType {
   login: (userData: User) => void;
   logout: () => void;
   logoutWithAnimation: () => void;
+  completePasswordChange: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     delete api.defaults.headers.common['Authorization'];
     navigate('/login');
   }, [navigate]);
+
+  const completePasswordChange = useCallback(() => {
+    if (user) {
+      const updatedUser = { ...user, isInitialPassword: false };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  }, [user]);
 
   useEffect(() => {
     const carregarUsuarioStorage = () => {
@@ -122,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         logoutWithAnimation,
+        completePasswordChange
       }}
     >
       {children}
