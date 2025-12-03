@@ -95,6 +95,11 @@ export const atualizarAluno = async (
   return response.data;
 };
 
+export const resetarSenhaAluno = async (matricula: string) => {
+  const response = await api.patch(`/alunos/${matricula}/reset-senha`);
+  return response.data;
+};
+
 export const excluirAluno = async (matricula: string) => {
   const response = await api.delete(`/alunos/excluir/${matricula}`);
   return response.data;

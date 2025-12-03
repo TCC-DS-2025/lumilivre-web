@@ -3,19 +3,21 @@ import { useState, useEffect, useMemo } from 'react';
 import { Modal } from '../Modal';
 import { CustomSelect } from '../CustomSelect';
 import { CustomDatePicker } from '../CustomDatePicker';
-import { LoadingIcon } from '../LoadingIcon';
 import { useToast } from '../../contexts/ToastContext';
+
+import { LoadingIcon } from '../LoadingIcon';
+import LockIcon from '../../assets/icons/lock.svg?react';
 
 import {
   atualizarAluno,
   excluirAluno,
   buscarAlunoPorMatricula,
+  resetarSenhaAluno,
   type AlunoPayload,
   type ListaAluno,
 } from '../../services/alunoService';
 import { buscarEnderecoPorCep } from '../../services/cepService';
 
-// Novos Hooks de Cache
 import {
   useCursos,
   useModulos,
@@ -49,13 +51,11 @@ export function ModalStudentDetails({
 
   const { addToast } = useToast();
 
-  // --- Implementação do Cache (TanStack Query) ---
   const { data: cursosData } = useCursos();
   const { data: modulosData } = useModulos();
   const { data: turnosData } = useTurnos();
   const { data: penalidadesData } = useEnum('PENALIDADE');
 
-  // Transformação dos dados em opções para os Selects
   const cursosOptions = useMemo(
     () => cursosData?.map((c) => ({ label: c.nome, value: c.id })) || [],
     [cursosData],
@@ -242,6 +242,36 @@ export function ModalStudentDetails({
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResetSenha = async () => {
+    if (!aluno) return;
+
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja resetar a senha do aluno ${aluno.nomeCompleto}?\n\nA senha voltará a ser a matrícula: ${aluno.matricula}`,
+    );
+
+    if (confirmacao) {
+      setIsLoading(true);
+      try {
+        await resetarSenhaAluno(aluno.matricula);
+        addToast({
+          type: 'success',
+          title: 'Senha Resetada',
+          description: `A senha do aluno foi redefinida para: ${aluno.matricula}`,
+        });
+      } catch (error: any) {
+        console.error('Erro ao resetar senha:', error);
+        addToast({
+          type: 'error',
+          title: 'Erro',
+          description:
+            error.response?.data?.mensagem || 'Erro ao resetar senha.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -653,12 +683,23 @@ export function ModalStudentDetails({
               {isLoading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           ) : (
-            <button
-              onClick={() => setIsEditMode(true)}
-              className="bg-lumi-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-lumi-primary-hover shadow-md"
-            >
-              Editar Cadastro
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleResetSenha}
+                className="flex items-center gap-2 bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-yellow-600 shadow-md"
+                title="Resetar senha para a matrícula"
+              >
+                <LockIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Resetar Senha</span>
+              </button>
+
+              <button
+                onClick={() => setIsEditMode(true)}
+                className="bg-lumi-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-lumi-primary-hover shadow-md"
+              >
+                Editar Cadastro
+              </button>
+            </div>
           )}
         </div>
       </div>
