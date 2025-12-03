@@ -104,12 +104,18 @@ export function DetalhesLivroModal({
   }, [generosData]);
 
   const autoresOptions = useMemo(() => {
-    if (!livrosData?.content) return [];
-    const autoresUnicos = Array.from(
-      new Set(livrosData.content.map((l) => l.autor).filter(Boolean)),
-    ).sort();
-    return autoresUnicos.map((a) => ({ label: a, value: a }));
-  }, [livrosData]);
+    const autoresSet = new Set(
+      livrosData?.content?.map((l) => l.autor).filter(Boolean) || [],
+    );
+
+    if (formData.autor) {
+      autoresSet.add(formData.autor);
+    }
+
+    return Array.from(autoresSet)
+      .sort()
+      .map((a) => ({ label: a, value: a }));
+  }, [livrosData, formData.autor]);
 
   const editorasOptions = useMemo(() => {
     if (!livrosData?.content) return [];
@@ -223,6 +229,7 @@ export function DetalhesLivroModal({
         autor: formData.autor || '',
         generos: formData.generos || [],
         volume: Number(formData.volume) || 0,
+        imagem: formData.imagem || '',
       } as LivroPayload;
 
       await atualizarLivro(Number(livroVisualizado.id), payload, capaFile);
@@ -484,14 +491,14 @@ export function DetalhesLivroModal({
                     isNovoAutor ? (
                       <input
                         type="text"
-                        value={formData.autor?.[0] || ''}
+                        value={formData.autor || ''}
                         onChange={(e) => handleAutorChange(e.target.value)}
                         className={inputStyles}
                         placeholder="Digite o nome do autor"
                       />
                     ) : (
                       <SearchableSelect
-                        value={formData.autor?.[0] || ''}
+                        value={formData.autor || ''}
                         onChange={handleAutorChange}
                         options={autoresOptions}
                         placeholder="Selecione o autor"

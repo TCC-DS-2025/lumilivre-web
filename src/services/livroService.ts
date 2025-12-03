@@ -145,11 +145,8 @@ export const atualizarLivro = async (
     formData.append('file', file);
   }
 
-  const response = await api.put(`/livros/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await api.put(`/livros/${id}`, formData);
+
   return response.data;
 };
 
