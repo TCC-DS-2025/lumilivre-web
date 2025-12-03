@@ -15,7 +15,6 @@ import { useCdds, useEnum, useGeneros } from '../../hooks/useCommonQueries';
 
 import uploadIconUrl from '../../assets/icons/download.svg';
 import closeIcon from '../../assets/icons/close.svg';
-import addIcon from '../../assets/icons/add.svg';
 
 interface Option {
   label: string;
@@ -55,8 +54,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
 
   const [isNovoAutor, setIsNovoAutor] = useState(false);
   const [isNovaEditora, setIsNovaEditora] = useState(false);
-  const [isNovoGenero, setIsNovoGenero] = useState(false);
-  const [novoGeneroInput, setNovoGeneroInput] = useState('');
 
   const [autoresOptions, setAutoresOptions] = useState<Option[]>([]);
   const [editorasOptions, setEditorasOptions] = useState<Option[]>([]);
@@ -148,14 +145,6 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
       }
       return prev;
     });
-  };
-
-  const handleAddGeneroInput = () => {
-    if (novoGeneroInput.trim()) {
-      handleAddGeneroSelect(novoGeneroInput.trim());
-      setNovoGeneroInput('');
-      setIsNovoGenero(false);
-    }
   };
 
   const removeGenero = (g: string) => {
@@ -440,50 +429,20 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
               <div className="col-span-12">
                 <div className={labelStyles}>
                   <span>Gêneros*</span>
-                  <span
-                    onClick={() => setIsNovoGenero(!isNovoGenero)}
-                    className={linkActionStyles}
-                  >
-                    {isNovoGenero ? 'Selecionar existente' : 'Novo?'}
-                  </span>
+                  {/* REMOVIDO O BOTÃO "Novo?" DAQUI */}
                 </div>
+
                 <div className="flex gap-2 mb-2">
-                  {isNovoGenero ? (
-                    <div className="flex w-full gap-2">
-                      <input
-                        type="text"
-                        value={novoGeneroInput}
-                        onChange={(e) => setNovoGeneroInput(e.target.value)}
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' &&
-                          (e.preventDefault(), handleAddGeneroInput())
-                        }
-                        className={inputStyles}
-                        placeholder="Digite e pressione Enter ou clique no +"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddGeneroInput}
-                        className="bg-green-500 p-2 rounded-md hover:bg-green-600"
-                      >
-                        <img
-                          src={addIcon}
-                          className="w-5 h-5 invert"
-                          alt="Adicionar"
-                        />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="w-full">
-                      <SearchableSelect
-                        value=""
-                        onChange={handleAddGeneroSelect}
-                        options={generosOptions}
-                        placeholder="Selecione para adicionar..."
-                      />
-                    </div>
-                  )}
+                  <div className="w-full">
+                    <SearchableSelect
+                      value=""
+                      onChange={handleAddGeneroSelect}
+                      options={generosOptions}
+                      placeholder="Selecione para adicionar..."
+                    />
+                  </div>
                 </div>
+
                 <div className="flex flex-wrap gap-2 min-h-[32px]">
                   {formData.generos?.map((g) => (
                     <span
