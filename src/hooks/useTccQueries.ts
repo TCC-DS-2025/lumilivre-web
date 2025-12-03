@@ -1,10 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { listarTccs } from '../services/tccService';
+import {
+  listarTccs,
+  listarTccsAvancado,
+  type TccFilterParams,
+} from '../services/tccService';
 
-export function useTccs() {
+export function useTccs(termoBusca: string, filtros: TccFilterParams) {
   return useQuery({
-    queryKey: ['tccs'],
-    queryFn: listarTccs,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    queryKey: ['tccs', termoBusca, filtros],
+    queryFn: () => {
+      const temFiltro = Object.values(filtros).some((val) => val !== '');
+
+      if (temFiltro) {
+        return listarTccsAvancado(filtros);
+      }
+
+      return listarTccs(termoBusca);
+    },
+    staleTime: 1000 * 60 * 2,
   });
 }

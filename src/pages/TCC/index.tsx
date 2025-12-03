@@ -6,14 +6,24 @@ import { TableFooter } from '../../components/TableFooter';
 import { Modal } from '../../components/Modal';
 import { NovoTcc } from '../../components/forms/NewTcc';
 import { ModalTccDetails } from '../../components/details/ModalTccDetails';
+import { TccFilter } from '../../components/filters/TccFilter';
 import { useDynamicPageSize } from '../../hooks/useDynamicPageSize';
 import { useTccs } from '../../hooks/useTccQueries';
 import { type TccResponse } from '../../services/tccService';
 
 export function TccPage() {
   const [termoBusca, setTermoBusca] = useState('');
+  const [termoBuscaAtivo, setTermoBuscaAtivo] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterParams, setFilterParams] = useState({
+    cursoId: '',
+    semestre: '',
+    ano: '',
+  });
+  const [activeFilters, setActiveFilters] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetalhesOpen, setIsDetalhesOpen] = useState(false);
@@ -37,32 +47,24 @@ export function TccPage() {
     if (dynamicPageSize > 0) setItemsPerPage(dynamicPageSize);
   }, [dynamicPageSize]);
 
-  const { data: tccs = [], isLoading, error, refetch } = useTccs();
+  const {
+    data: tccs = [],
+    isLoading,
+    error,
+    refetch,
+  } = useTccs(termoBuscaAtivo, activeFilters);
 
   const filteredData = useMemo(() => {
     let data = [...tccs];
-
-    if (termoBusca) {
-      const lowerBusca = termoBusca.toLowerCase();
-      data = data.filter(
-        (t) =>
-          t.titulo.toLowerCase().includes(lowerBusca) ||
-          t.alunos.toLowerCase().includes(lowerBusca) ||
-          t.curso?.toLowerCase().includes(lowerBusca),
-      );
-    }
-
     data.sort((a, b) => {
       const valA = a[sortConfig.key] || '';
       const valB = b[sortConfig.key] || '';
-
       if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
       if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-
     return data;
-  }, [tccs, termoBusca, sortConfig]);
+  }, [tccs, sortConfig]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -76,6 +78,33 @@ export function TccPage() {
       direction:
         prev.key === typedKey && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
+  };
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setTermoBusca('');
+    setTermoBuscaAtivo('');
+    setActiveFilters(filterParams);
+    setIsFilterOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setCurrentPage(1);
+    setFilterParams({ cursoId: '', semestre: '', ano: '' });
+    setActiveFilters({});
+    setIsFilterOpen(false);
+  };
+
+  const handleSearchSubmit = () => {
+    setTermoBuscaAtivo(termoBusca);
+    setActiveFilters({}); 
+    setCurrentPage(1);
+  };
+
+  const handleResetSearch = () => {
+    setTermoBusca('');
+    setTermoBuscaAtivo('');
+    setCurrentPage(1);
   };
 
   const handleOpenDetalhes = (tcc: TccResponse) => {
@@ -151,12 +180,26 @@ export function TccPage() {
         <ActionHeader
           searchTerm={termoBusca}
           onSearchChange={setTermoBusca}
-          onSearchSubmit={() => setCurrentPage(1)}
-          onReset={() => setTermoBusca('')}
+          onSearchSubmit={handleSearchSubmit}
+          onReset={handleResetSearch}
           searchPlaceholder="Pesquise por título, aluno ou curso"
           onAddNew={() => setIsModalOpen(true)}
           addNewButtonLabel="NOVO TCC"
-          showFilterButton={false} // Filtro simples por enquanto
+          showFilterButton={true} // Habilita botão de filtro
+          isFilterOpen={isFilterOpen}
+          onFilterToggle={() => setIsFilterOpen((prev) => !prev)}
+          filterComponent={
+            <TccFilter
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              filters={filterParams}
+              onFilterChange={(field, value) =>
+                setFilterParams((prev) => ({ ...prev, [field]: value }))
+              }
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+            />
+          }
         />
       </div>
 

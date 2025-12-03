@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+
 import { useToast } from '../../contexts/ToastContext';
 import { useCursos } from '../../hooks/useCommonQueries';
 import { cadastrarTcc, type TccPayload } from '../../services/tccService';
@@ -24,8 +25,11 @@ const estadoInicial: TccPayload = {
 
 export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
   const [formData, setFormData] = useState<TccPayload>(estadoInicial);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
 
   const { addToast } = useToast();
   const { data: cursosList } = useCursos();
@@ -51,7 +55,7 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type !== 'application/pdf') {
@@ -66,14 +70,31 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
     }
   };
 
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFotoFile(file);
+      setFotoPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.titulo || !formData.alunos || !formData.curso_id) {
+    if (!formData.titulo?.trim() || !formData.alunos?.trim()) {
       addToast({
         type: 'warning',
         title: 'Campos obrigatórios',
-        description: 'Preencha Título, Alunos e Curso.',
+        description: 'Preencha Título e Alunos.',
+      });
+      return;
+    }
+
+    if (!formData.curso_id || Number(formData.curso_id) === 0) {
+      addToast({
+        type: 'warning',
+        title: 'Curso obrigatório',
+        description: 'Selecione um curso válido.',
       });
       return;
     }
@@ -81,7 +102,12 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
     setIsLoading(true);
 
     try {
-      await cadastrarTcc(formData, pdfFile);
+      const payload = {
+        ...formData,
+        curso_id: Number(formData.curso_id),
+      };
+
+      await cadastrarTcc(payload, pdfFile, fotoFile);
 
       addToast({
         type: 'success',
@@ -116,130 +142,173 @@ export function NovoTcc({ onClose, onSuccess }: NewTccProps) {
         onSubmit={handleSubmit}
         className="overflow-y-auto p-1 flex-grow custom-scrollbar pr-2 space-y-4"
       >
-        <div>
-          <label htmlFor="titulo" className={labelStyles}>
-            Título do Trabalho*
-          </label>
-          <input
-            id="titulo"
-            name="titulo"
-            type="text"
-            value={formData.titulo}
-            onChange={handleChange}
-            className={inputStyles}
-            placeholder="Ex: Sistema de Gerenciamento Bibliotecário (LumiLivre)"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="alunos" className={labelStyles}>
-              Alunos*
-            </label>
-            <input
-              id="alunos"
-              name="alunos"
-              type="text"
-              value={formData.alunos}
-              onChange={handleChange}
-              className={inputStyles}
-              placeholder="João, Maria, José"
-            />
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="w-full md:w-[28%] flex flex-col items-center space-y-4 pt-1">
+            <div className="w-[9.5rem] h-[14rem] bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg flex items-center justify-center overflow-hidden border border-gray-300 dark:border-gray-600 relative group shrink-0">
+              {fotoPreview ? (
+                <img
+                  src={fotoPreview}
+                  alt="Capa TCC"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-sm text-gray-500 text-center p-2">
+                  Capa do TCC (Opcional)
+                </span>
+              )}
+              <label
+                htmlFor="fotoFile"
+                className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+              >
+                <img
+                  src={uploadIconUrl}
+                  alt="Upload"
+                  className="h-8 w-8 invert mb-1"
+                />
+                <span className="text-white text-xs font-bold">
+                  Alterar Capa
+                </span>
+              </label>
+              <input
+                id="fotoFile"
+                type="file"
+                onChange={handleFotoChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor="orientadores" className={labelStyles}>
-              Orientadores
-            </label>
-            <input
-              id="orientadores"
-              name="orientadores"
-              type="text"
-              value={formData.orientadores}
-              onChange={handleChange}
-              className={inputStyles}
-              placeholder="Prof. Adriano, Jacques"
-            />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className={labelStyles}>Curso*</label>
-            <CustomSelect
-              value={formData.curso_id}
-              onChange={(val) => handleSelectChange('curso_id', Number(val))}
-              options={cursosOptions}
-              placeholder="Selecione"
-            />
-          </div>
-          <div>
-            <label htmlFor="anoConclusao" className={labelStyles}>
-              Ano de Conclusão
-            </label>
-            <input
-              id="anoConclusao"
-              name="anoConclusao"
-              type="number"
-              value={formData.anoConclusao}
-              onChange={handleChange}
-              className={inputStyles}
-            />
-          </div>
-          <div>
-            <label className={labelStyles}>Semestre de Conclusão</label>
-            <CustomSelect
-              value={formData.semestreConclusao}
-              onChange={(val) => handleSelectChange('semestreConclusao', val)}
-              options={semestreOptions}
-              placeholder="Selecione"
-            />
-          </div>
-        </div>
+          <div className="w-full md:w-[72%] space-y-4">
+            <div>
+              <label htmlFor="titulo" className={labelStyles}>
+                Título do Trabalho*
+              </label>
+              <input
+                id="titulo"
+                name="titulo"
+                type="text"
+                value={formData.titulo}
+                onChange={handleChange}
+                className={inputStyles}
+                placeholder="Ex: Sistema de Gerenciamento Bibliotecário (LumiLivre)"
+              />
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="alunos" className={labelStyles}>
+                  Alunos*
+                </label>
+                <input
+                  id="alunos"
+                  name="alunos"
+                  type="text"
+                  value={formData.alunos}
+                  onChange={handleChange}
+                  className={inputStyles}
+                  placeholder="João, Maria, José"
+                />
+              </div>
+              <div>
+                <label htmlFor="orientadores" className={labelStyles}>
+                  Orientadores
+                </label>
+                <input
+                  id="orientadores"
+                  name="orientadores"
+                  type="text"
+                  value={formData.orientadores}
+                  onChange={handleChange}
+                  className={inputStyles}
+                  placeholder="Prof. Adriano, Jacques"
+                />
+              </div>
+            </div>
 
-        <div>
-          <label htmlFor="linkExterno" className={labelStyles}>
-            Link Externo (Repositório/Drive)
-          </label>
-          <input
-            id="linkExterno"
-            name="linkExterno"
-            type="text"
-            value={formData.linkExterno}
-            onChange={handleChange}
-            className={inputStyles}
-            placeholder="https://..."
-          />
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className={labelStyles}>Curso*</label>
+                <CustomSelect
+                  value={formData.curso_id}
+                  onChange={(val) =>
+                    handleSelectChange('curso_id', Number(val))
+                  }
+                  options={cursosOptions}
+                  placeholder="Selecione"
+                />
+              </div>
+              <div>
+                <label htmlFor="anoConclusao" className={labelStyles}>
+                  Ano de Conclusão
+                </label>
+                <input
+                  id="anoConclusao"
+                  name="anoConclusao"
+                  type="number"
+                  value={formData.anoConclusao}
+                  onChange={handleChange}
+                  className={inputStyles}
+                />
+              </div>
+              <div>
+                <label className={labelStyles}>Semestre de Conclusão</label>
+                <CustomSelect
+                  value={formData.semestreConclusao}
+                  onChange={(val) =>
+                    handleSelectChange('semestreConclusao', val)
+                  }
+                  options={semestreOptions}
+                  placeholder="Selecione"
+                />
+              </div>
+            </div>
 
-        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50">
-          <img
-            src={uploadIconUrl}
-            alt="Upload"
-            className="w-8 h-8 mb-2 opacity-50 dark:invert"
-          />
-          <label
-            htmlFor="pdfFile"
-            className="cursor-pointer text-lumi-primary font-bold hover:underline text-sm"
-          >
-            {pdfFile ? pdfFile.name : 'Clique para selecionar o PDF do TCC'}
-          </label>
-          <input
-            id="pdfFile"
-            type="file"
-            accept="application/pdf"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          {pdfFile && (
-            <button
-              type="button"
-              onClick={() => setPdfFile(null)}
-              className="text-xs text-red-500 mt-2 hover:underline"
-            >
-              Remover
-            </button>
-          )}
+            <div>
+              <label htmlFor="linkExterno" className={labelStyles}>
+                Link Externo (Repositório/Drive)
+              </label>
+              <input
+                id="linkExterno"
+                name="linkExterno"
+                type="text"
+                value={formData.linkExterno}
+                onChange={handleChange}
+                className={inputStyles}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50">
+              <img
+                src={uploadIconUrl}
+                alt="Upload"
+                className="w-8 h-8 mb-2 opacity-50 dark:invert"
+              />
+              <label
+                htmlFor="pdfFile"
+                className="cursor-pointer text-lumi-primary font-bold hover:underline text-sm"
+              >
+                {pdfFile ? pdfFile.name : 'Clique para selecionar o PDF do TCC'}
+              </label>
+              <input
+                id="pdfFile"
+                type="file"
+                accept="application/pdf"
+                onChange={handlePdfChange}
+                className="hidden"
+              />
+              {pdfFile && (
+                <button
+                  type="button"
+                  onClick={() => setPdfFile(null)}
+                  className="text-xs text-red-500 mt-2 hover:underline"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </form>
 
