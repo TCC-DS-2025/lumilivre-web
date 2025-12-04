@@ -121,11 +121,7 @@ export const cadastrarLivro = async (
     formData.append('file', file);
   }
 
-  const response = await api.post('/livros/cadastrar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await api.post('/livros/cadastrar', formData);
   return response.data;
 };
 
@@ -154,11 +150,7 @@ export const uploadCapaLivro = async (isbn: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post(`/livros/${isbn}/capa`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await api.post(`/livros/${isbn}/capa`, formData);
   return response.data;
 };
 

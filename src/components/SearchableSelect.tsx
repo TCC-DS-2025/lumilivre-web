@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useLayoutEffect,
+  useId,
 } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -50,6 +51,9 @@ export function SearchableSelect({
 
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
 
+  const uniqueId = useId();
+  const portalId = `dropdown-portal-${uniqueId}`;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -80,9 +84,8 @@ export function SearchableSelect({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      const dropdownElement = document.getElementById(
-        `dropdown-portal-${label || 'select'}`,
-      );
+
+      const dropdownElement = document.getElementById(portalId);
 
       if (
         containerRef.current &&
@@ -99,7 +102,7 @@ export function SearchableSelect({
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, label]);
+  }, [isOpen, portalId]);
 
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
@@ -141,15 +144,13 @@ export function SearchableSelect({
     onChange('');
   };
 
-  // Lógica de Scroll Lazy Loading
   const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
     if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
       if (displayLimit < filteredOptions.length) {
         setDisplayLimit((prev) => prev + ITEMS_PER_BATCH);
-      }
-      else if (onLoadMore && !isLoading) {
+      } else if (onLoadMore && !isLoading) {
         onLoadMore();
       }
     }
@@ -212,7 +213,7 @@ export function SearchableSelect({
   const renderDropdown = () => {
     return createPortal(
       <div
-        id={`dropdown-portal-${label || 'select'}`}
+        id={portalId}
         style={{
           position: 'fixed',
           top: coords.top,

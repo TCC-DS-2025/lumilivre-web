@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 import {
   cadastrarLivro,
@@ -51,6 +51,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
   const [imagemPreview, setImagemPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBuscandoIsbn, setIsBuscandoIsbn] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const [isNovoAutor, setIsNovoAutor] = useState(false);
   const [isNovaEditora, setIsNovaEditora] = useState(false);
@@ -189,6 +190,20 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    if (isSubmittingRef.current) return;
+
+    if (!formData.classificacao_etaria) {
+      addToast({
+        type: 'warning',
+        title: 'Campo obrigatório',
+        description: 'Por favor, selecione a Classificação Etária.',
+      });
+      return;
+    }
+
+    isSubmittingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -225,6 +240,9 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
+
+      isSubmittingRef.current = false;
+
       addToast({
         type: 'error',
         title: 'Falha no cadastro',
