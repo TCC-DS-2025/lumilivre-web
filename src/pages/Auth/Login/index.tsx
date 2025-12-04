@@ -10,6 +10,7 @@ import { login as apiLogin } from '../../../services/authService';
 import LogoIcon from '../../../assets/icons/logo.svg?react';
 import UserIcon from '../../../assets/icons/users.svg?react';
 import LockIcon from '../../../assets/icons/lock.svg?react';
+import DownloadIcon from '../../../assets/icons/upload.svg?react';
 
 export function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -34,7 +35,7 @@ export function LoginPage() {
         email: responseData.email,
         role: responseData.role,
         token: responseData.token,
-        isInitialPassword: responseData.isInitialPassword, 
+        isInitialPassword: responseData.isInitialPassword,
       };
 
       setAuthUser(userToStore);
@@ -139,6 +140,17 @@ export function LoginPage() {
           >
             Esqueceu sua senha?
           </Link>
+        </div>
+
+        <div className="pt-4 mt-3 border-t border-gray-200 dark:border-gray-700">
+          <a
+            href="/lumilivre.apk"
+            download="LumiLivre.apk"
+            className="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-4 px-4 rounded-lg shadow-md transform active:scale-95"
+          >
+            <DownloadIcon className="w-5 h-5" />
+            BAIXAR APP PARA ANDROID
+          </a>
         </div>
       </div>
 

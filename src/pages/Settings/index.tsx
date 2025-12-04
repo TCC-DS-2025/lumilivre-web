@@ -254,6 +254,27 @@ export function ConfiguracoesPage() {
 
       <div className="p-6 border-t border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
+          Aplicativo Mobile
+        </h2>
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+          <SettingItem
+            Icon={UploadIcon} // Reutilizando o ícone de download que você já importou
+            title="Download do App (Android)"
+            description="Baixe a versão mais recente do aplicativo para alunos."
+          >
+            <a
+              href="/lumilivre.apk"
+              download="LumiLivre.apk"
+              className="flex items-center justify-center font-semibold text-white py-2 px-4 rounded-lg shadow-md bg-green-600 hover:bg-green-700 transform hover:scale-105 select-none text-sm"
+            >
+              Baixar APK
+            </a>
+          </SettingItem>
+        </div>
+      </div>
+
+      <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-bold text-lumi-primary dark:text-lumi-label mb-4 select-none">
           Conta
         </h2>
         <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
