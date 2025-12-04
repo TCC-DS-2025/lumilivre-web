@@ -32,6 +32,11 @@ export function LivrosPage() {
   const [isExemplarView, setIsExemplarView] = useState(false);
   const [selectedBook, setSelectedBook] = useState<LivroAgrupado | null>(null);
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [tempBookCreated, setTempBookCreated] = useState<LivroAgrupado | null>(
+    null,
+  );
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -105,6 +110,42 @@ export function LivrosPage() {
   } = useExemplares(selectedBook?.id || null);
 
   const { data: emprestimosAtivos } = useEmprestimosAtivosEAtrasados();
+
+  const handleLivroCriado = (livroResponse: any) => {
+    refetchLivros();
+
+    const novoLivro: LivroAgrupado = {
+      id: livroResponse.id,
+      isbn: livroResponse.isbn,
+      nome: livroResponse.nome,
+      autor: livroResponse.autor,
+      editora: livroResponse.editora,
+      quantidade: 0,
+    };
+
+    setTempBookCreated(novoLivro);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmarCadastroExemplar = () => {
+    setIsConfirmModalOpen(false);
+
+    if (tempBookCreated) {
+      setSelectedBook(tempBookCreated);
+      setIsExemplarView(true);
+
+      setTermoBusca('');
+      setTermoBuscaAtivo('');
+      setCurrentPage(1);
+
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleRecusarCadastroExemplar = () => {
+    setIsConfirmModalOpen(false);
+    setTempBookCreated(null);
+  };
 
   const exemplaresProcessados = useMemo(() => {
     if (!exemplaresData) return [];
@@ -481,9 +522,37 @@ export function LivrosPage() {
         ) : (
           <NovoLivro
             onClose={() => setIsModalOpen(false)}
-            onSuccess={refetchLivros}
+            onSuccess={handleLivroCriado}
           />
         )}
+      </Modal>
+
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={handleRecusarCadastroExemplar}
+        title="Cadastro de Exemplar"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-gray-700 dark:text-gray-300 text-lg">
+            Livro cadastrado com sucesso! <br />
+            <strong>Deseja cadastrar um exemplar físico agora?</strong>
+          </p>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              onClick={handleRecusarCadastroExemplar}
+              className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold"
+            >
+              Não, fazer depois
+            </button>
+            <button
+              onClick={handleConfirmarCadastroExemplar}
+              className="px-6 py-2 rounded-lg bg-lumi-primary text-white hover:bg-lumi-primary-hover font-bold shadow-md"
+            >
+              Sim, cadastrar
+            </button>
+          </div>
+        </div>
       </Modal>
 
       <DetalhesLivroModal

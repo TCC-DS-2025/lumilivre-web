@@ -23,7 +23,7 @@ interface Option {
 
 interface NewBookProps {
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (livroCriado?: any) => void;
 }
 
 const estadoInicialFormulario: Partial<LivroPayload> = {
@@ -228,7 +228,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         volume: Number(formData.volume) || 0,
       } as LivroPayload;
 
-      await cadastrarLivro(payload, capaFile);
+      const response = await cadastrarLivro(payload, capaFile);
 
       addToast({
         type: 'success',
@@ -236,7 +236,7 @@ export function NovoLivro({ onClose, onSuccess }: NewBookProps) {
         description: `O livro "${formData.nome}" foi salvo com sucesso!`,
       });
 
-      onSuccess();
+      onSuccess(response);
       onClose();
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
