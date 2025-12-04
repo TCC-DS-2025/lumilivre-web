@@ -9,6 +9,8 @@ import { LoginPage } from './pages/Auth/Login';
 import { EsqueciSenhaPage } from './pages/Auth/ForgotPassword';
 import { MudarSenhaPage } from './pages/Auth/ChangePassword';
 
+import { DownloadAppPage } from './pages/Download';
+
 const DashboardPage = lazy(() =>
   import('./pages/Start').then((module) => ({ default: module.DashboardPage })),
 );
@@ -54,6 +56,8 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/esqueci-a-senha" element={<EsqueciSenhaPage />} />
       <Route path="/mudar-senha" element={<MudarSenhaPage />} />
+
+      <Route path="/download" element={<DownloadAppPage />} />
 
       <Route
         path="/dashboard"
